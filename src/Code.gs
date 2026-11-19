@@ -25,7 +25,8 @@ function doGet() {
 }
 
 /**
- * Recibe ejercicios del agente; siempre responde JSON y no expone secretos.
+ * Recibe fichas v2 del agente (solo DEV); siempre responde JSON y no expone secretos.
+ * Respuesta: { ok, insertados, actualizados, rechazados: [{ slug, errores }], avisos: [{ slug, avisos }] }.
  */
 function doPost(e) {
   let respuesta;
@@ -38,23 +39,26 @@ function doPost(e) {
     } catch (error) {
       throw new Error('JSON de petición no válido.');
     }
-    if (datos && typeof datos === 'object' && !Array.isArray(datos) &&
-        !Object.prototype.hasOwnProperty.call(datos, 'ejercicio') && !Object.prototype.hasOwnProperty.call(datos, 'ejercicios')) {
-      const ejercicio = Object.assign({}, datos);
-      delete ejercicio.token;
-      datos = { token: datos.token, ejercicio: ejercicio };
-    }
-    respuesta = HubEjercicios.guardar(datos);
+    respuesta = HubEjercicios.recibir(datos);
   } catch (error) {
-    respuesta = { ok: false, error: error.message };
+    respuesta = { ok: false, error: error.message, insertados: [], actualizados: [], rechazados: [], avisos: [] };
   }
   return ContentService.createTextOutput(JSON.stringify(respuesta)).setMimeType(ContentService.MimeType.JSON);
 }
 
-function listarEjercicios(auth) {
+function listarHub(auth) {
   try {
     Auth.requireEntrenadorOAdmin(auth);
-    return { success: true, ejercicios: HubEjercicios.listar() };
+    return Object.assign({ success: true }, HubEjercicios.listar(Auth.isAdmin(auth)));
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+}
+
+function cambiarEstadoHub(auth, slug, estado) {
+  try {
+    Auth.requireAdmin(auth);
+    return Object.assign({ success: true }, HubEjercicios.cambiarEstado(slug, estado, auth.email));
   } catch (error) {
     return { success: false, error: error.message };
   }

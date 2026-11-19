@@ -49,13 +49,22 @@ const SCHEMA = {
   Avisos_Jugador: [
     'ID', 'ID_Jugador', 'Tipo', 'Mensaje', 'FechaCreacion', 'Leido', 'FechaLectura'
   ],
-  hub_ejercicios: [
-    'id', 'slug', 'nombre', 'nombre_en', 'fecha_enviado', 'fuente', 'objetivo',
-    'como_se_hace', 'claves', 'version_facil', 'version_dificil', 'nota',
-    'formato', 'oposicion', 'organizacion', 'detalle_corto', 'creado_por', 'created_at', 'updated_at', 'activo'
+  hub_contenidos: [
+    'id', 'slug', 'version_esquema', 'tipo_contenido', 'nombre', 'nombre_original', 'fecha_enviado', 'fuente', 'origen',
+    'licencia_nota', 'creado_por', 'estado', 'confianza_clasificacion', 'sugerencias_vocabulario', 'nota', 'relacionados',
+    'resumen', 'objetivo', 'descripcion', 'reglas', 'puntos_clave', 'errores_comunes', 'variante_facil', 'variante_dificil',
+    'habilidad_principal', 'habilidades_secundarias', 'fase_juego', 'tema_teoria', 'naturaleza', 'oposicion', 'ventaja_inicial',
+    'situacion_numerica', 'organizacion', 'espacio', 'canastas_necesarias', 'jugadores_min', 'jugadores_max', 'balones',
+    'material', 'minutos_min', 'minutos_max', 'momento_sesion', 'competitivo', 'categorias', 'dificultad', 'esfuerzo_fisico',
+    'carga_cognitiva', 'complejidad_organizativa', 'ideas_principales', 'minutos_clave', 'area', 'grupo_habilidad',
+    'areas_trabajadas', 'nivel_etiqueta', 'tipos_recurso', 'recurso_principal_tipo', 'tiene_video', 'tiene_video_exacto',
+    'tiene_diagrama', 'youtube_id', 'asignable', 'texto_busqueda', 'busqueda', 'avisos', 'enviado_por', 'revisado_por',
+    'revisado_at', 'created_at', 'updated_at'
   ],
-  hub_ejercicio_habilidades: ['ejercicio_id', 'habilidad'],
-  hub_ejercicio_material: ['ejercicio_id', 'material'],
-  hub_ejercicio_enlaces: ['id', 'ejercicio_id', 'tipo', 'etiqueta', 'url', 'orden'],
-  hub_ejercicio_medios: ['id', 'ejercicio_id', 'tipo', 'youtube_id', 'ruta_o_url', 'es_miniatura', 'orden'],
+  hub_recursos: [
+    'id', 'contenido_id', 'orden', 'tipo_recurso', 'url', 'archivo_local', 'etiqueta', 'autor', 'idioma',
+    'duracion_seg', 'inicio_seg', 'fin_seg', 'relacion', 'principal', 'youtube_id'
+  ],
+  hub_progresion_pasos: ['progresion_id', 'orden', 'ejercicio_id', 'criterio_avance'],
+  hub_sesion_bloques: ['sesion_id', 'orden', 'contenido_id', 'minutos', 'nota'],
 };

@@ -1,0 +1,319 @@
+[
+  {
+    "version_esquema": 2,
+    "tipo_contenido": "ejercicio",
+    "slug": "especialistas",
+    "nombre": "Especialistas",
+    "nombre_original": "Stunt Drivers",
+    "fecha_enviado": "2026-11-11",
+    "fuente": "Jr. NBA / MOJO",
+    "origen": "externo",
+    "creado_por": "trainer_bot",
+    "estado": "propuesto",
+    "confianza_clasificacion": "alta",
+    "resumen": "Por parejas, botando de frente hacia el compañero: cambio de mano justo antes de chocar para cruzarse y llegar al otro cono.",
+    "objetivo": "Hacer el cambio de mano en el momento justo, cerca del obstáculo y sin frenar, con la cabeza alta para ver al compañero.",
+    "descripcion": "En media pista, dos conos enfrentados por cada pareja. Cada jugador está en su cono con un balón, de cara a su compañero. A la señal, los dos botan con la mano derecha el uno hacia el otro y, justo antes de chocar, hacen el cambio de mano para esquivarse y llegar al cono contrario. Allí se dan la vuelta y repiten tantas veces como puedan durante un minuto. Se empieza con el cambio por delante y, cuando sale con soltura, se pasa a cambios más difíciles.",
+    "puntos_clave": [
+      "El cambio se hace justo antes del cruce, no a mitad de camino.",
+      "Cabeza alta: mirar al compañero, no al balón.",
+      "Después del cambio, seguir botando hacia el cono contrario sin pararse."
+    ],
+    "errores_comunes": [
+      "Cambiar demasiado pronto, lejos del compañero.",
+      "Frenar o pararse para hacer el cambio."
+    ],
+    "variante_facil": "Andando rápido y solo con el cambio por delante.",
+    "variante_dificil": "Cambio entre las piernas o por la espalda, como propone el vídeo cuando ya sale el cambio por delante.",
+    "habilidad_principal": "cambio_mano",
+    "habilidades_secundarias": [
+      "bote",
+      "cambio_ritmo"
+    ],
+    "fase_juego": [
+      "ataque"
+    ],
+    "naturaleza": "analitico",
+    "oposicion": "pasiva",
+    "ventaja_inicial": "ninguna",
+    "situacion_numerica": "1c0",
+    "organizacion": "parejas",
+    "espacio": "media_pista",
+    "canastas_necesarias": 0,
+    "jugadores_min": 2,
+    "jugadores_max": null,
+    "balones": "uno_por_jugador",
+    "material": [
+      "conos"
+    ],
+    "minutos_min": 4,
+    "minutos_max": 6,
+    "momento_sesion": [
+      "calentamiento",
+      "parte_principal"
+    ],
+    "competitivo": false,
+    "categorias": [
+      "pre_minibasket",
+      "minibasket",
+      "infantil"
+    ],
+    "dificultad": 2,
+    "esfuerzo_fisico": 3,
+    "carga_cognitiva": 2,
+    "complejidad_organizativa": 2,
+    "recursos": [
+      {
+        "tipo_recurso": "video_youtube",
+        "url": "https://www.youtube.com/watch?v=BJbJ_skvxNs",
+        "etiqueta": "Vídeo MOJO: Stunt Drivers (2:20–3:20)",
+        "autor": "yougotmojo (MOJO)",
+        "idioma": "en",
+        "duracion_seg": 753,
+        "inicio_seg": 140,
+        "fin_seg": 200,
+        "relacion": "exacto",
+        "principal": true
+      }
+    ],
+    "nota": "El vídeo es un recopilatorio de 10 ejercicios (12:33) y no es teoría. Este ejercicio ocupa del 2:20 al 3:20; Fiesta sorpresa (fiesta-sorpresa) sale en el mismo vídeo desde el 7:20."
+  },
+  {
+    "version_esquema": 2,
+    "tipo_contenido": "ejercicio",
+    "slug": "rey-de-la-pista",
+    "nombre": "Rey de la pista",
+    "nombre_original": "King of the Court",
+    "fecha_enviado": "2026-10-30",
+    "fuente": "Basketball For Coaches (Coach Mac); diagrama de Swish Planner",
+    "origen": "adaptado",
+    "licencia_nota": "Diagrama de terceros (Swish Planner): uso interno del club, no publicar fuera del hub.",
+    "creado_por": "trainer_bot",
+    "estado": "propuesto",
+    "confianza_clasificacion": "alta",
+    "resumen": "1c1 continuo en una canasta: quien anota sigue atacando, quien para pasa a atacar y el otro vuelve a la fila. Gana el primero en llegar a X puntos.",
+    "objetivo": "Resolver 1c1 reales con pocos botes y defender cada posesión, con la motivación de quedarse en pista.",
+    "descripcion": "Una canasta, un balón y grupos de 3 a 6 jugadores; si hay más, se abre otra canasta. Un atacante con balón en lo alto de la zona, un defensor delante y el resto en fila. Se juega 1c1 vivo con un máximo de 3 botes. Si el atacante anota, sigue atacando: el defensor vuelve al final de la fila y entra el siguiente a defender. Si el defensor consigue parar (robo, rebote o fallo), pasa a atacar y el atacante va al final de la fila. Cada jugador lleva su propio marcador y gana el primero que llega a la puntuación acordada antes de empezar.",
+    "reglas": [
+      "Máximo 3 botes por posesión; si se pasa, cuenta como pérdida.",
+      "Canasta: el atacante suma 1 punto y sigue atacando; el defensor va al final de la fila.",
+      "Parada defensiva: el defensor pasa a atacar y el atacante va al final de la fila.",
+      "Gana quien llega primero a la puntuación fijada antes de empezar."
+    ],
+    "puntos_clave": [
+      "Atacante: decidir rápido, en los primeros botes.",
+      "Defensor: salir a cerrar al atacante desde el inicio.",
+      "Cerrar el rebote para recuperar el balón y ganarse el ataque."
+    ],
+    "errores_comunes": [
+      "Grupos demasiado grandes: mucha espera en la fila."
+    ],
+    "variante_facil": "Sin límite de botes al principio.",
+    "variante_dificil": "Añadir un defensor de ayuda debajo del aro, cambiar el punto de salida (ala, esquina) o exigir un tiro libre anotado para cerrar la victoria.",
+    "habilidad_principal": "salida_1c1",
+    "habilidades_secundarias": [
+      "lectura_defensor",
+      "defensa_balon",
+      "competitividad"
+    ],
+    "fase_juego": [
+      "ataque",
+      "defensa"
+    ],
+    "naturaleza": "juego",
+    "oposicion": "real",
+    "ventaja_inicial": "ninguna",
+    "situacion_numerica": "1c1",
+    "organizacion": "filas",
+    "espacio": "zona_canasta",
+    "canastas_necesarias": 1,
+    "jugadores_min": 3,
+    "jugadores_max": 6,
+    "balones": "uno",
+    "material": [],
+    "minutos_min": 8,
+    "minutos_max": 12,
+    "momento_sesion": [
+      "parte_principal"
+    ],
+    "competitivo": true,
+    "categorias": [
+      "minibasket",
+      "infantil",
+      "cadete"
+    ],
+    "dificultad": 3,
+    "esfuerzo_fisico": 3,
+    "carga_cognitiva": 4,
+    "complejidad_organizativa": 2,
+    "recursos": [
+      {
+        "tipo_recurso": "pizarra_diagrama",
+        "archivo_local": "/workspace/trainer/2026-11-15/swish.png",
+        "etiqueta": "Diagrama King of the Court (Swish Planner)",
+        "autor": "Swish Planner",
+        "idioma": "en",
+        "relacion": "exacto",
+        "principal": true
+      },
+      {
+        "tipo_recurso": "articulo_web",
+        "url": "https://www.basketballforcoaches.com/king-of-the-court/",
+        "etiqueta": "Reglas y variantes (Basketball For Coaches)",
+        "autor": "Coach Mac",
+        "idioma": "en",
+        "relacion": "exacto",
+        "principal": false
+      }
+    ],
+    "nota": "Se volvió a enviar el 15-11-2026 con el límite de 3 botes. Variantes del club: límite de 3 o 5 botes y distintos puntos de salida."
+  },
+  {
+    "version_esquema": 2,
+    "tipo_contenido": "teoria",
+    "slug": "tres-fases-del-ataque-film-room",
+    "nombre": "Las tres fases del ataque",
+    "nombre_original": "The Easiest Way to Understand Offense",
+    "fecha_enviado": "2026-11-19",
+    "fuente": "The Film Room (YouTube)",
+    "origen": "externo",
+    "creado_por": "trainer_bot",
+    "estado": "propuesto",
+    "confianza_clasificacion": "media",
+    "resumen": "Vídeo de 15 min en inglés que explica el ataque en tres fases: transición, acciones/disparadores y sistemas/jugadas.",
+    "objetivo": "Dar al entrenador un marco sencillo para ordenar y explicar el ataque por fases, sin quedarse en «correr jugadas» o «jugar rápido».",
+    "descripcion": "Análisis conceptual en vídeo del canal The Film Room. Recorre tres fases del ataque, en qué se parecen y qué tiene de particular cada una, y defiende un punto intermedio entre la transición de «todo o nada» y las jugadas fijas. No es una tarea de pista: va a «Aprender».",
+    "tema_teoria": "tecnica_tactica",
+    "fase_juego": [
+      "transicion_ataque",
+      "ataque"
+    ],
+    "ideas_principales": [
+      "Error frecuente: pensar que atacar es solo «correr jugadas» o «jugar rápido».",
+      "El ataque se puede entender en tres fases: transición, acciones/disparadores (actions/triggers) y sistemas/jugadas (sets/plays).",
+      "Entre la transición de «todo o nada» y las jugadas fijas hay un punto intermedio, muy usado en el baloncesto europeo, que resulta muy eficaz.",
+      "Las tres fases comparten rasgos y cada una tiene lo suyo; entender ambas cosas aclara muchos malentendidos sobre el ataque."
+    ],
+    "minutos_clave": [
+      {
+        "seg": 42,
+        "tema": "Fase 1: transición"
+      },
+      {
+        "seg": 125,
+        "tema": "Fase 2: acciones y disparadores (actions/triggers)"
+      },
+      {
+        "seg": 440,
+        "tema": "Fase 3: sistemas y jugadas (sets/plays)"
+      }
+    ],
+    "dificultad": 3,
+    "recursos": [
+      {
+        "tipo_recurso": "video_youtube",
+        "url": "https://www.youtube.com/watch?v=HV4Lu7jA2Rg",
+        "etiqueta": "Vídeo The Film Room (15:09)",
+        "autor": "The Film Room",
+        "idioma": "en",
+        "duracion_seg": 909,
+        "relacion": "exacto",
+        "principal": true
+      }
+    ],
+    "nota": "Clasificado con el título, la descripción y los capítulos del vídeo, sin verlo entero (por eso la confianza es media). Al revisarlo, completar las ideas. No lleva habilidad_principal porque el tema es transversal."
+  },
+  {
+    "version_esquema": 2,
+    "tipo_contenido": "progresion",
+    "slug": "progresion-leer-al-defensor-con-bote",
+    "nombre": "Leer al defensor con bote: de la mano al defensor lateral",
+    "fecha_enviado": "2026-11-19",
+    "fuente": "Trainer Bot / CB Baeza, con ejercicios de Liddicoat Basketball y Jr. NBA",
+    "origen": "propio",
+    "creado_por": "trainer_bot",
+    "estado": "propuesto",
+    "confianza_clasificacion": "alta",
+    "resumen": "Tres pasos para pasar de leer una mano a resolver ante un defensor que pica o se mueve en lateral, subiendo poco a poco la oposición.",
+    "objetivo": "Que el atacante decida por lo que hace el defensor (mano, lado libre, desplazamiento) y no por lo que tenía pensado, antes de llegar al 1c1 vivo.",
+    "descripcion": "Se avanza de un defensor que solo enseña la mano, a uno que pica en la tercera finta y, por último, a uno que solo puede desplazarse en lateral. Cada paso se mantiene hasta que se cumple su criterio de avance.",
+    "puntos_clave": [
+      "Mirar al defensor (mano, pies), no al balón.",
+      "No decidir antes de ver: primero leer y luego ejecutar."
+    ],
+    "habilidad_principal": "lectura_defensor",
+    "habilidades_secundarias": [
+      "cambio_mano",
+      "fintas",
+      "salida_1c1"
+    ],
+    "fase_juego": [
+      "ataque"
+    ],
+    "categorias": [
+      "minibasket",
+      "infantil"
+    ],
+    "pasos": [
+      {
+        "slug": "lee-la-mano",
+        "criterio_avance": "Elige bien el cambio (alto o bajo) en unas 8 de cada 10 repeticiones sin adivinar."
+      },
+      {
+        "slug": "muerde-a-la-tercera",
+        "criterio_avance": "Cuando el defensor pica, sale casi siempre por el lado libre con 3 botes o menos."
+      },
+      {
+        "slug": "rooted",
+        "criterio_avance": "Resuelve la mayoría de las llegadas ante el defensor lateral; el siguiente nivel es un 1c1 vivo como superar-defensor-puertas."
+      }
+    ],
+    "relacionados": [
+      "superar-defensor-puertas"
+    ],
+    "recursos": []
+  },
+  {
+    "version_esquema": 2,
+    "tipo_contenido": "sesion_modelo",
+    "slug": "sesion-bote-y-lectura-1c1-infantil",
+    "nombre": "Sesión: bote y lectura en 1c1 (infantil)",
+    "fecha_enviado": "2026-11-19",
+    "fuente": "Trainer Bot / CB Baeza",
+    "origen": "propio",
+    "creado_por": "trainer_bot",
+    "estado": "propuesto",
+    "confianza_clasificacion": "alta",
+    "resumen": "Unos 50 minutos de juego de bote, cambios de mano, progresión de lectura del defensor y 1c1 competitivo para terminar.",
+    "objetivo": "Encadenar el bote y los cambios de mano con la lectura del defensor y terminar aplicándolo en 1c1 real.",
+    "habilidad_principal": "lectura_defensor",
+    "fase_juego": [
+      "ataque"
+    ],
+    "categorias": [
+      "infantil"
+    ],
+    "bloques": [
+      {
+        "slug": "pilla-pilla-botando",
+        "minutos": 8,
+        "nota": "Calentamiento."
+      },
+      {
+        "slug": "especialistas",
+        "minutos": 6
+      },
+      {
+        "slug": "progresion-leer-al-defensor-con-bote",
+        "minutos": 24,
+        "nota": "Unos 8 minutos por paso; no se pasa al siguiente sin cumplir el criterio."
+      },
+      {
+        "slug": "rey-de-la-pista",
+        "minutos": 12,
+        "nota": "Una canasta por cada 6 jugadores."
+      }
+    ],
+    "recursos": []
+  }
+]

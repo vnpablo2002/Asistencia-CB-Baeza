@@ -1,140 +1,84 @@
-/** Catálogo de ejercicios y entrada privada del agente. */
+/**
+ * Hub de ejercicios v2: listado para entrenadores, bandeja de revisión y entrada privada del agente.
+ * La validación y los derivados viven en HubEsquema.gs (compartido con scripts/seed-hub-v2.mjs).
+ */
 const HubEjercicios = {
-  enums: {
-    formato: ['analitico', 'juego'],
-    oposicion: ['sin-oposicion', 'limitada', 'ventaja', 'igualdad', 'desventaja'],
-    organizacion: ['parejas', 'filas', 'grupo'],
-    habilidades: ['bote', 'proteccion', 'salida', 'finalizacion', 'lectura', 'cambio-ritmo', 'desmarque', 'defensa', 'transicion', 'rebote'],
-    material: ['conos', 'petos', 'churro'],
-    enlace: ['video', 'diagrama', 'fuente'],
-    medio: ['youtube', 'imagen', 'gif'],
+  MAXIMO_LOTE: 100,
+  PAGINA: 1000,
+  // Columnas que no viajan al navegador: internas, de auditoría o el tsvector.
+  OCULTAS: ['busqueda', 'enviado_por', 'revisado_por', 'revisado_at', 'created_at', 'version_esquema'],
+
+  /** Lee varias consultas PostgREST en paralelo, paginando cada una. */
+  leer(consultas) {
+    const pedir = (tabla, query, offset) => {
+      const peticion = supabaseRequestParams_(tabla, 'get', query + '&limit=' + this.PAGINA + '&offset=' + offset);
+      return Object.assign({ url: peticion.url }, peticion.options);
+    };
+    const respuestas = UrlFetchApp.fetchAll(consultas.map(c => pedir(c[0], c[1], 0)));
+    return consultas.map((c, i) => {
+      const filas = parseSupabaseResponse_(respuestas[i]);
+      for (let offset = this.PAGINA; filas.length === offset; offset += this.PAGINA) {
+        const peticion = pedir(c[0], c[1], offset);
+        filas.push(...parseSupabaseResponse_(UrlFetchApp.fetch(peticion.url, peticion)));
+      }
+      return filas;
+    });
   },
 
-  listar() {
+  /** Catálogo sin archivados, con recursos, pasos, bloques, agregados y vocabulario. Los avisos solo para admin. */
+  listar(esAdmin) {
     const tablas = CONFIG.SHEETS;
-    const ejercicios = getSheetData(tablas.HUB_EJERCICIOS);
-    const habilidades = getSheetData(tablas.HUB_HABILIDADES);
-    const material = getSheetData(tablas.HUB_MATERIAL);
-    const enlaces = getSheetData(tablas.HUB_ENLACES);
-    const medios = getSheetData(tablas.HUB_MEDIOS);
-    const agrupar = (filas, transformar) => {
-      const grupos = new Map();
-      filas.forEach(fila => {
-        const id = String(fila.ejercicio_id);
-        if (!grupos.has(id)) grupos.set(id, []);
-        grupos.get(id).push(transformar(fila));
-      });
-      return grupos;
-    };
-    const porHabilidad = agrupar(habilidades, fila => fila.habilidad);
-    const porMaterial = agrupar(material, fila => fila.material);
-    const porEnlace = agrupar(enlaces, fila => ({ tipo: fila.tipo, etiqueta: fila.etiqueta, url: fila.url, orden: fila.orden }));
-    const porMedio = agrupar(medios, fila => ({ tipo: fila.tipo, youtube_id: fila.youtube_id, ruta_o_url: fila.ruta_o_url, es_miniatura: fila.es_miniatura, orden: fila.orden }));
-    const campos = ['id', 'slug', 'nombre', 'nombre_en', 'fecha_enviado', 'fuente', 'objetivo', 'como_se_hace', 'claves', 'version_facil', 'version_dificil', 'nota', 'formato', 'oposicion', 'organizacion', 'detalle_corto'];
-    return ejercicios.filter(fila => fila.activo === true).map(fila => {
-      const salida = {};
-      campos.forEach(campo => { salida[campo] = campo === 'claves' ? (fila.claves || []) : fila[campo]; });
-      const id = String(fila.id);
-      salida.habilidades = porHabilidad.get(id) || [];
-      salida.material = porMaterial.get(id) || [];
-      salida.enlaces = (porEnlace.get(id) || []).sort((a, b) => a.orden - b.orden);
-      salida.medios = (porMedio.get(id) || []).sort((a, b) => a.orden - b.orden);
+    const columnas = SCHEMA[tablas.HUB_CONTENIDOS].filter(c => !this.OCULTAS.includes(c)).join(',');
+    const [contenidos, recursos, pasos, bloques] = this.leer([
+      [tablas.HUB_CONTENIDOS, 'select=' + columnas + '&order=fecha_enviado.desc,slug.asc'],
+      [tablas.HUB_RECURSOS, 'select=contenido_id,orden,tipo_recurso,url,archivo_local,etiqueta,autor,idioma,duracion_seg,inicio_seg,fin_seg,relacion,principal,youtube_id&order=contenido_id.asc,orden.asc'],
+      [tablas.HUB_PASOS, 'select=progresion_id,orden,ejercicio_id,criterio_avance&order=progresion_id.asc,orden.asc'],
+      [tablas.HUB_BLOQUES, 'select=sesion_id,orden,contenido_id,minutos,nota&order=sesion_id.asc,orden.asc'],
+    ]);
+    const porId = new Map();
+    const fichas = contenidos.map(fila => {
+      const ficha = Object.assign({}, fila, { recursos: [] });
+      if (ficha.tipo_contenido === 'progresion') ficha.pasos = [];
+      if (ficha.tipo_contenido === 'sesion_modelo') ficha.bloques = [];
+      porId.set(String(fila.id), ficha);
+      return ficha;
+    });
+    const slugDe = id => (porId.get(String(id)) || {}).slug || null;
+    const ordenar = (a, b) => a.orden - b.orden;
+    recursos.slice().sort(ordenar).forEach(r => {
+      const ficha = porId.get(String(r.contenido_id));
+      if (!ficha) return;
+      const recurso = Object.assign({}, r);
+      delete recurso.contenido_id; delete recurso.orden;
+      ficha.recursos.push(recurso);
+    });
+    pasos.slice().sort(ordenar).forEach(p => {
+      const ficha = porId.get(String(p.progresion_id));
+      if (ficha && ficha.pasos) ficha.pasos.push({ slug: slugDe(p.ejercicio_id), criterio_avance: p.criterio_avance });
+    });
+    bloques.slice().sort(ordenar).forEach(b => {
+      const ficha = porId.get(String(b.sesion_id));
+      if (ficha && ficha.bloques) ficha.bloques.push({ slug: slugDe(b.contenido_id), minutos: b.minutos, nota: b.nota });
+    });
+    const agregados = HubEsquema.agregados(fichas);
+    const visibles = fichas.filter(f => f.estado !== 'archivado').map(f => {
+      const salida = Object.assign({}, f, agregados.get(f.slug) || {});
+      delete salida.id;
+      if (!esAdmin) { delete salida.avisos; delete salida.sugerencias_vocabulario; }
       return salida;
     });
+    return { fichas: visibles, vocabulario: HubEsquema.vocabulario() };
   },
 
-  objeto(valor, nombre, campos) {
-    if (!valor || typeof valor !== 'object' || Array.isArray(valor)) throw new Error(nombre + ' debe ser un objeto.');
-    if (Object.keys(valor).some(campo => !campos.includes(campo))) throw new Error(nombre + ' contiene campos desconocidos.');
-  },
-
-  texto(valor, nombre, maximo, obligatorio) {
-    if (valor === undefined || valor === null || valor === '') {
-      if (obligatorio) throw new Error(nombre + ' es obligatorio.');
-      return null;
-    }
-    if (typeof valor !== 'string' || valor.length > maximo || (obligatorio && !valor.trim()) || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(valor)) {
-      throw new Error(nombre + ' no es válido.');
-    }
-    return valor;
-  },
-
-  lista(valor, nombre, maximo) {
-    if (valor === undefined || valor === null) return [];
-    if (!Array.isArray(valor) || valor.length > maximo) throw new Error(nombre + ' no es válido.');
-    return valor;
-  },
-
-  enum(valor, nombre, opciones) {
-    if (typeof valor !== 'string' || !opciones.includes(valor)) throw new Error(nombre + ' no es válido.');
-    return valor;
-  },
-
-  url(valor, nombre) {
-    const url = this.texto(valor, nombre, 2048, true);
-    const partes = /^https:\/\/([a-z0-9](?:[a-z0-9.-]*[a-z0-9])?)(?::([0-9]{1,5}))?(?:[/?#][^\s<>"\\]*)?$/i.exec(url);
-    if (!partes || partes[1].length > 253 || partes[1].split('.').some(etiqueta => !etiqueta || etiqueta.length > 63 || etiqueta[0] === '-' || etiqueta[etiqueta.length - 1] === '-') ||
-        (partes[2] && (Number(partes[2]) < 1 || Number(partes[2]) > 65535))) {
-      throw new Error(nombre + ' debe ser una URL HTTPS válida.');
-    }
-    return url;
-  },
-
-  rutaMedio(valor) {
-    if (typeof valor === 'string' && valor.length <= 800000 && /^data:image\/(?:png|jpeg|gif|webp|svg\+xml);base64,[a-zA-Z0-9+/=]+$/.test(valor)) return valor;
-    const ruta = this.texto(valor, 'ruta_o_url', 2048, true);
-    if (/^https:\/\//i.test(ruta)) return this.url(ruta, 'ruta_o_url');
-    if (/^(?:\/\/|[a-z][a-z0-9+.-]*:)/i.test(ruta) || /[\s<>"\\?#:]/.test(ruta) || ruta.split('/').includes('..')) {
-      throw new Error('ruta_o_url no es válida.');
-    }
-    return ruta;
-  },
-
-  orden(valor, indice) {
-    if (valor === undefined || valor === null) return indice;
-    if (!Number.isInteger(valor) || valor < 0 || valor > 10000) throw new Error('orden no es válido.');
-    return valor;
-  },
-
-  normalizar(ejercicio) {
-    const campos = ['slug', 'nombre', 'nombre_en', 'fecha_enviado', 'fuente', 'objetivo', 'como_se_hace', 'claves', 'version_facil', 'version_dificil', 'nota', 'formato', 'oposicion', 'organizacion', 'detalle_corto', 'habilidades', 'material', 'enlaces', 'medios'];
-    this.objeto(ejercicio, 'ejercicio', campos);
-    const resultado = {};
-    resultado.slug = this.texto(ejercicio.slug, 'slug', 120, true);
-    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(resultado.slug)) throw new Error('slug no es válido.');
-    resultado.nombre = this.texto(ejercicio.nombre, 'nombre', 200, true);
-    resultado.creado_por = 'trainer-bot';
-    ['nombre_en', 'fuente'].forEach(campo => { resultado[campo] = this.texto(ejercicio[campo], campo, 500, false); });
-    if (ejercicio.detalle_corto !== undefined && typeof ejercicio.detalle_corto !== 'boolean') throw new Error('detalle_corto no es válido.');
-    resultado.detalle_corto = ejercicio.detalle_corto === undefined ? false : ejercicio.detalle_corto;
-    ['objetivo', 'como_se_hace', 'version_facil', 'version_dificil', 'nota'].forEach(campo => { resultado[campo] = this.texto(ejercicio[campo], campo, 10000, false); });
-    resultado.fecha_enviado = this.texto(ejercicio.fecha_enviado, 'fecha_enviado', 10, false);
-    if (resultado.fecha_enviado) {
-      const fecha = resultado.fecha_enviado;
-      const parsed = new Date(fecha + 'T00:00:00Z');
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(fecha) || isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== fecha) throw new Error('fecha_enviado no es válida.');
-    }
-    resultado.claves = this.lista(ejercicio.claves, 'claves', 50).map(valor => this.texto(valor, 'clave', 1000, true));
-    ['formato', 'oposicion', 'organizacion'].forEach(campo => { resultado[campo] = this.enum(ejercicio[campo], campo, this.enums[campo]); });
-    ['habilidades', 'material'].forEach(campo => {
-      resultado[campo] = this.lista(ejercicio[campo], campo, 50).map(valor => this.enum(valor, campo, this.enums[campo]));
-      if (new Set(resultado[campo]).size !== resultado[campo].length) throw new Error(campo + ' contiene valores duplicados.');
-    });
-    resultado.enlaces = this.lista(ejercicio.enlaces, 'enlaces', 50).map((enlace, i) => {
-      this.objeto(enlace, 'enlace', ['tipo', 'etiqueta', 'url', 'orden']);
-      return { tipo: this.enum(enlace.tipo, 'tipo de enlace', this.enums.enlace), etiqueta: this.texto(enlace.etiqueta, 'etiqueta', 200, false), url: this.url(enlace.url, 'url'), orden: this.orden(enlace.orden, i) };
-    });
-    resultado.medios = this.lista(ejercicio.medios, 'medios', 50).map((medio, i) => {
-      this.objeto(medio, 'medio', ['tipo', 'youtube_id', 'ruta_o_url', 'es_miniatura', 'orden']);
-      const tipo = this.enum(medio.tipo, 'tipo de medio', this.enums.medio);
-      const youtubeId = this.texto(medio.youtube_id, 'youtube_id', 64, tipo === 'youtube');
-      if (youtubeId && !/^[a-z0-9_-]+$/i.test(youtubeId)) throw new Error('youtube_id no es válido.');
-      const ruta = medio.ruta_o_url === undefined || medio.ruta_o_url === null || medio.ruta_o_url === '' ? null : this.rutaMedio(medio.ruta_o_url);
-      if (tipo !== 'youtube' && !ruta) throw new Error('ruta_o_url es obligatoria.');
-      if (medio.es_miniatura !== undefined && typeof medio.es_miniatura !== 'boolean') throw new Error('es_miniatura no es válido.');
-      return { tipo: tipo, youtube_id: youtubeId, ruta_o_url: ruta, es_miniatura: medio.es_miniatura === undefined ? false : medio.es_miniatura, orden: this.orden(medio.orden, i) };
-    });
-    return resultado;
+  /** Bandeja de revisión: el administrador marca una ficha como revisada o la archiva. */
+  cambiarEstado(slug, estado, email) {
+    if (typeof slug !== 'string' || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length > 60) throw new Error('Ficha no válida.');
+    if (estado !== 'revisado' && estado !== 'archivado') throw new Error('Estado no válido.');
+    const ahora = new Date().toISOString();
+    const filas = supabaseRequest_(CONFIG.SHEETS.HUB_CONTENIDOS, 'patch', supabaseFilter_('slug', slug) + '&select=slug,estado',
+      { estado: estado, revisado_por: email || null, revisado_at: ahora, updated_at: ahora }, 'return=representation');
+    if (!Array.isArray(filas) || filas.length !== 1) throw new Error('La ficha no existe.');
+    return { slug: filas[0].slug, estado: filas[0].estado };
   },
 
   autenticar(token) {
@@ -149,36 +93,54 @@ const HubEjercicios = {
     if (diferencia !== 0) throw new Error('Token del agente no válido o no configurado.');
   },
 
-  guardar(datos) {
-    this.objeto(datos, 'petición', ['token', 'ejercicio', 'ejercicios']);
+  /**
+   * Entrada del agente (doPost). Admite { token, ficha }, { token, fichas: [...] } o la ficha con token en el mismo nivel.
+   * Cada ficha se valida por separado: las válidas se guardan (UPSERT por slug) y las demás vuelven con sus errores.
+   */
+  recibir(datos) {
+    if (!datos || typeof datos !== 'object' || Array.isArray(datos)) throw new Error('La petición debe ser un objeto JSON con token.');
     this.autenticar(datos.token);
-    const individual = Object.prototype.hasOwnProperty.call(datos, 'ejercicio');
-    const lote = Object.prototype.hasOwnProperty.call(datos, 'ejercicios');
-    if (individual === lote) throw new Error('Indica ejercicio o ejercicios.');
-    const entradas = individual ? [datos.ejercicio] : this.lista(datos.ejercicios, 'ejercicios', 100);
-    if (!entradas.length) throw new Error('La lista de ejercicios está vacía.');
-    const ejercicios = entradas.map(entrada => this.normalizar(entrada));
-    if (new Set(ejercicios.map(ejercicio => ejercicio.slug)).size !== ejercicios.length) throw new Error('Hay slugs duplicados en la petición.');
+    const tiene = clave => Object.prototype.hasOwnProperty.call(datos, clave);
+    if (tiene('ejercicio') || tiene('ejercicios')) {
+      throw new Error('Formato v1 retirado: envía { token, ficha } o { token, fichas: [...] } con version_esquema: 2 (docs/hub-esquema-v2.md).');
+    }
+    let entradas;
+    if (tiene('fichas') || tiene('ficha')) {
+      if (Object.keys(datos).some(clave => !['token', 'ficha', 'fichas'].includes(clave)) || (tiene('fichas') && tiene('ficha'))) {
+        throw new Error('Indica solo token y ficha, o token y fichas.');
+      }
+      entradas = tiene('ficha') ? [datos.ficha] : datos.fichas;
+    } else {
+      const ficha = Object.assign({}, datos);
+      delete ficha.token;
+      entradas = Object.keys(ficha).length ? [ficha] : [];
+    }
+    if (!Array.isArray(entradas) || !entradas.length) throw new Error('La petición no contiene fichas.');
+    if (entradas.length > this.MAXIMO_LOTE) throw new Error('Máximo ' + this.MAXIMO_LOTE + ' fichas por petición.');
+
+    const existentes = this.leer([[CONFIG.SHEETS.HUB_CONTENIDOS, 'select=slug,tipo_contenido&order=slug.asc']])[0];
+    const lote = HubEsquema.validarLote(entradas, existentes.map(fila => [fila.slug, fila.tipo_contenido]));
+    const respuesta = { ok: lote.rechazados.length === 0, insertados: [], actualizados: [], rechazados: lote.rechazados, avisos: lote.avisos };
+    if (!lote.filas.length) return respuesta;
+
     const config = getSupabaseConfig_();
     const headers = { apikey: config.key, Accept: 'application/json', 'Content-Type': 'application/json' };
     if (!config.key.startsWith('sb_secret_')) headers.Authorization = 'Bearer ' + config.key;
     let guardados;
     try {
-      guardados = parseSupabaseResponse_(UrlFetchApp.fetch(config.url + '/rest/v1/rpc/hub_upsert_ejercicios', {
-        method: 'post', headers: headers, muteHttpExceptions: true, payload: JSON.stringify({ p_ejercicios: ejercicios }),
+      guardados = parseSupabaseResponse_(UrlFetchApp.fetch(config.url + '/rest/v1/rpc/hub_v2_upsertar', {
+        method: 'post', headers: headers, muteHttpExceptions: true,
+        payload: JSON.stringify({ p_fichas: lote.filas, p_enviado_por: 'agente' }),
       }));
       SUPABASE_TABLE_CACHE_.clear();
     } catch (error) {
-      throw new Error('No se pudieron guardar los ejercicios.');
+      throw new Error('No se pudieron guardar las fichas; no se ha guardado ninguna del lote.');
     }
-    if (!Array.isArray(guardados) || guardados.length !== ejercicios.length || guardados.some(fila => !fila || typeof fila.id !== 'string' || typeof fila.slug !== 'string')) {
-      throw new Error('Respuesta inesperada al guardar los ejercicios.');
+    const porSlug = new Map((Array.isArray(guardados) ? guardados : []).map(fila => [fila && fila.slug, fila && fila.accion]));
+    if (lote.filas.some(fila => !['insertado', 'actualizado'].includes(porSlug.get(fila.slug)))) {
+      throw new Error('Respuesta inesperada al guardar las fichas.');
     }
-    const porSlug = new Map(guardados.map(fila => [fila.slug, { id: fila.id, slug: fila.slug }]));
-    if (porSlug.size !== ejercicios.length || ejercicios.some(ejercicio => !porSlug.has(ejercicio.slug))) {
-      throw new Error('Respuesta inesperada al guardar los ejercicios.');
-    }
-    const resultados = ejercicios.map(ejercicio => porSlug.get(ejercicio.slug));
-    return individual ? { ok: true, id: resultados[0].id, slug: resultados[0].slug } : { ok: true, ejercicios: resultados };
+    lote.filas.forEach(fila => (porSlug.get(fila.slug) === 'insertado' ? respuesta.insertados : respuesta.actualizados).push(fila.slug));
+    return respuesta;
   },
 };

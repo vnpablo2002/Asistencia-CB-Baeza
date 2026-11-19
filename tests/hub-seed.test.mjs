@@ -1,38 +1,30 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { leerImagenes, mapearEjercicios } from '../scripts/seed-hub-ejercicios.mjs';
+import { readFileSync } from 'node:fs';
+import { cargarEsquema, combinar, fuentesPorDefecto, sqlSemilla, RECLASIFICADOS, EJEMPLOS } from '../scripts/seed-hub-v2.mjs';
 
-const imagen = 'data:image/gif;base64,R0lGODlh';
-const original = {
-  id: 'ejercicio-1', name: 'Ejercicio', nameEn: 'Drill', date: '2026-11-19',
-  source: 'Fuente', goal: 'Objetivo', how: 'Pasos', habilidades: ['bote', 'defensa'],
-  formato: 'juego', oposicion: 'igualdad', organizacion: 'parejas', detalleCorto: true,
-  claves: ['Uno', 'Dos'], easier: 'Fácil', harder: 'Difícil', note: 'Nota',
-  links: [{ type: 'instagram', label: 'Reel', url: 'https://www.instagram.com/reel/123/' }],
-  thumbYoutube: 'Cm34CsIixC4', thumbImage: 'espejo', material: ['conos']
-};
+const ejemplos = JSON.parse(readFileSync(new URL('./fixtures/hub-ejemplos-v2.json', import.meta.url), 'utf8'));
 
-test('la semilla conserva campos, relaciones y medios, con excepciones explícitas', () => {
-  const imagenes = leerImagenes(`const IMAGES = ${JSON.stringify({ espejo: imagen })};\n`);
-  const { ejercicios, avisos } = mapearEjercicios([original], imagenes);
-  assert.deepEqual(ejercicios, [{
-    slug: 'ejercicio-1', nombre: 'Ejercicio', nombre_en: 'Drill', fecha_enviado: '2026-11-19',
-    fuente: 'Fuente', objetivo: 'Objetivo', como_se_hace: 'Pasos', claves: ['Uno', 'Dos'],
-    version_facil: 'Fácil', version_dificil: 'Difícil', nota: 'Nota', formato: 'juego',
-    oposicion: 'igualdad', organizacion: 'parejas', detalle_corto: true,
-    habilidades: ['bote', 'defensa'], material: ['conos'],
-    enlaces: [{ tipo: 'video', etiqueta: 'Reel', url: 'https://www.instagram.com/reel/123/', orden: 0 }],
-    medios: [
-      { tipo: 'gif', youtube_id: null, ruta_o_url: imagen, es_miniatura: true, orden: 0 },
-      { tipo: 'youtube', youtube_id: 'Cm34CsIixC4', ruta_o_url: null, es_miniatura: false, orden: 1 }
-    ], creado_por: 'trainer-bot'
-  }]);
-  assert.equal(avisos.length, 2);
+test('sin argumentos usa los 43 reclasificados si existen y completa con los ejemplos; si no, solo los ejemplos', () => {
+  assert.deepEqual(fuentesPorDefecto(() => true), [RECLASIFICADOS, EJEMPLOS]);
+  assert.deepEqual(fuentesPorDefecto(() => false), [EJEMPLOS]);
 });
 
-test('rechaza valores desconocidos, slugs duplicados y medios que no se pueden conservar', () => {
-  assert.throws(() => mapearEjercicios([{ ...original, formato: 'partido' }], { espejo: imagen }), /formato desconocido/);
-  assert.throws(() => mapearEjercicios([original, original], { espejo: imagen }), /Identidad o fecha inválida/);
-  assert.throws(() => mapearEjercicios([original], {}), /imagen espejo ausente/);
-  assert.throws(() => mapearEjercicios([{ ...original, campoNuevo: 'no perder' }], { espejo: imagen }), /campos inesperados/);
+test('al combinar fuentes gana la primera ficha de cada slug', () => {
+  const fichas = combinar([[{ slug: 'a', nombre: 'nuevo' }], [{ slug: 'a', nombre: 'viejo' }, { slug: 'b' }]]);
+  assert.deepEqual(fichas, [{ slug: 'a', nombre: 'nuevo' }, { slug: 'b' }]);
+  assert.throws(() => combinar([{}]), /lista de fichas/);
+});
+
+test('la semilla valida con el mismo esquema que el endpoint y escapa el SQL', () => {
+  const H = cargarEsquema();
+  const existentes = ['lee-la-mano', 'muerde-a-la-tercera', 'rooted', 'superar-defensor-puertas', 'pilla-pilla-botando'].map(s => [s, 'ejercicio']);
+  const lote = H.validarLote(ejemplos, existentes);
+  assert.equal(lote.rechazados.length, 0);
+  assert.equal(H.validarLote([{ ...ejemplos[0], dificultad: 7 }], []).rechazados.length, 1);
+  const fila = { ...lote.filas[0], nota: "Comilla ' simple" };
+  const sql = sqlSemilla([fila]);
+  assert.match(sql, /^SELECT public\.hub_v2_upsertar\('/);
+  assert.match(sql, /Comilla '' simple/);
+  assert.match(sql, /'::jsonb, 'semilla'\) AS resultado;\n$/);
 });

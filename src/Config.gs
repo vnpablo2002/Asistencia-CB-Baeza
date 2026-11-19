@@ -19,11 +19,10 @@ const CONFIG = {
     PROGRAMACIONES_JUSTIFICACIONES: 'Programaciones_Justificaciones',
     ADMINISTRADORES:      'Administradores',
     AVISOS_JUGADOR:       'Avisos_Jugador',
-    HUB_EJERCICIOS:       'hub_ejercicios',
-    HUB_HABILIDADES:      'hub_ejercicio_habilidades',
-    HUB_MATERIAL:         'hub_ejercicio_material',
-    HUB_ENLACES:          'hub_ejercicio_enlaces',
-    HUB_MEDIOS:           'hub_ejercicio_medios',
+    HUB_CONTENIDOS:       'hub_contenidos',
+    HUB_RECURSOS:         'hub_recursos',
+    HUB_PASOS:            'hub_progresion_pasos',
+    HUB_BLOQUES:          'hub_sesion_bloques',
   },
 
   // ── Roles de usuario ──────────────────────────────────────────────────────────

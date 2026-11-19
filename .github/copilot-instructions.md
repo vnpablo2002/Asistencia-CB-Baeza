@@ -34,6 +34,8 @@ src/
   Asistencia.gs      → Registro y consulta de asistencia de jugadores y entrenadores
   Estadisticas.gs    → Motor puro de métricas (única fuente de P/A/R agregados; la UI lee App.stats, nunca recalcula)
   Notificaciones.gs  → Correos (MailApp) y textos de avisos de cancelación
+  HubEsquema.gs      → Esquema v2 del hub (docs/hub-esquema-v2.md): única fuente de validación y derivados; la usa también scripts/seed-hub-v2.mjs
+  HubEjercicios.gs   → Hub: listado, bandeja de revisión y doPost del agente (solo DEV)
   Code.gs            → doGet(), endpoints públicos (funciones llamadas por google.script.run)
 ui/
   Index.html         → Shell SPA: navegación + contenedor de vistas
