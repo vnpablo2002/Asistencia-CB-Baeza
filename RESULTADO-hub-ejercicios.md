@@ -99,3 +99,11 @@ LISTO
 - `npm test`: 326 pruebas superadas. Capturas antes/después: `/workspace/cbbaeza/capturas/hub-v2-filtros-compacto-*.png`.
 
 LISTO-FILTROS
+
+## Cabecera que se oculta al desplazar
+
+- En Ejercicios y Aprender la cabecera se desliza fuera al bajar y vuelve al subir; permanece visible arriba, al buscar y con los filtros abiertos. Respeta movimiento reducido y el contador no cambia.
+- Verificado en la SPA local con fichas de muestra: móvil táctil y escritorio, los tres temas e inglés; foco, filtros, Aprender y movimiento reducido. Capturas móviles: `/workspace/cbbaeza/capturas/hub-v2-scroll-{arriba,bajar,subir}.png`.
+- `npm test`: 327 pruebas superadas. La interfaz desplegada no se ha recorrido con un login real.
+
+LISTO-SCROLL

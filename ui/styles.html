@@ -2732,7 +2732,8 @@ form.account-card > .btn-primary { margin-top:8px; }
 .hub-ico-lleno { fill: currentColor; stroke: none; }
 .hub :focus-visible, .hub-capa :focus-visible { outline: 3px solid var(--morado); outline-offset: 2px; }
 
-.hub-cabecera { position: sticky; top: 0; z-index: 5; padding: 12px 16px 10px; background: var(--blanco); border-bottom: 1px solid var(--borde); box-shadow: 0 8px 18px -14px var(--shadow-color); }
+.hub-cabecera { position: sticky; top: 0; z-index: 5; padding: 12px 16px 10px; background: var(--blanco); border-bottom: 1px solid var(--borde); box-shadow: 0 8px 18px -14px var(--shadow-color); transition: transform .18s ease; }
+.hub-cabecera-oculta { transform: translateY(-100%); }
 .hub-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--fondo); border: 1px solid var(--borde); }
 .hub-tabs [role="tab"] { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 0 8px; border-radius: 10px; color: var(--texto-sec); font-size: .86rem; font-weight: 700; transition: background .15s, color .15s; }
 @container (max-width: 430px) { .hub-tabs [role="tab"] { gap: 4px; padding: 0 4px; font-size: .8rem; } .hub-tabs [role="tab"] .hub-ico { display: none; } }
@@ -3003,6 +3004,6 @@ form.account-card > .btn-primary { margin-top:8px; }
 .hub-confirmar-acciones .btn { flex: 1; }
 @media (prefers-reduced-motion: reduce) {
   .hub-hoja, .hub-detalle, .hub-esqueleto .hub-card-media, .hub-esqueleto .hub-card-cuerpo i { animation: none; }
-  .hub-card, .hub-chip, .hub-poster-play, .hub-grupo-flecha { transition: none; }
+  .hub-card, .hub-chip, .hub-poster-play, .hub-grupo-flecha, .hub-cabecera { transition: none; }
 }
 </style>

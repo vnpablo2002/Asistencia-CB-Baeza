@@ -9024,6 +9024,18 @@ App.views['hub-ejercicios'] = {
     this.estado = 'listo';
   },
   hojaAbierta: function() { var c = document.getElementById('hub-capa-filtros'); return !!c && !c.hidden; },
+  desplazarCabecera: function(contenedor) {
+    var cabecera = document.querySelector('#hub-ejercicios-contenido .hub-cabecera');
+    if (!cabecera) return;
+    var y = Math.max(0, contenedor.scrollTop), anterior = this.scrollAnterior == null ? y : this.scrollAnterior;
+    if (y <= 8 || y < anterior || this.tab === 'revision' || document.activeElement === document.getElementById('hub-q') || this.hojaAbierta()) {
+      cabecera.classList.remove('hub-cabecera-oculta');
+      this.scrollInicio = y;
+    } else if (y - (this.scrollInicio == null ? anterior : this.scrollInicio) >= 8) {
+      cabecera.classList.add('hub-cabecera-oculta');
+    }
+    this.scrollAnterior = y;
+  },
 
   // ── Pantalla principal ──
   pintar: function() {
@@ -9070,6 +9082,8 @@ App.views['hub-ejercicios'] = {
     '</div>' +
     '<div id="hub-capa-filtros" class="hub-capa hub-capa-filtros" hidden onclick="if(event.target===this)' + R + '.cerrarFiltros()"></div>' +
     '<div id="hub-capa-detalle" class="hub-capa hub-capa-detalle" hidden></div>';
+    var contenedor = document.getElementById('view-container');
+    if (contenedor) this.scrollAnterior = this.scrollInicio = Math.max(0, contenedor.scrollTop);
     this.actualizar();
   },
   actualizar: function() {
@@ -9196,6 +9210,8 @@ App.views['hub-ejercicios'] = {
     if (!capa) return;
     this.origenFoco = document.getElementById('hub-btn-filtros');
     capa.hidden = false;
+    var cabecera = document.querySelector('#hub-ejercicios-contenido .hub-cabecera');
+    if (cabecera) cabecera.classList.remove('hub-cabecera-oculta');
     this.pintarHoja(true);
     var btn = document.getElementById('hub-btn-filtros');
     if (btn) btn.setAttribute('aria-expanded', 'true');
@@ -9309,6 +9325,14 @@ App.views['hub-ejercicios'] = {
     if (this.eventos) return;
     this.eventos = true;
     var self = this;
+    var contenedor = document.getElementById('view-container');
+    if (contenedor) contenedor.addEventListener('scroll', function() {
+      if (App.state.currentView === 'hub-ejercicios') self.desplazarCabecera(contenedor);
+    }, { passive: true });
+    document.addEventListener('focusin', function(event) {
+      var cabecera = event.target.closest && event.target.closest('.hub-cabecera');
+      if (cabecera) cabecera.classList.remove('hub-cabecera-oculta');
+    });
     document.addEventListener('keydown', function(event) {
       if (App.state.currentView !== 'hub-ejercicios') return;
       var detalle = document.getElementById('hub-capa-detalle'), hoja = document.getElementById('hub-capa-filtros');

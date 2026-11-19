@@ -42,6 +42,28 @@ function cliente() {
 const slugs = lista => Array.from(lista, f => f.slug);
 const plano = v => JSON.parse(JSON.stringify(v));
 
+test('la cabecera se oculta al bajar y vuelve al subir, con excepciones de foco y filtros', () => {
+  const { hub, elements, context } = cliente();
+  const clases = new Set();
+  const cabecera = { classList: { add: c => clases.add(c), remove: c => clases.delete(c) } };
+  context.document.querySelector = () => cabecera;
+  elements['hub-q'] = {};
+  elements['hub-capa-filtros'] = { hidden: true };
+  const contenedor = { scrollTop: 0 };
+  const ocultar = () => clases.has('hub-cabecera-oculta');
+  const mover = y => { contenedor.scrollTop = y; hub.desplazarCabecera(contenedor); };
+  mover(0); mover(5); assert.equal(ocultar(), false);
+  mover(13); assert.equal(ocultar(), true);
+  mover(12); assert.equal(ocultar(), false);
+  mover(30); assert.equal(ocultar(), true);
+  context.document.activeElement = elements['hub-q']; mover(40); assert.equal(ocultar(), false);
+  context.document.activeElement = null; mover(60); assert.equal(ocultar(), true);
+  elements['hub-capa-filtros'].hidden = false; mover(70); assert.equal(ocultar(), false);
+  elements['hub-capa-filtros'].hidden = true; mover(90); assert.equal(ocultar(), true);
+  mover(0); assert.equal(ocultar(), false);
+  hub.tab = 'revision'; mover(100); assert.equal(ocultar(), false);
+});
+
 test('las pestañas separan la práctica de la teoría y la revisión muestra lo propuesto', () => {
   const { hub } = cliente();
   assert.equal(slugs(hub.resultados()).includes('tres-fases-del-ataque-film-room'), false);
