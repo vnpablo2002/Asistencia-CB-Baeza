@@ -1,3 +1,24 @@
+# Resultado: Cancelar entrenamiento (iteración 5)
+
+- Commit de aplicación: `f026c8f07d734c28e3bd772e9fbfabde7df35a2d` en `develop`.
+- DEV: **@69**, `CBBAEZA DEV f026c8f07d734c28e3bd772e9fbfabde7df35a2d`. [Abrir DEV](https://script.google.com/macros/s/AKfycbyhHD-u1fzcUuGXVkC90Zdsnbv2Nj6D7XBFBGWGkgzRd88ubdihmABPvszHnmBj3sys/exec).
+- PRO no se ha desplegado ni se ha modificado su base de datos. No hay migración nueva.
+- `npm test`: **290 pruebas, 290 aprobadas**. `graphify update .` actualizado.
+
+## Cambios
+
+- La tarjeta muestra el mensaje completo con saltos de línea y un icono discreto para copiar, que cambia brevemente a un check. Copiar y abrir WhatsApp se pueden repetir sin mensajes adicionales.
+- El correo muestra el progreso y el número de correos realmente enviados, informa de fallos parciales o ausencia de destinatarios y mantiene la protección frente a duplicados. Los canales se acumulan en `CanalAvisoCancelacion`.
+- Interfaz en español e inglés, resultado accesible con `aria-live`, temas claro, oscuro y patrimonio, y botones apilados en móvil.
+
+## Verificación
+
+- Chrome headless con datos y llamadas ficticias: tres temas, móvil, copia, enlace WhatsApp, correo pendiente y resultado; capturas en `/tmp/cancelar5-*.png`. No se enviaron correos reales.
+- El acceso público de DEV abrió la pantalla de login. El publicador confirmó el despliegue; el listado consultado inmediatamente después seguía mostrando la versión anterior, pero la versión inmutable @69 se confirmó por su descripción.
+- El publicador no pudo abrir automáticamente una ventana privada; la URL DEV se comprobó en Chrome headless aislado.
+
+---
+
 # Resultado: Cancelar entrenamiento (iteración 4)
 
 - Commit de aplicación: `2e7459585d762dc141c44ccd2b64c93674d47a91` en `develop`.
