@@ -6,8 +6,8 @@
  * REGLA: Solo este fichero expone funciones al cliente.
  * Toda la lógica real está en los módulos internos (Equipos.gs, Sesiones.gs, etc.).
  *
- * Todas las funciones requieren el argumento 'auth' en primer lugar
- * (excepto doGet, include e iniciarSesion) para validar el PIN y el correo electrónico.
+ * Las funciones de la SPA requieren 'auth' salvo doGet, include e iniciarSesion;
+ * doPost autentica al agente mediante su propio token.
  */
 
 // ── Entry point ───────────────────────────────────────────────────────────────
@@ -22,6 +22,42 @@ function doGet() {
     .setTitle('CB Baeza — Asistencia')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+/**
+ * Recibe ejercicios del agente; siempre responde JSON y no expone secretos.
+ */
+function doPost(e) {
+  let respuesta;
+  try {
+    const contenido = e && e.postData && e.postData.contents;
+    if (typeof contenido !== 'string' || contenido.length > 1000000) throw new Error('Cuerpo de petición no válido.');
+    let datos;
+    try {
+      datos = JSON.parse(contenido);
+    } catch (error) {
+      throw new Error('JSON de petición no válido.');
+    }
+    if (datos && typeof datos === 'object' && !Array.isArray(datos) &&
+        !Object.prototype.hasOwnProperty.call(datos, 'ejercicio') && !Object.prototype.hasOwnProperty.call(datos, 'ejercicios')) {
+      const ejercicio = Object.assign({}, datos);
+      delete ejercicio.token;
+      datos = { token: datos.token, ejercicio: ejercicio };
+    }
+    respuesta = HubEjercicios.guardar(datos);
+  } catch (error) {
+    respuesta = { ok: false, error: error.message };
+  }
+  return ContentService.createTextOutput(JSON.stringify(respuesta)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function listarEjercicios(auth) {
+  try {
+    Auth.requireEntrenadorOAdmin(auth);
+    return { success: true, ejercicios: HubEjercicios.listar() };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 }
 
 /**

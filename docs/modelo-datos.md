@@ -8,6 +8,20 @@ Los IDs se generan con `Utilities.getUuid()`. Fechas como `YYYY-MM-DD`. Horas co
 
 ## Tablas y esquemas
 
+### Hub de ejercicios
+
+El catálogo es independiente de las sesiones: todavía no hay asignaciones ni métricas por entrenamiento. Sus cinco tablas usan UUID nativo y claves generadas en PostgreSQL. `hub_ejercicios` tiene `id`, `slug` único y estable (identificador del catálogo original), `nombre`, `nombre_en`, `fecha_enviado` (date), `fuente`, `objetivo`, `como_se_hace`, `claves` (text[]), `version_facil`, `version_dificil`, `nota`, `formato`, `oposicion`, `organizacion`, `detalle_corto`, `creado_por`, `created_at`, `updated_at` y `activo`. Hay índices por slug, formato, oposición y fecha descendente.
+
+`hub_ejercicio_habilidades` y `hub_ejercicio_material` usan la clave compuesta `(ejercicio_id, habilidad/material)`. `hub_ejercicio_enlaces` tiene UUID, `ejercicio_id`, `tipo`, `etiqueta`, `url` y `orden`; `hub_ejercicio_medios` tiene UUID, `ejercicio_id`, `tipo`, `youtube_id`, `ruta_o_url`, `es_miniatura` y `orden`. Las cuatro relaciones llevan FK con borrado en cascada.
+
+Los valores admitidos son `formato`: `analitico`, `juego`; `oposicion`: `sin-oposicion`, `limitada`, `ventaja`, `igualdad`, `desventaja`; `organizacion`: `parejas`, `filas`, `grupo`; `habilidad`: `bote`, `proteccion`, `salida`, `finalizacion`, `lectura`, `cambio-ritmo`, `desmarque`, `defensa`, `transicion`, `rebote`; `material`: `conos`, `petos`, `churro`; tipo de enlace: `video`, `diagrama`, `fuente`; tipo de medio: `youtube`, `imagen`, `gif`.
+
+Las cinco tablas tienen RLS y ningún acceso directo de `anon` ni `authenticated`: las credenciales propias de la app no identifican roles en Supabase. Solo el backend autorizado usa `service_role`. `hub_upsert_ejercicios(jsonb)` está restringida al mismo rol: actualiza por slug conservando el UUID, reemplaza las relaciones del lote en una transacción y mantiene `creado_por`, `created_at` y `activo` en ejercicios existentes. Un fallo revierte el lote entero. No hay suscripción Realtime a estas tablas.
+
+La semilla inicial conserva las imágenes embebidas en el HTML original como `data:image/...;base64` en `ruta_o_url` (11 imágenes, aproximadamente 616 KB de texto en total), además de las referencias YouTube. Se sirven como imágenes, no como enlaces ejecutables. En `el-espejo` se conservan ambos medios y la imagen es la miniatura original. El enlace Instagram de `piedra-papel-tijera` se clasifica como `video` para respetar el enum y conserva su etiqueta y URL completas. El seed y sus fuentes se describen en `docs/supabase-migration.md`.
+
+---
+
 ### `Temporadas`
 | Campo | Tipo | Descripción |
 |-------|------|-------------|

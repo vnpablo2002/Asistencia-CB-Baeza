@@ -1264,6 +1264,7 @@ const App = {
       'mis-stats':               'Mis Estadísticas',
       'mi-equipo':               'Mi Equipo',
       'informes':               'Informes',
+      'hub-ejercicios':          'Ejercicios',
       'perfil-usuario':          'Perfil',
       'ajustes':                 'Ajustes',
       'ajustes-idioma':          'Idioma',
@@ -8659,6 +8660,136 @@ Object.assign(App.i18n.diccionario, {
   'Fecha de cancelación':'Cancellation date',
   'Canal de aviso':'Notification channel'
 });
+Object.assign(App.i18n.diccionario, {
+  'Ejercicios':'Exercises', 'Explorar ejercicios de entrenamiento':'Explore training exercises',
+  'Buscar ejercicios':'Search exercises', 'Buscar por nombre, fuente o contenido…':'Search by name, source or content…',
+  'Filtros':'Filters', 'Habilidad':'Skill', 'Formato':'Format', 'Oposición':'Opposition', 'Organización':'Organisation',
+  'Todos':'All', 'Limpiar filtros':'Clear filters', 'Cargando ejercicios…':'Loading exercises…',
+  'No se pudieron cargar los ejercicios.':'Could not load exercises.', 'Reintentar':'Retry',
+  'No hay ejercicios que coincidan.':'No exercises match.', 'ejercicio':'exercise', 'ejercicios':'exercises',
+  'Objetivo':'Goal', 'Cómo se hace':'How to do it', 'Claves':'Coaching points',
+  'Versión fácil':'Easier version', 'Versión difícil':'Harder version', 'Material':'Equipment',
+  'Enlaces':'Links', 'Nota':'Note', 'Detalle breve':'Brief details', 'Ver detalle':'View details',
+  'Vídeo':'Video', 'Diagrama':'Diagram', 'Fuente':'Source', 'Imagen':'Image',
+  'Bote':'Dribbling', 'Protección':'Protection', 'Salida':'First step', 'Finalización':'Finishing',
+  'Lectura':'Reading the game', 'Cambio de ritmo':'Change of pace', 'Desmarque':'Getting open',
+  'Defensa':'Defence', 'Transición':'Transition', 'Rebote':'Rebounding', 'Analítico':'Analytical',
+  'Juego':'Game', 'Sin oposición':'No opposition', 'Limitada':'Limited', 'Ventaja':'Advantage',
+  'Igualdad':'Equal numbers', 'Desventaja':'Disadvantage', 'Parejas':'Pairs', 'Filas':'Lines',
+  'Grupo':'Group', 'Conos':'Cones', 'Petos':'Bibs', 'Churro':'Foam noodle'
+});
+
+App.views['hub-ejercicios'] = {
+  ejercicios: [], filtros: {}, consulta: '', secuencia: 0,
+  etiquetas: {
+    bote:'Bote', proteccion:'Protección', salida:'Salida', finalizacion:'Finalización', lectura:'Lectura',
+    'cambio-ritmo':'Cambio de ritmo', desmarque:'Desmarque', defensa:'Defensa', transicion:'Transición', rebote:'Rebote',
+    analitico:'Analítico', juego:'Juego', 'sin-oposicion':'Sin oposición', limitada:'Limitada', ventaja:'Ventaja',
+    igualdad:'Igualdad', desventaja:'Desventaja', parejas:'Parejas', filas:'Filas', grupo:'Grupo',
+    conos:'Conos', petos:'Petos', churro:'Churro', video:'Vídeo', diagrama:'Diagrama', fuente:'Fuente', imagen:'Imagen'
+  },
+  texto: function(s) { return App.i18n.texto(s); },
+  etiqueta: function(s) { return this.texto(this.etiquetas[s] || s || ''); },
+  url: function(s) {
+    s = String(s || '').trim();
+    return /^(https:\/\/[^\s]+|\/(?!\/)[^\s]*|\.{1,2}\/[^\s]+|[a-zA-Z0-9_][a-zA-Z0-9_./%?&=#~-]*)$/.test(s) ? s : '';
+  },
+  imagen: function(s) {
+    s = String(s || '').trim();
+    return /^data:image\/(?:png|jpeg|gif|webp|svg\+xml);base64,[a-zA-Z0-9+/=\r\n]+$/.test(s) ? s : this.url(s);
+  },
+  render: function() {
+    var host = document.getElementById('hub-ejercicios-contenido'), self = this;
+    if (!host || (App.state.rol !== 'entrenador' && !App.state.esAdmin)) return;
+    var seq = ++this.secuencia, authSeq = App.state._authReqSeq;
+    this.filtros = {}; this.consulta = ''; this.ejercicios = [];
+    host.innerHTML = '<div class="hub-page"><p role="status">' + _esc(this.texto('Cargando ejercicios…')) + '</p></div>';
+    server('listarEjercicios').then(function(res) {
+      if (!res || !res.success) throw new Error(res && res.error || '');
+      if (seq !== self.secuencia || authSeq !== App.state._authReqSeq || App.state.currentView !== 'hub-ejercicios') return;
+      self.ejercicios = res.ejercicios || [];
+      var pintar = function() {
+        if (seq === self.secuencia && authSeq === App.state._authReqSeq && App.state.currentView === 'hub-ejercicios') self.pintar();
+      };
+      if (App.escritura.activa()) App.escritura.alTerminar('hub-ejercicios', pintar); else pintar();
+    }).catch(function() {
+      if (seq !== self.secuencia || authSeq !== App.state._authReqSeq || App.state.currentView !== 'hub-ejercicios') return;
+      host.innerHTML = '<div class="hub-page"><p role="alert">' + _esc(self.texto('No se pudieron cargar los ejercicios.')) + '</p><button class="btn btn-secondary" type="button" onclick="App.views[\'hub-ejercicios\'].render()">' + _esc(self.texto('Reintentar')) + '</button></div>';
+    });
+  },
+  pintar: function() {
+    var host = document.getElementById('hub-ejercicios-contenido'), t = this.texto.bind(this);
+    host.innerHTML = '<div class="hub-page"><div class="hub-hero"><h2>' + _esc(t('Ejercicios')) + '</h2><label for="hub-buscar">' + _esc(t('Buscar ejercicios')) + '</label>' +
+      '<input id="hub-buscar" type="search" autocomplete="off" placeholder="' + _esc(t('Buscar por nombre, fuente o contenido…')) + '" oninput="App.views[\'hub-ejercicios\'].buscar(this.value)"></div>' +
+      '<section class="hub-filtros" aria-label="' + _esc(t('Filtros')) + '" id="hub-filtros"></section><div class="hub-resultados"><span id="hub-cuenta" role="status"></span>' +
+      '<button type="button" class="hub-limpiar" onclick="App.views[\'hub-ejercicios\'].limpiar()">' + _esc(t('Limpiar filtros')) + '</button></div><div class="hub-grid" id="hub-lista"></div></div>';
+    this.pintarFiltros(); this.pintarLista();
+  },
+  pintarFiltros: function() {
+    var self = this, grupos = [['habilidades','Habilidad'],['formato','Formato'],['oposicion','Oposición'],['organizacion','Organización']];
+    document.getElementById('hub-filtros').innerHTML = grupos.map(function(grupo) {
+      var valores = [];
+      self.ejercicios.forEach(function(e) {
+        var lista = grupo[0] === 'habilidades' ? (e.habilidades || []) : [e[grupo[0]]];
+        lista.forEach(function(v) { if (v && valores.indexOf(v) < 0) valores.push(v); });
+      });
+      valores.sort();
+      return '<div class="hub-grupo"><h3>' + _esc(self.texto(grupo[1])) + '</h3><div class="hub-chips">' +
+        [''].concat(valores).map(function(v) {
+          return '<button type="button" class="hub-chip" aria-pressed="' + ((self.filtros[grupo[0]] || '') === v) + '" onclick="App.views[\'hub-ejercicios\'].filtrar(' + _statsArgumento(grupo[0]) + ',' + _statsArgumento(v) + ')">' + _esc(v ? self.etiqueta(v) : self.texto('Todos')) + '</button>';
+        }).join('') + '</div></div>';
+    }).join('');
+  },
+  filtrar: function(grupo, valor) { this.filtros[grupo] = valor; this.pintarFiltros(); this.pintarLista(); },
+  buscar: function(valor) { this.consulta = valor; this.pintarLista(); },
+  limpiar: function() {
+    this.filtros = {}; this.consulta = '';
+    document.getElementById('hub-buscar').value = '';
+    this.pintarFiltros(); this.pintarLista();
+  },
+  pintarLista: function() {
+    var self = this, q = this.consulta.trim().toLocaleLowerCase();
+    var lista = this.ejercicios.filter(function(e) {
+      return Object.keys(self.filtros).every(function(k) {
+        var v = self.filtros[k];
+        return !v || (k === 'habilidades' ? (e.habilidades || []).indexOf(v) >= 0 : e[k] === v);
+      }) && (!q || [e.nombre,e.nombre_en,e.fuente,e.objetivo,e.como_se_hace,(e.claves || []).join(' ')].join(' ').toLocaleLowerCase().indexOf(q) >= 0);
+    });
+    document.getElementById('hub-cuenta').textContent = lista.length + ' ' + this.texto(lista.length === 1 ? 'ejercicio' : 'ejercicios');
+    document.getElementById('hub-lista').innerHTML = lista.length ? lista.map(function(e) { return self.tarjeta(e); }).join('') : '<p class="hub-vacio">' + _esc(this.texto('No hay ejercicios que coincidan.')) + '</p>';
+  },
+  tarjeta: function(e) {
+    var self = this, t = this.texto.bind(this), medios = (e.medios || []).slice().sort(function(a,b) { return a.orden - b.orden; });
+    function youtube(m) { return m.tipo === 'youtube' && /^[a-zA-Z0-9_-]{11}$/.test(m.youtube_id || '') ? m.youtube_id : ''; }
+    var mini = medios.find(function(m) { return m.es_miniatura && (youtube(m) || self.imagen(m.ruta_o_url)); });
+    var miniUrl = mini && (youtube(mini) ? 'https://i.ytimg.com/vi/' + youtube(mini) + '/hqdefault.jpg' : self.imagen(mini.ruta_o_url));
+    var tags = (e.habilidades || []).concat([e.formato,e.oposicion,e.organizacion]).filter(Boolean);
+    function bloque(titulo, contenido) { return contenido ? '<section><h3>' + _esc(t(titulo)) + '</h3>' + contenido + '</section>' : ''; }
+    function parrafo(s) { return s ? '<p>' + _esc(s) + '</p>' : ''; }
+    var enlaces = (e.enlaces || []).slice().sort(function(a,b) { return a.orden - b.orden; }).map(function(l) {
+      var url = self.url(l.url); return url ? '<a href="' + _esc(url) + '" target="_blank" rel="noopener noreferrer">' + _esc(l.etiqueta || self.etiqueta(l.tipo)) + '</a>' : '';
+    }).join('');
+    var galeria = medios.map(function(m) {
+      var id = youtube(m), url = self.url(m.ruta_o_url), imagen = self.imagen(m.ruta_o_url);
+      if (id) return '<div class="hub-video"><iframe src="https://www.youtube-nocookie.com/embed/' + _esc(id) + '" title="' + _esc(t('Vídeo') + ': ' + (e.nombre || '')) + '" loading="lazy" allowfullscreen></iframe></div>';
+      if (imagen && (m.tipo === 'imagen' || m.tipo === 'gif')) {
+        var img = '<img loading="lazy" src="' + _esc(imagen) + '" alt="' + _esc(t('Imagen') + ': ' + (e.nombre || '')) + '">';
+        return url ? '<a href="' + _esc(url) + '" target="_blank" rel="noopener noreferrer">' + img + '</a>' : img;
+      }
+      return '';
+    }).join('');
+    return '<article class="hub-card"><details><summary>' + (miniUrl ? '<div class="hub-thumb"><img loading="lazy" src="' + _esc(miniUrl) + '" alt=""></div>' : '<div class="hub-thumb"></div>') +
+      '<div class="hub-resumen">' + (e.fecha_enviado ? '<small>' + _esc(e.fecha_enviado) + '</small>' : '') + '<h3>' + _esc(App.preferences.idioma === 'en' && e.nombre_en ? e.nombre_en : e.nombre) + '</h3>' +
+      (e.fuente ? '<p class="hub-fuente">' + _esc(e.fuente) + '</p>' : '') + parrafo(e.objetivo) +
+      '<div class="hub-tags">' + tags.map(function(v) { return '<span>' + _esc(self.etiqueta(v)) + '</span>'; }).join('') + '</div><span class="hub-mas">' + _esc(t('Ver detalle')) + ' →</span></div></summary>' +
+      '<div class="hub-detalle">' + bloque('Objetivo', parrafo(e.objetivo)) + bloque('Cómo se hace', parrafo(e.como_se_hace)) +
+      bloque('Claves', (e.claves || []).length ? '<ul>' + e.claves.map(function(c) { return '<li>' + _esc(c) + '</li>'; }).join('') + '</ul>' : '') +
+      bloque('Versión fácil', parrafo(e.version_facil)) + bloque('Versión difícil', parrafo(e.version_dificil)) +
+      bloque('Material', (e.material || []).length ? '<p>' + e.material.map(function(v) { return _esc(self.etiqueta(v)); }).join(', ') + '</p>' : '') +
+      bloque('Nota', parrafo(e.nota)) + (e.detalle_corto ? '<p class="hub-fuente">' + _esc(t('Detalle breve')) + '</p>' : '') +
+      bloque('Enlaces', enlaces ? '<div class="hub-enlaces">' + enlaces + '</div>' : '') + (galeria ? '<div class="hub-medios">' + galeria + '</div>' : '') + '</div></details></article>';
+  }
+};
 document.addEventListener('DOMContentLoaded',function() { App.i18n.iniciar(); });
 
 </script>

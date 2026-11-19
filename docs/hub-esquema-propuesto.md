@@ -9,5 +9,11 @@ ENUMS (textos fijos, no tablas):
 - link_tipo: video | diagrama | fuente
 - medio_tipo: youtube | imagen | gif
 
-TABLAS: hub_ejercicios, hub_ejercicio_habilidades, hub_ejercicio_material, hub_ejercicio_enlaces, hub_ejercicio_medios
-(detalle completo en el mensaje de Trainer Bot / prompt OMP). Upsert por slug. RLS: lectura autenticados; escritura solo service role / Apps Script.
+Tablas: `hub_ejercicios`, `hub_ejercicio_habilidades`, `hub_ejercicio_material`,
+`hub_ejercicio_enlaces` y `hub_ejercicio_medios`. El esquema y las restricciones
+están en la migración del hub y en `docs/modelo-datos.md`. Upsert por `slug`.
+
+La app autentica con sus propios usuarios, no con Supabase Auth. Por tanto,
+RLS no concede acceso directo a `anon` ni a `authenticated`: Apps Script valida
+el rol de entrenador o administrador y lee con la clave de servicio, que nunca
+se envía al navegador. El agente escribe mediante su token y Apps Script.

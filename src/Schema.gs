@@ -49,4 +49,13 @@ const SCHEMA = {
   Avisos_Jugador: [
     'ID', 'ID_Jugador', 'Tipo', 'Mensaje', 'FechaCreacion', 'Leido', 'FechaLectura'
   ],
+  hub_ejercicios: [
+    'id', 'slug', 'nombre', 'nombre_en', 'fecha_enviado', 'fuente', 'objetivo',
+    'como_se_hace', 'claves', 'version_facil', 'version_dificil', 'nota',
+    'formato', 'oposicion', 'organizacion', 'detalle_corto', 'creado_por', 'created_at', 'updated_at', 'activo'
+  ],
+  hub_ejercicio_habilidades: ['ejercicio_id', 'habilidad'],
+  hub_ejercicio_material: ['ejercicio_id', 'material'],
+  hub_ejercicio_enlaces: ['id', 'ejercicio_id', 'tipo', 'etiqueta', 'url', 'orden'],
+  hub_ejercicio_medios: ['id', 'ejercicio_id', 'tipo', 'youtube_id', 'ruta_o_url', 'es_miniatura', 'orden'],
 };
