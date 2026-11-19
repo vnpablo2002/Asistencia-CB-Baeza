@@ -793,7 +793,7 @@ function cancelarSesion(auth, sesionId, motivo, opciones) {
 }
 
 /**
- * Tras cancelar: guarda el canal y, si es correo, envía los avisos. WhatsApp y copiar solo devuelven el mensaje.
+ * Tras cancelar: acumula canales; el correo se reserva antes de enviarlo para evitar duplicados.
  * @param {Object} auth
  * @param {string} sesionId
  * @param {string} canal - Uno de CONFIG.CANALES_AVISO_CANCELACION
@@ -802,17 +802,83 @@ function cancelarSesion(auth, sesionId, motivo, opciones) {
 function avisarCancelacion(auth, sesionId, canal) {
   try {
     Auth.requireEntrenadorOAdmin(auth);
-    const sesion = Sesiones.registrarAvisoCancelacion(sesionId, canal);
-    let notificacion;
+    const claveReserva = 'cancelacion_correo:' + SUPABASE_ENV + ':' + sesionId;
+    let tokenReserva;
+    const reserva = conBloqueoAvisoCancelacion_(() => {
+      const resultado = Sesiones.registrarAvisoCancelacion(sesionId, canal);
+      if (canal === 'correo' && !resultado.yaRegistrado) {
+        try {
+          tokenReserva = Utilities.getUuid();
+          PropertiesService.getScriptProperties().setProperty(claveReserva, tokenReserva);
+        } catch (e) {
+          Sesiones.retirarReservaCorreoCancelacion(resultado.sesion, resultado.anterior);
+          throw new Error('No se pudo preparar el aviso por correo. Puedes volver a intentarlo.');
+        }
+      }
+      return resultado;
+    });
+    let sesion = reserva.sesion;
+    if (reserva.yaRegistrado) {
+      return { success: true, sesion: sesion, notificacion: {
+        canal: canal, yaRegistrado: true, error: 'El aviso por correo ya está registrado; no se volverá a enviar.',
+      } };
+    }
+    let notificacion, correoIniciado = false, retirarReserva = false;
     try {
-      notificacion = Notificaciones.avisarCancelacionAFamilias(sesion, canal);
+      notificacion = Notificaciones.avisarCancelacionAFamilias(sesion, canal, () => { correoIniciado = true; });
+      if (canal === 'correo' && notificacion.fallidos) {
+        retirarReserva = !notificacion.avisados;
+        notificacion.error = retirarReserva
+          ? 'No se ha enviado ningún correo. Puedes volver a intentarlo.'
+          : 'Algunas familias no recibieron el correo. Avísalas por otro medio; no se reenviará para evitar duplicados.';
+      }
     } catch (e) {
       Logger.log('[avisarCancelacion] No se pudieron completar los avisos a las familias.');
-      notificacion = { canal: canal, error: 'La cancelación se ha guardado, pero no se pudieron completar los avisos a las familias.' };
+      retirarReserva = canal === 'correo' && !correoIniciado;
+      notificacion = { canal: canal, error: retirarReserva
+        ? 'No se ha enviado ningún correo. Puedes volver a intentarlo.'
+        : canal === 'correo'
+          ? 'No se pudo completar el aviso. Puede haber correos enviados; no se reenviará para evitar duplicados.'
+          : 'La cancelación se ha guardado, pero no se pudo preparar el aviso.' };
+    }
+    if (canal === 'correo') {
+      try {
+        const estado = conBloqueoAvisoCancelacion_(() => {
+          const propiedades = PropertiesService.getScriptProperties();
+          if (propiedades.getProperty(claveReserva) !== tokenReserva) {
+            return { sesion: findById(CONFIG.SHEETS.SESIONES, sesionId) || sesion, cambiada: true };
+          }
+          const actual = retirarReserva
+            ? Sesiones.retirarReservaCorreoCancelacion(reserva.sesion, reserva.anterior)
+            : findById(CONFIG.SHEETS.SESIONES, sesionId) || sesion;
+          try { propiedades.deleteProperty(claveReserva); }
+          catch (e) { Logger.log('[avisarCancelacion] No se pudo limpiar la reserva temporal.'); }
+          return { sesion: actual, cambiada: false };
+        });
+        sesion = estado.sesion;
+        if (estado.cambiada) {
+          notificacion.error = 'La sesión cambió durante el envío. Comprueba su estado antes de volver a avisar.';
+        }
+      } catch (e) {
+        Logger.log('[avisarCancelacion] No se pudo actualizar el estado del aviso.');
+        notificacion.error = retirarReserva
+          ? 'No se ha enviado ningún correo, pero no se pudo habilitar el reintento. El correo puede seguir registrado.'
+          : (notificacion.error || 'No se pudo actualizar el estado del aviso; no repitas el envío.');
+      }
     }
     return { success: true, sesion: sesion, notificacion: notificacion };
   } catch (e) {
     return { success: false, error: e.message };
+  }
+}
+
+function conBloqueoAvisoCancelacion_(accion) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(10000);
+    return accion();
+  } finally {
+    if (lock.hasLock()) lock.releaseLock();
   }
 }
 

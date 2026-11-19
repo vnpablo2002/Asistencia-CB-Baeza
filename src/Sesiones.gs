@@ -168,20 +168,55 @@ const Sesiones = {
   },
 
   /**
-   * Guarda el canal de aviso de una sesión ya cancelada. Solo una vez; no reenvía si ya había un canal.
-   * @param {string} sesionId
-   * @param {string} canal - Uno de CONFIG.CANALES_AVISO_CANCELACION
-   * @returns {Object} Sesión actualizada.
+   * Acumula los canales de una sesión cancelada; el correo no se puede volver a reservar.
+   * Se llama con el bloqueo de aviso adquirido.
    */
   registrarAvisoCancelacion(sesionId, canal) {
     if (!CONFIG.CANALES_AVISO_CANCELACION.includes(canal)) throw new Error('Forma de aviso no válida.');
     const sesion = findById(CONFIG.SHEETS.SESIONES, sesionId);
     if (!sesion) throw new Error('Sesión no encontrada.');
     if (sesion.Cancelada !== true && sesion.Cancelada !== 'TRUE') throw new Error('La sesión no está cancelada.');
-    if (sesion.CanalAvisoCancelacion) throw new Error('El aviso a las familias ya está registrado.');
-    const cambios = { CanalAvisoCancelacion: canal };
-    updateRow(CONFIG.SHEETS.SESIONES, sesionId, cambios);
-    return { ...sesion, ...cambios };
+    const anterior = sesion.CanalAvisoCancelacion;
+    let canales = Sesiones._canalesAvisoCancelacion_(anterior);
+    const yaRegistrado = canal === 'correo' && canales.includes('correo');
+    if (canal !== 'ninguno') {
+      canales = canales.filter(c => c !== 'ninguno');
+      if (!canales.includes(canal)) canales.push(canal);
+    } else if (!canales.length) {
+      canales.push('ninguno');
+    }
+    const valor = canales.join(',');
+    if (valor !== anterior) {
+      if (updateRow(CONFIG.SHEETS.SESIONES, sesionId, { CanalAvisoCancelacion: valor }) === false) {
+        throw new Error('Sesión no encontrada.');
+      }
+    }
+    return { sesion: { ...sesion, CanalAvisoCancelacion: valor }, anterior: anterior, yaRegistrado: yaRegistrado };
+  },
+
+  _canalesAvisoCancelacion_(valor) {
+    const canales = [...new Set(String(valor || '').split(',').map(c => c.trim()).filter(Boolean))];
+    return canales.length > 1 ? canales.filter(c => c !== 'ninguno') : canales;
+  },
+
+  // Solo se retira la reserva si se sabe que no se ha enviado ningún correo.
+  retirarReservaCorreoCancelacion(sesionReservada, anterior) {
+    const sesion = findById(CONFIG.SHEETS.SESIONES, sesionReservada.ID);
+    if (!sesion) throw new Error('Sesión no encontrada.');
+    const mismaCancelacion = (sesion.Cancelada === true || sesion.Cancelada === 'TRUE') &&
+      ['FechaCancelacion', 'MotivoCancelacion', 'DetalleCancelacion', 'CanceladoPor']
+        .every(campo => sesion[campo] === sesionReservada[campo]);
+    if (!mismaCancelacion) return sesion;
+    const canalesActuales = Sesiones._canalesAvisoCancelacion_(sesion.CanalAvisoCancelacion);
+    if (!canalesActuales.includes('correo')) return sesion;
+    const canales = canalesActuales.filter(c => c !== 'correo');
+    if (!canales.length && Sesiones._canalesAvisoCancelacion_(anterior).includes('ninguno')) canales.push('ninguno');
+    const valor = canales.length ? canales.join(',') : null;
+    if (valor !== sesion.CanalAvisoCancelacion &&
+        updateRow(CONFIG.SHEETS.SESIONES, sesion.ID, { CanalAvisoCancelacion: valor }) === false) {
+      throw new Error('Sesión no encontrada.');
+    }
+    return { ...sesion, CanalAvisoCancelacion: valor };
   },
 
   reactivarSesion(sesionId) {

@@ -1911,20 +1911,16 @@ body:has(.operation-status.pending:not(.hidden)):has(#toast-container > .toast) 
 .aviso-club-accion { margin: 0; color: var(--texto-sec); font-size: .92rem; line-height: 1.45; }
 /* ── Asistente «Cancelar entrenamiento»: tarjetas de canal (como Ausencia/Retraso) y resultado del aviso. ── */
 .cancelar-canales .justif-choice { min-height: 128px; padding: 14px 8px; }
+.cancelar-canales .justif-choice:disabled { cursor: default; border-color: var(--morado); }
 .cancelar-canales .justif-choice-icon svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .justif-choice[data-canal="whatsapp"] .justif-choice-icon { background: var(--verde-s); color: var(--verde); }
 .justif-choice[data-canal="correo"] .justif-choice-icon { background: var(--morado-s); color: var(--morado); }
 .justif-choice[data-canal="copiar"] .justif-choice-icon { background: var(--ambar-s); color: var(--ambar); }
-.justif-choice[data-canal="ninguno"] .justif-choice-icon { background: var(--fondo); color: var(--texto-sec); }
-.cancelar-wizard .justif-step .cancelar-preview { margin-top: 12px; border-left-color: var(--ambar); }
-.cancelar-wizard .cancelar-preview[hidden] { display: none; }
 .cancelar-hecho .aviso-club-icono { background: var(--ambar-s); }
 .cancelar-hecho .aviso-club-icono svg { stroke: var(--ambar); }
 .cancelar-resultado { display: flex; flex-direction: column; gap: 12px; }
-.cancelar-resultado .justif-preview-wrap { margin: 0; }
-.cancelar-nota { margin: 0; }
-.cancelar-omitidas { margin: 4px 0 0; padding-left: 20px; }
-.cancelar-resultado .btn-whatsapp { text-decoration: none; }
+.cancelar-nota { margin: 0; color: var(--texto-sec); font-size: .84rem; line-height: 1.45; }
+.cancelar-nota:not(:empty), .cancelar-resultado:not(:empty) { margin-top: 12px; }
 .justif-detalle { margin: 12px 0 0; }
 .justif-detalle label { margin-bottom: 4px; }
 .justif-detalle textarea { min-height: 60px; font-size: .88rem; }

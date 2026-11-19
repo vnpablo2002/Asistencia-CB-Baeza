@@ -12,7 +12,24 @@ function servidor({ falloAviso = false } = {}) {
   };
   const writes = [];
   const avisos = [];
+  let ocupado = false;
+  const propiedades = new Map();
+  let token = 0;
   const context = vm.createContext({
+    Utilities: { getUuid: () => 'token-' + ++token },
+    PropertiesService: { getScriptProperties: () => ({
+      setProperty: (clave, valor) => propiedades.set(clave, valor),
+      getProperty: clave => propiedades.get(clave) || null,
+      deleteProperty: clave => propiedades.delete(clave),
+    }) },
+    LockService: { getScriptLock() {
+      let propio = false;
+      return {
+        waitLock() { if (ocupado) throw new Error('Bloqueo ocupado'); ocupado = propio = true; },
+        hasLock: () => propio,
+        releaseLock() { ocupado = propio = false; },
+      };
+    } },
     getSheetData: table => rows[table] || [],
     findById: (table, id) => (rows[table] || []).find(row => row.ID === id),
     updateRow(table, id, cambios) {
@@ -98,14 +115,14 @@ test('autenticación inválida no escribe; un canal inválido no avisa ni guarda
   assert.equal(s.rows.Sesiones[0].CanalAvisoCancelacion, null);
 });
 
-test('fallo del aviso conserva identidad y canal; reactivar los borra', () => {
+test('fallo antes de enviar permite reintentar; reactivar borra identidad y canal', () => {
   const s = servidor({ falloAviso: true });
   assert.equal(s.cancelar(entrenador).success, true);
   const res = s.avisar(entrenador, 'correo');
   assert.equal(res.success, true);
   assert.ok(res.notificacion.error);
   assert.equal(s.rows.Sesiones[0].CanceladoPor, 'Ana Pérez');
-  assert.equal(s.rows.Sesiones[0].CanalAvisoCancelacion, 'correo');
+  assert.equal(s.rows.Sesiones[0].CanalAvisoCancelacion, null);
   const reactivada = s.reactivar(entrenador);
   assert.equal(reactivada.success, true);
   assert.equal(reactivada.sesion.CanceladoPor, null);
@@ -128,4 +145,69 @@ test('una cancelación anterior sin emisor ni canal se puede reactivar y volver 
   const aviso = s.avisar(entrenador, 'copiar');
   assert.equal(aviso.success, true);
   assert.equal(aviso.sesion.CanalAvisoCancelacion, 'copiar');
+});
+
+test('copiar y WhatsApp se acumulan en cualquier orden y se pueden repetir sin duplicados', () => {
+  for (const [primero, segundo] of [['copiar', 'whatsapp'], ['whatsapp', 'copiar']]) {
+    const s = servidor();
+    s.cancelar(entrenador);
+    for (const canal of [primero, segundo, primero, segundo]) {
+      assert.equal(s.avisar(entrenador, canal).success, true);
+    }
+    assert.equal(s.rows.Sesiones[0].CanalAvisoCancelacion, primero + ',' + segundo);
+    assert.equal(s.avisos.length, 4);
+    assert.equal(s.writes.length, 3);
+  }
+});
+
+test('ninguno solo se registra sin canales y se sustituye cuando se avisa', () => {
+  const s = servidor();
+  s.cancelar(entrenador);
+  assert.equal(s.avisar(entrenador, 'ninguno').sesion.CanalAvisoCancelacion, 'ninguno');
+  assert.equal(s.avisar(entrenador, 'ninguno').sesion.CanalAvisoCancelacion, 'ninguno');
+  assert.equal(s.avisar(entrenador, 'copiar').sesion.CanalAvisoCancelacion, 'copiar');
+  assert.equal(s.avisar(entrenador, 'ninguno').sesion.CanalAvisoCancelacion, 'copiar');
+  assert.equal(s.avisar(entrenador, 'whatsapp').sesion.CanalAvisoCancelacion, 'copiar,whatsapp');
+});
+
+test('valores antiguos se conservan y correo previo impide otro envío sin bloquear otros canales', () => {
+  for (const anterior of ['correo', 'copiar', 'whatsapp', 'ninguno', null]) {
+    const s = servidor();
+    Object.assign(s.rows.Sesiones[0], { Cancelada: true, CanalAvisoCancelacion: anterior });
+    const aviso = s.avisar(entrenador, 'correo');
+    if (anterior === 'correo') {
+      assert.equal(aviso.success, true);
+      assert.equal(aviso.notificacion.yaRegistrado, true);
+      assert.match(aviso.notificacion.error, /correo.*ya está registrado/);
+      assert.equal(s.avisos.length, 0);
+    } else {
+      assert.equal(aviso.success, true);
+      assert.equal(aviso.sesion.CanalAvisoCancelacion,
+        anterior && anterior !== 'ninguno' ? anterior + ',correo' : 'correo');
+    }
+    const copiar = s.avisar(entrenador, 'copiar');
+    assert.equal(copiar.success, true);
+    assert.equal(copiar.sesion.CanalAvisoCancelacion.split(',').filter(c => c === 'correo').length, 1);
+    assert.equal(s.avisar(entrenador, 'correo').notificacion.yaRegistrado, true);
+  }
+});
+
+test('un fallo antes de enviar conserva los demás canales y restaura ninguno si era el único', () => {
+  for (const anterior of ['ninguno', 'copiar,whatsapp']) {
+    const s = servidor({ falloAviso: true });
+    Object.assign(s.rows.Sesiones[0], { Cancelada: true, CanalAvisoCancelacion: anterior });
+    const res = s.avisar(entrenador, 'correo');
+    assert.equal(res.success, true);
+    assert.match(res.notificacion.error, /volver a intentarlo/);
+    assert.equal(res.sesion.CanalAvisoCancelacion, anterior);
+  }
+});
+
+test('normaliza espacios y duplicados sin volver a añadir ninguno junto a otros canales', () => {
+  const s = servidor();
+  Object.assign(s.rows.Sesiones[0], { Cancelada: true, CanalAvisoCancelacion: 'ninguno, whatsapp, whatsapp' });
+  const res = s.avisar(entrenador, 'ninguno');
+  assert.equal(res.success, true);
+  assert.equal(res.sesion.CanalAvisoCancelacion, 'whatsapp');
+  assert.equal(s.avisar(entrenador, 'copiar').sesion.CanalAvisoCancelacion, 'whatsapp,copiar');
 });

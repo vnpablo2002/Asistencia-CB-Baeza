@@ -737,39 +737,31 @@
             <span class="aviso-club-icono" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4m8-4v4M9.5 13.5l5 4m0-4-5 4"/></svg></span>
             <h4 id="cancelar-aviso-pregunta" class="justif-question" tabindex="-1">Avisar a las familias</h4>
           </div>
-          <p id="cancelar-aviso-hint" class="justif-hint">El entrenamiento ya est&aacute; cancelado. Elige c&oacute;mo avisarlo.</p>
+          <p id="cancelar-aviso-hint" class="justif-hint">El entrenamiento ya está cancelado. Puedes usar varios canales.</p>
           <div class="justif-choice-grid cancelar-canales" role="group" aria-labelledby="cancelar-aviso-pregunta">
             <a class="justif-choice" id="cancelar-canal-whatsapp" data-canal="whatsapp" href="https://wa.me/" target="_blank" rel="noopener noreferrer" onclick="App.views.cancelarSesion.elegirCanal('whatsapp')">
               <span class="justif-choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4.5 19.5l1.2-3.6A8 8 0 1 1 8.6 18.6z"/><path d="M9 9.5c.4 2.2 2.3 4.2 4.6 4.8l1.1-1.1 1.8.8"/></svg></span>
               <strong>WhatsApp</strong>
               <small>Copia el mensaje y abre WhatsApp</small>
             </a>
-            <button type="button" class="justif-choice" data-canal="correo" aria-pressed="false" onclick="App.views.cancelarSesion.elegirCanal('correo')">
+            <button type="button" class="justif-choice" id="cancelar-canal-correo" data-canal="correo" onclick="App.views.cancelarSesion.elegirCanal('correo')">
               <span class="justif-choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M4.5 7.5l7.5 6 7.5-6"/></svg></span>
               <strong>Correo</strong>
-              <small id="cancelar-canal-correo-info">A las familias con correo</small>
+              <small id="cancelar-canal-correo-info" role="status" aria-live="polite">A las familias con correo</small>
             </button>
-            <button type="button" class="justif-choice" data-canal="copiar" aria-pressed="false" onclick="App.views.cancelarSesion.elegirCanal('copiar')">
+            <button type="button" class="justif-choice" data-canal="copiar" onclick="App.views.cancelarSesion.elegirCanal('copiar')">
               <span class="justif-choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="12" rx="2"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/></svg></span>
               <strong>Copiar mensaje</strong>
               <small>P&eacute;galo donde quieras</small>
             </button>
-            <button type="button" class="justif-choice" data-canal="ninguno" aria-pressed="false" onclick="App.views.cancelarSesion.elegirCanal('ninguno')">
-              <span class="justif-choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9.5 19a2.5 2.5 0 0 0 5 0M6 16.5h12l-1.5-2.5v-4a4.5 4.5 0 0 0-9 0v4z"/><path d="M4 4l16 16"/></svg></span>
-              <strong>No avisar</strong>
-              <small>No se env&iacute;a nada</small>
-            </button>
           </div>
-        </section>
-
-        <section class="justif-step" data-step="hecho" hidden>
-          <div class="aviso-club cancelar-hecho">
-            <span class="aviso-club-icono" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4m8-4v4M9.5 13.5l5 4m0-4-5 4"/></svg></span>
-            <h4 class="justif-question" tabindex="-1">Entrenamiento cancelado</h4>
-          </div>
-          <div id="cancelar-resultado" class="cancelar-resultado"></div>
+          <div id="cancelar-estado-whatsapp" class="cancelar-nota" role="status" aria-live="polite"></div>
+          <div id="cancelar-estado-copiar" class="cancelar-nota" role="status" aria-live="polite"></div>
+          <div id="cancelar-error-whatsapp" class="cancelar-nota" role="status" aria-live="polite"></div>
+          <div id="cancelar-error-copiar" class="cancelar-nota" role="status" aria-live="polite"></div>
+          <div id="cancelar-resultado" class="cancelar-resultado" role="status" aria-live="polite"></div>
           <div class="justif-actions">
-            <button type="button" id="cancelar-terminar" class="btn btn-primary btn-full" onclick="App.views.cancelarSesion.cerrar()">Entendido</button>
+            <button type="button" id="cancelar-terminar" class="btn btn-primary btn-full" onclick="App.views.cancelarSesion.cerrar()">No avisar</button>
           </div>
         </section>
       </div>

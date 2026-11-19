@@ -355,6 +355,10 @@ const App = {
         ? fecha.toLocaleDateString(App.preferences.locale(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : (s.Fecha || '');
       var hora = [s.HoraInicio, s.HoraFin].filter(Boolean).join(' – ');
       var canales = { whatsapp: 'WhatsApp', correo: 'Correo', copiar: 'Copiar mensaje', ninguno: 'No avisar' };
+      var canalesTexto = String(s.CanalAvisoCancelacion || '').split(',').map(function(canal) {
+        canal = canal.trim();
+        return Object.prototype.hasOwnProperty.call(canales, canal) ? App.i18n.texto(canales[canal]) : canal;
+      }).filter(Boolean).join(', ');
       var fechaCancelacion = s.FechaCancelacion || '';
       var partes = /^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}))?/.exec(fechaCancelacion);
       if (partes) {
@@ -370,7 +374,7 @@ const App = {
         ((s.CanceladoPor || fechaCancelacion || s.CanalAvisoCancelacion) ? '<dl class="cancelacion-ficha-meta">' +
           (s.CanceladoPor ? '<div><dt>Cancelado por</dt><dd data-no-i18n>' + _esc(s.CanceladoPor) + '</dd></div>' : '') +
           (fechaCancelacion ? '<div><dt>Fecha de cancelación</dt><dd data-no-i18n>' + _esc(fechaCancelacion) + '</dd></div>' : '') +
-          (s.CanalAvisoCancelacion ? '<div><dt>Canal de aviso</dt><dd>' + _esc(Object.prototype.hasOwnProperty.call(canales, s.CanalAvisoCancelacion) ? canales[s.CanalAvisoCancelacion] : s.CanalAvisoCancelacion) + '</dd></div>' : '') +
+          (canalesTexto ? '<div><dt>Canal de aviso</dt><dd data-no-i18n>' + _esc(canalesTexto) + '</dd></div>' : '') +
           '</dl>' : '') + '</article>';
     },
 
@@ -3472,22 +3476,22 @@ const App = {
     },
 
     // -- Cancelar entrenamiento (entrenador/admin): asistente paso a paso -------
-    // Motivo, detalle, canal y resumen; después de cancelar, WhatsApp se envía desde la cuenta personal.
-    // Motivo y detalle, se cancela, y después se elige cómo avisar a las familias.
+    // Motivo y detalle; tras cancelar se pueden usar varios canales.
     cancelarSesion: {
       PASOS: ['motivo', 'detalle'],
-      CANALES: { whatsapp: 'WhatsApp', correo: 'Correo', copiar: 'Copiar mensaje', ninguno: 'No avisar' },
+      CANALES: { whatsapp: 'WhatsApp', correo: 'Correo', copiar: 'Copiar mensaje' },
       _paso: 'motivo',
       _sesionId: null,
       _datos: null,      // { motivo, detalle }
       _mensaje: '',
-      _notificacion: null,
+      _aviso: null,
+      _secuenciaAviso: 0,
       _cancelada: false, // true cuando cancelarSesion ya ha respondido bien
 
       abrir: function(sesionId) {
         var sesion = this._sesion(sesionId);
         if (!sesion) return;
-        this._notificacion = null;
+        this._aviso = { correo: 'disponible', usados: {} };
         this._cancelada = false;
         this._sesionId = sesionId;
         this._datos = { motivo: '', detalle: '' };
@@ -3497,6 +3501,12 @@ const App = {
         }).join('');
         document.getElementById('cancelar-detalle').value = '';
         document.getElementById('cancelar-resultado').innerHTML = '';
+        document.getElementById('cancelar-estado-whatsapp').textContent = '';
+        document.getElementById('cancelar-estado-copiar').textContent = '';
+        document.getElementById('cancelar-error-whatsapp').textContent = '';
+        document.getElementById('cancelar-error-copiar').textContent = '';
+        document.getElementById('cancelar-terminar').textContent = App.i18n.texto('No avisar');
+        document.getElementById('cancelar-canal-correo').disabled = false;
         document.getElementById('cancelar-sesion-info').textContent = this._descripcion(sesion);
         this._irA('motivo', 0);
         document.getElementById('modal-cancelar-sesion').classList.remove('hidden');
@@ -3504,7 +3514,7 @@ const App = {
         if (foco) foco.focus({ preventScroll: true });
       },
 
-      // Con evento solo cierra al tocar el fondo; sin él (X, Escape, «Entendido») cierra siempre.
+      // Con evento solo cierra al tocar el fondo; sin él (X, Escape o terminar) cierra siempre.
       cerrar: function(e) {
         var modal = document.getElementById('modal-cancelar-sesion');
         if (e && e.target !== modal) return;
@@ -3571,12 +3581,12 @@ const App = {
       _irA: function(paso, direccion) {
         App.wizardCards.salida('modal-cancelar-sesion', direccion);
         this._paso = paso;
-        var d = this._datos, indice = this.PASOS.indexOf(paso), final = paso === 'hecho' || paso === 'aviso';
+        var d = this._datos, indice = this.PASOS.indexOf(paso), final = paso === 'aviso';
         if (paso === 'aviso') this._pintarCanales();
         document.querySelectorAll('#cancelar-steps .justif-step').forEach(function(step) { step.hidden = step.dataset.step !== paso; });
         document.querySelectorAll('#cancelar-steps [data-motivo]').forEach(function(b) { b.setAttribute('aria-pressed', String(b.dataset.motivo === d.motivo)); });
         document.getElementById('cancelar-continuar-motivo').disabled = !d.motivo;
-        document.getElementById('cancelar-titulo').textContent = paso === 'aviso' || paso === 'hecho' ? (paso === 'aviso' ? 'Avisar a las familias' : 'Entrenamiento cancelado') : 'Cancelar entrenamiento';
+        document.getElementById('cancelar-titulo').textContent = App.i18n.texto(paso === 'aviso' ? 'Avisar a las familias' : 'Cancelar entrenamiento');
         document.getElementById('cancelar-progress').classList.toggle('hidden', final);
         if (!final) {
           document.getElementById('cancelar-progress-text').textContent = 'Paso ' + (indice + 1) + ' de ' + this.PASOS.length;
@@ -3611,7 +3621,7 @@ const App = {
       _pintarCanales: function() {
         var f = this._familiasConCorreo();
         var info = document.getElementById('cancelar-canal-correo-info');
-        if (info) info.textContent = f.correo + ' de ' + f.total + ' con correo';
+        if (info) info.textContent = App.i18n.texto(f.correo + ' de ' + f.total + ' con correo');
         var enlace = document.getElementById('cancelar-canal-whatsapp');
         if (enlace) enlace.href = this._enlaceWhatsApp();
       },
@@ -3635,54 +3645,85 @@ const App = {
           .then(function(ok) { boton.disabled = false; return ok; });
       },
 
-      // Tras cancelar: guarda el canal. WhatsApp y copiar copian el mensaje en este toque (el enlace de WhatsApp abre wa.me).
+      // Copia en el gesto del usuario; cada registro tiene su propia operación.
       elegirCanal: function(canal) {
         if (!this.CANALES[canal] || !this._cancelada) return Promise.resolve(false);
-        var self = this, id = this._sesionId, sesion = this._sesion(id);
-        if (!sesion) return Promise.resolve(false);
+        var self = this, id = this._sesionId, sesion = this._sesion(id), estado = this._aviso;
+        if (!sesion || (canal === 'correo' && estado.correo !== 'disponible')) return Promise.resolve(false);
         this._mensaje = this._mensajeActual(sesion, this._datos);
-        var copia = (canal === 'whatsapp' || canal === 'copiar') ? _copiarTexto(this._mensaje) : Promise.resolve(false);
-        return App.operation.run('avisar-cancelacion:' + id, 'avisarCancelacion', [id, canal], function(res) {
-          if (res.sesion) App.cache.upsert('sesiones', res.sesion);
-          return copia.then(function(copiado) {
-            self._pintarResultado(res.notificacion || { canal: canal, mensaje: self._mensaje }, copiado);
-            self._irA('hecho', 1);
-            return true;
+        if (canal === 'correo') {
+          estado.correo = 'enviando';
+          document.getElementById('cancelar-canal-correo').disabled = true;
+          document.getElementById('cancelar-canal-correo-info').textContent = App.i18n.texto('Enviando…');
+          document.getElementById('cancelar-resultado').innerHTML = '';
+        } else {
+          estado.usados[canal] = true;
+          document.getElementById('cancelar-error-' + canal).textContent = '';
+          _copiarTexto(this._mensaje).then(function(copiado) {
+            if (self._aviso !== estado) return;
+            var texto = canal === 'whatsapp' ? (copiado ? 'Abierto ✓' : 'Abierto ✓. No se pudo copiar el mensaje.') : (copiado ? 'Copiado ✓' : 'No se pudo copiar el mensaje.');
+            document.getElementById('cancelar-estado-' + canal).textContent = App.i18n.texto(texto);
+            if (!copiado) {
+              document.getElementById('cancelar-estado-' + canal).innerHTML +=
+                '<div class="justif-preview" data-no-i18n>' + _esc(self._mensaje) + '</div>';
+            }
           });
-        }, null, { pending: 'Guardando aviso\u2026', success: canal === 'correo' ? 'Aviso enviado' : 'Listo' })
-          .catch(function() { return false; });
-      },
-
-      _pintarResultado: function(n, copiado) {
-        this._mensaje = n.mensaje || this._mensaje;
-        this._notificacion = n;
-        var notas = [], html = '', filas = [];
-        if (n.error) notas.push(n.error);
-        else if (n.canal === 'ninguno') notas.push('No se ha avisado a las familias.');
-        else if (n.canal === 'copiar') notas.push(copiado ? 'Mensaje copiado. Pégalo donde quieras.' : 'Copia el mensaje y pégalo donde quieras.');
-        else if (n.canal === 'whatsapp') notas.push(copiado ? 'Mensaje copiado. WhatsApp se ha abierto con el texto listo para el chat o el grupo que elijas.' : 'WhatsApp se ha abierto con el mensaje. Si no se copió, cópialo de aquí.');
-        else if (n.canal === 'correo') {
-          filas.push(['Familias avisadas por correo', n.avisados], ['Omitidas por no tener correo', n.omitidos]);
-          if (n.fallidos) filas.push(['No se pudo enviar', n.fallidos]);
         }
-        if (filas.length) html += '<div class="alta-resumen"><dl>' + filas.map(function(f) { return '<dt>' + _esc(f[0]) + '</dt><dd>' + _esc(String(f[1] || 0)) + '</dd>'; }).join('') + '</dl></div>';
-        html += notas.map(function(tx) { return '<p class="justif-hint cancelar-nota">' + _esc(tx) + '</p>'; }).join('');
-        if ((n.canal === 'copiar' || n.canal === 'whatsapp') && this._mensaje) {
-          html += '<div class="justif-preview-wrap"><div class="justif-preview-label">Mensaje para las familias</div><div class="justif-preview" data-no-i18n>' + _esc(this._mensaje) + '</div></div>' +
-            '<button type="button" class="btn btn-secondary btn-full" onclick="App.views.cancelarSesion.copiar()">Copiar mensaje</button>';
-          if (n.canal === 'whatsapp') {
-            html += '<a class="btn btn-whatsapp btn-full" href="' + _esc(this._enlaceWhatsApp()) + '" target="_blank" rel="noopener noreferrer">Abrir WhatsApp</a>';
+        document.getElementById('cancelar-terminar').textContent = App.i18n.texto('Listo');
+        var procesado = false;
+        return App.operation.run('avisar-cancelacion:' + id + ':' + canal + ':' + (++this._secuenciaAviso), 'avisarCancelacion', [id, canal], function(res) {
+          procesado = true;
+          var n = res.notificacion || {}, canales = String(res.sesion && res.sesion.CanalAvisoCancelacion || '').split(',').map(function(c) { return c.trim(); });
+          if (res.sesion) {
+            var actual = self._sesion(id);
+            var guardados = String(actual && actual.CanalAvisoCancelacion || '').split(',').filter(function(c) { return c && c !== 'ninguno'; });
+            if (canal === 'correo') {
+              if (canales.indexOf('correo') >= 0 && guardados.indexOf('correo') < 0) guardados.push('correo');
+            } else if (guardados.indexOf(canal) < 0) guardados.push(canal);
+            App.cache.upsert('sesiones', Object.assign({}, res.sesion, { CanalAvisoCancelacion: guardados.join(',') || null }));
           }
-        }
-        document.getElementById('cancelar-resultado').innerHTML = html;
-        document.getElementById('cancelar-terminar').textContent = 'Entendido';
+          if (self._aviso === estado && canal === 'correo') {
+            var enviado = canales.indexOf('correo') >= 0;
+            estado.correo = enviado ? 'enviado' : 'disponible';
+            if (enviado) estado.usados.correo = true;
+            document.getElementById('cancelar-canal-correo').disabled = enviado;
+            var estadoCorreo = !enviado ? 'Error. Puedes reintentar.' : n.yaRegistrado ? 'Ya registrado' :
+              n.error ? (n.avisados > 0 ? 'Enviado parcialmente' : 'Resultado incierto') : 'Enviado ✓';
+            document.getElementById('cancelar-canal-correo-info').textContent = App.i18n.texto(estadoCorreo);
+            document.getElementById('cancelar-terminar').textContent = App.i18n.texto(Object.keys(estado.usados).length ? 'Listo' : 'No avisar');
+            self._pintarResultado(n);
+          }
+          if (self._aviso === estado && canal !== 'correo' && n.error) {
+            document.getElementById('cancelar-error-' + canal).textContent = App.i18n.texto(n.error);
+          }
+          if (n.error) throw new Error(n.error);
+          return true;
+        }, null, { pending: canal === 'correo' ? 'Enviando…' : 'Guardando aviso…', success: canal === 'correo' ? 'Aviso enviado' : 'Listo' })
+          .catch(function(error) {
+            if (self._aviso === estado && !procesado) {
+              if (canal === 'correo') {
+                estado.correo = 'disponible';
+                document.getElementById('cancelar-canal-correo').disabled = false;
+                document.getElementById('cancelar-canal-correo-info').textContent = App.i18n.texto('Error. Puedes reintentar.');
+                document.getElementById('cancelar-terminar').textContent = App.i18n.texto(Object.keys(estado.usados).length ? 'Listo' : 'No avisar');
+                self._pintarResultado({ error: error.message });
+              } else {
+                document.getElementById('cancelar-error-' + canal).textContent = App.i18n.texto('No se pudo guardar el canal.') + ' ' + (error.message || '');
+              }
+            }
+            return false;
+          });
       },
 
-      copiar: function() {
-        return _copiarTexto(this._mensaje).then(function(ok) {
-          showToast(ok ? 'Mensaje copiado' : 'No se pudo copiar; mant\u00e9n pulsado el texto para copiarlo', ok ? 'success' : 'error');
-          return ok;
-        });
+      _pintarResultado: function(n) {
+        var filas = [], html = '';
+        if (n.avisados != null) filas.push(['Familias avisadas por correo', n.avisados]);
+        if (n.omitidos != null) filas.push(['Omitidas por no tener correo', n.omitidos]);
+        if (n.fallidos) filas.push(['No se pudo enviar', n.fallidos]);
+        if (filas.length) html += '<div class="alta-resumen"><dl>' + filas.map(function(f) { return '<dt>' + _esc(App.i18n.texto(f[0])) + '</dt><dd>' + _esc(String(f[1])) + '</dd>'; }).join('') + '</dl></div>';
+        if (n.error) html += '<p class="justif-hint cancelar-nota">' + _esc(App.i18n.texto(n.error)) + '</p>';
+        if (n.fallidas && n.fallidas.length) html += '<p class="justif-hint cancelar-nota">' + _esc(App.i18n.texto('No se pudo avisar a:')) + ' ' + n.fallidas.map(function(f) { return _esc(f.jugador); }).join(', ') + '</p>';
+        document.getElementById('cancelar-resultado').innerHTML = html;
       },
     },
 
@@ -8570,7 +8611,7 @@ Object.assign(App.i18n.diccionario, {
   'Opcional. Lo leerán las familias si luego las avisas.':'Optional. Families will read it if you notify them later.',
   'Por ejemplo: recuperamos el entrenamiento el jueves.':'For example: we will make up the session on Thursday.',
   'Avisar a las familias':'Notify families',
-  'El entrenamiento ya está cancelado. Elige cómo avisarlo.':'The session is already cancelled. Choose how to notify families.',
+  'El entrenamiento ya está cancelado. Puedes usar varios canales.':'The session is already cancelled. You can use multiple channels.',
   'Copia el mensaje y abre WhatsApp':'Copy the message and open WhatsApp',
   'A las familias con correo':'To families with an email',
   'Copiar mensaje':'Copy message',
@@ -8581,6 +8622,27 @@ Object.assign(App.i18n.diccionario, {
   'Guardando aviso…':'Saving notice…',
   'Aviso enviado':'Notice sent',
   'Listo':'Done',
+  'Enviado ✓':'Sent ✓',
+  'Enviado parcialmente':'Partially sent',
+  'Ya registrado':'Already recorded',
+  'Resultado incierto':'Result uncertain',
+  'Error. Puedes reintentar.':'Error. You can retry.',
+  'Abierto ✓':'Opened ✓',
+  'Abierto ✓. No se pudo copiar el mensaje.':'Opened ✓. The message could not be copied.',
+  'Copiado ✓':'Copied ✓',
+  'Mensaje copiado.':'Message copied.',
+  'No se pudo copiar el mensaje.':'The message could not be copied.',
+  'No se pudo guardar el canal.':'The channel could not be saved.',
+  'No se pudo avisar a:':'Could not notify:',
+  'El aviso por correo ya está registrado; no se volverá a enviar.':'The email notice is already recorded; it will not be sent again.',
+  'No se pudo preparar el aviso por correo. Puedes volver a intentarlo.':'The email notice could not be prepared. You can try again.',
+  'No se ha enviado ningún correo. Puedes volver a intentarlo.':'No emails were sent. You can try again.',
+  'Algunas familias no recibieron el correo. Avísalas por otro medio; no se reenviará para evitar duplicados.':'Some families did not receive the email. Notify them another way; it will not be resent to avoid duplicates.',
+  'No se pudo completar el aviso. Puede haber correos enviados; no se reenviará para evitar duplicados.':'The notice could not be completed. Some emails may have been sent; it will not be resent to avoid duplicates.',
+  'La cancelación se ha guardado, pero no se pudo preparar el aviso.':'The cancellation was saved, but the notice could not be prepared.',
+  'La sesión cambió durante el envío. Comprueba su estado antes de volver a avisar.':'The session changed during sending. Check its status before notifying again.',
+  'No se ha enviado ningún correo, pero no se pudo habilitar el reintento. El correo puede seguir registrado.':'No emails were sent, but retrying could not be enabled. The email may still be recorded.',
+  'No se pudo actualizar el estado del aviso; no repitas el envío.':'The notice status could not be updated; do not send it again.',
   'No se ha avisado a las familias.':'Families have not been notified.',
   'Mensaje copiado. Pégalo donde quieras.':'Message copied. Paste it wherever you like.',
   'Copia el mensaje y pégalo donde quieras.':'Copy the message and paste it wherever you like.',

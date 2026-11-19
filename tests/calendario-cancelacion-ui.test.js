@@ -68,4 +68,10 @@ test('sesiones antiguas y canales opcionales se muestran sin campos inventados',
     sesion.CanalAvisoCancelacion = valor;
     assert.ok(app.calendar.fichaCancelacion(sesion).includes(etiqueta));
   }
+  sesion.CanalAvisoCancelacion = 'whatsapp, correo, copiar';
+  assert.match(app.calendar.fichaCancelacion(sesion), /WhatsApp, Correo, Copiar mensaje/);
+  app.preferences.idioma = 'en';
+  assert.match(app.calendar.fichaCancelacion(sesion), /WhatsApp, Email, Copy message/);
+  sesion.CanalAvisoCancelacion = 'correo,<desconocido>';
+  assert.match(app.calendar.fichaCancelacion(sesion), /Email, &lt;desconocido&gt;/);
 });

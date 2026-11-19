@@ -8,17 +8,35 @@ const vm = require('node:vm');
 
 const AHORA = '2026-11-11 10:00';
 
-function servidor({ correoFalla = () => false } = {}) {
+function servidor({ correoFalla = () => false, enCorreo = () => {} } = {}) {
   const rows = {};
   const writes = [];
   const correos = [];
   const logs = [];
+  let ocupado = false;
+  const propiedades = new Map();
+  let token = 0;
   const igual = (a, b) => String(a) === String(b);
   const context = vm.createContext({
+    Utilities: { getUuid: () => 'token-' + ++token },
+    PropertiesService: { getScriptProperties: () => ({
+      setProperty: (clave, valor) => propiedades.set(clave, valor),
+      getProperty: clave => propiedades.get(clave) || null,
+      deleteProperty: clave => propiedades.delete(clave),
+    }) },
+    LockService: { getScriptLock() {
+      let propio = false;
+      return {
+        waitLock() { if (ocupado) throw new Error('Bloqueo ocupado'); ocupado = propio = true; },
+        hasLock: () => propio,
+        releaseLock() { ocupado = propio = false; },
+      };
+    } },
     Auth: { requireEntrenadorOAdmin() {}, getEntrenadorActual: () => ({ Nombre: 'Ana', Apellidos: 'Pérez' }) },
     Logger: { log: mensaje => logs.push(String(mensaje)) },
     MailApp: {
       sendEmail(opciones) {
+        enCorreo(opciones);
         if (correoFalla(opciones)) throw new Error('Cuota agotada para ' + opciones.to);
         correos.push(opciones);
       },
@@ -60,7 +78,7 @@ function servidor({ correoFalla = () => false } = {}) {
     rows[T.JUGADORES].push({ ID: id, Nombre: 'Nombre ' + id, Apellidos: 'Apellido', ...datos });
     if (equipo) rows[T.JUGADORES_EQUIPOS].push({ ID: 'rel-' + id, ID_Jugador: id, ID_Equipo: equipo, Activo: activo, Tipo: tipo });
   };
-  return { ...api, rows, writes, correos, logs, cancelar, avisar, jugador, context };
+  return { ...api, rows, writes, correos, logs, propiedades, cancelar, avisar, jugador, context };
 }
 
 const MOTIVO = 'Climatología';
@@ -88,7 +106,7 @@ test('el detalle se guarda en una línea y se borra al reactivar; el canal queda
   assert.equal(s.cancelar(MOTIVO, { detalle: '   ' }).sesion.DetalleCancelacion, null);
 });
 
-test('una sesión ya cancelada no se vuelve a cancelar; avisar no se puede repetir', () => {
+test('una sesión ya cancelada no se vuelve a cancelar y correo no se vuelve a enviar', () => {
   const s = servidor();
   s.jugador('j1', { EmailPadre1: 'familia1@example.test' });
   assert.equal(s.cancelar(MOTIVO).success, true);
@@ -96,7 +114,10 @@ test('una sesión ya cancelada no se vuelve a cancelar; avisar no se puede repet
   assert.equal(s.avisar('correo').success, true);
   assert.equal(s.correos.length, 1);
   assert.equal(s.cancelar(MOTIVO).error, 'La sesión ya está cancelada.');
-  assert.equal(s.avisar('correo').error, 'El aviso a las familias ya está registrado.');
+  const repetido = s.avisar('correo');
+  assert.equal(repetido.success, true);
+  assert.equal(repetido.notificacion.yaRegistrado, true);
+  assert.match(repetido.notificacion.error, /correo.*ya está registrado/);
   assert.equal(s.correos.length, 1);
   assert.equal(s.writes.length, 2);
 });
@@ -221,16 +242,134 @@ test('correo: un envío fallido no impide el resto ni deja datos personales en e
   assert.deepEqual(s.correos.map(c => c.to), ['ok@example.test']);
   assert.equal(res.notificacion.avisados, 1);
   assert.equal(res.notificacion.fallidos, 1);
+  assert.deepEqual(Array.from(res.notificacion.fallidas, f => f.jugador), ['Nombre j1 Apellido']);
+  assert.match(res.notificacion.error, /Avísalas por otro medio/);
+  assert.equal(res.sesion.CanalAvisoCancelacion, 'correo');
+  assert.equal(s.avisar('correo').notificacion.yaRegistrado, true);
+  assert.deepEqual(s.correos.map(c => c.to), ['ok@example.test']);
   assert.ok(s.logs.length && s.logs.every(l => !l.includes('@')));
 });
 
-test('si fallan los avisos la sesión sigue cancelada, el canal queda guardado y la respuesta lo explica', () => {
+test('si falla la preparación la sesión sigue cancelada y correo se puede volver a intentar', () => {
   const s = servidor();
+  s.jugador('j1', { EmailPadre1: 'familia@example.test' });
   assert.equal(s.cancelar(MOTIVO).success, true);
+  const convocados = s.Sesiones.convocados;
   s.Sesiones.convocados = () => { throw new Error('Supabase caído'); };
   const res = s.avisar('correo');
   assert.equal(res.success, true);
   assert.equal(res.sesion.Cancelada, true);
+  assert.equal(res.sesion.CanalAvisoCancelacion, null);
+  assert.match(res.notificacion.error, /volver a intentarlo/);
+  s.Sesiones.convocados = convocados;
+  assert.equal(s.avisar('correo').success, true);
+  assert.deepEqual(s.correos.map(c => c.to), ['familia@example.test']);
+});
+
+test('si fallan todos los envíos se permite reintentar sin perder los demás canales', () => {
+  let falla = true;
+  const s = servidor({ correoFalla: () => falla });
+  s.jugador('j1', { EmailPadre1: 'uno@example.test' });
+  s.jugador('j2', { EmailPadre1: 'dos@example.test' });
+  s.cancelar(MOTIVO);
+  s.avisar('copiar');
+  const res = s.avisar('correo');
+  assert.equal(res.success, true);
+  assert.equal(res.sesion.CanalAvisoCancelacion, 'copiar');
+  assert.equal(res.notificacion.avisados, 0);
+  assert.equal(res.notificacion.fallidos, 2);
+  assert.deepEqual(Array.from(res.notificacion.fallidas, f => f.jugador), ['Nombre j1 Apellido', 'Nombre j2 Apellido']);
+  assert.match(res.notificacion.error, /volver a intentarlo/);
+  falla = false;
+  const repetido = s.avisar('correo');
+  assert.equal(repetido.success, true);
+  assert.equal(repetido.sesion.CanalAvisoCancelacion, 'copiar,correo');
+  assert.deepEqual(s.correos.map(c => c.to), ['uno@example.test', 'dos@example.test']);
+});
+
+test('tras una excepción incierta al comenzar correo se conserva la reserva y no se reenvía', () => {
+  const s = servidor();
+  s.cancelar(MOTIVO);
+  s.Notificaciones.avisarCancelacionAFamilias = (sesion, canal, antesDeEnviar) => {
+    antesDeEnviar();
+    throw new Error('Resultado incierto');
+  };
+  const res = s.avisar('correo');
+  assert.equal(res.success, true);
   assert.equal(res.sesion.CanalAvisoCancelacion, 'correo');
-  assert.equal(res.notificacion.error, 'La cancelación se ha guardado, pero no se pudieron completar los avisos a las familias.');
+  assert.match(res.notificacion.error, /Puede haber correos enviados/);
+  assert.equal(s.avisar('correo').notificacion.yaRegistrado, true);
+});
+
+test('otras solicitudes registran canales mientras se envía correo; otra petición de correo no reenvía', () => {
+  let s, resultados;
+  s = servidor({ enCorreo() {
+    assert.equal(s.propiedades.get('cancelacion_correo:UNPUBLISHED:s1'), 'token-1');
+    s.propiedades.set('cancelacion_correo:PRO:s1', 'otro-entorno');
+    resultados = [s.avisar('whatsapp'), s.avisar('copiar'), s.avisar('correo')];
+  } });
+  s.jugador('j1', { EmailPadre1: 'familia@example.test' });
+  s.cancelar(MOTIVO);
+  const res = s.avisar('correo');
+  assert.equal(resultados[0].success, true);
+  assert.equal(resultados[1].success, true);
+  assert.equal(resultados[2].success, true);
+  assert.equal(resultados[2].notificacion.yaRegistrado, true);
+  assert.match(resultados[2].notificacion.error, /correo.*ya está registrado/);
+  assert.equal(res.sesion.CanalAvisoCancelacion, 'correo,whatsapp,copiar');
+  assert.deepEqual(s.correos.map(c => c.to), ['familia@example.test']);
+  assert.equal(s.propiedades.has('cancelacion_correo:UNPUBLISHED:s1'), false);
+  assert.equal(s.propiedades.get('cancelacion_correo:PRO:s1'), 'otro-entorno');
+});
+
+test('fallo total durante correo no pierde un canal registrado por otra solicitud', () => {
+  let s;
+  s = servidor({ correoFalla: () => true, enCorreo() {
+    assert.equal(s.avisar('whatsapp').success, true);
+  } });
+  s.jugador('j1', { EmailPadre1: 'familia@example.test' });
+  s.cancelar(MOTIVO);
+  const res = s.avisar('correo');
+  assert.equal(res.sesion.CanalAvisoCancelacion, 'whatsapp');
+  assert.match(res.notificacion.error, /volver a intentarlo/);
+  assert.equal(s.correos.length, 0);
+});
+
+test('una cancelación nueva no pierde su reserva cuando termina un correo anterior fallido', () => {
+  let s, segunda, primero = true;
+  s = servidor({
+    correoFalla: opciones => opciones.falloAnterior === true,
+    enCorreo(opciones) {
+      if (!primero) return;
+      primero = false;
+      opciones.falloAnterior = true;
+      s.Sesiones.reactivarSesion('s1');
+      assert.equal(s.cancelar(MOTIVO).success, true);
+      segunda = s.avisar('correo');
+    },
+  });
+  s.jugador('j1', { EmailPadre1: 'familia@example.test' });
+  s.cancelar(MOTIVO);
+  const anterior = s.avisar('correo');
+  assert.equal(segunda.success, true);
+  assert.equal(anterior.sesion.CanalAvisoCancelacion, 'correo');
+  assert.match(anterior.notificacion.error, /sesión cambió/);
+  assert.equal(s.avisar('correo').notificacion.yaRegistrado, true);
+  assert.deepEqual(s.correos.map(c => c.to), ['familia@example.test']);
+  assert.equal(s.propiedades.size, 0);
+});
+
+test('si falla la reserva privada no se envía correo y se conservan los canales anteriores', () => {
+  const s = servidor();
+  s.jugador('j1', { EmailPadre1: 'familia@example.test' });
+  s.cancelar(MOTIVO);
+  s.avisar('copiar');
+  s.context.PropertiesService.getScriptProperties = () => ({
+    setProperty() { throw new Error('Propiedades no disponibles'); },
+  });
+  const res = s.avisar('correo');
+  assert.equal(res.success, false);
+  assert.match(res.error, /volver a intentarlo/);
+  assert.equal(s.rows[s.CONFIG.SHEETS.SESIONES][0].CanalAvisoCancelacion, 'copiar');
+  assert.equal(s.correos.length, 0);
 });
