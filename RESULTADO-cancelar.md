@@ -1,3 +1,26 @@
+# Resultado: Cancelar entrenamiento (iteración 4)
+
+- Commit de aplicación: `2e7459585d762dc141c44ccd2b64c93674d47a91` en `develop`.
+- DEV: **@68**, `CBBAEZA DEV 2e7459585d762dc141c44ccd2b64c93674d47a91`. [Abrir DEV](https://script.google.com/macros/s/AKfycbyhHD-u1fzcUuGXVkC90Zdsnbv2Nj6D7XBFBGWGkgzRd88ubdihmABPvszHnmBj3sys/exec).
+- PRO no se ha desplegado ni se ha modificado su base de datos. No ha hecho falta migración: `CanalAvisoCancelacion` ya es de tipo texto.
+- `npm test`: **291 pruebas, 291 aprobadas**. `graphify update .` actualizado.
+
+## Cambios
+
+- La tarjeta permanece abierta y permite correo, copiar y WhatsApp en cualquier orden. Copiar y WhatsApp se pueden repetir; «No avisar» pasa a «Listo» al usar una opción.
+- El correo muestra el progreso y el resultado en su opción. Las demás opciones siguen disponibles mientras se envía. El servidor reserva el canal para evitar duplicados, también entre peticiones concurrentes.
+- Los canales usados se guardan sin duplicados y separados por comas. La ficha de cancelación muestra sus nombres; los valores anteriores siguen siendo válidos.
+- Si no se envía ningún correo se permite reintentar. Si el envío es parcial, se identifican las familias afectadas y se bloquea el reenvío para no duplicar los ya enviados. Una interrupción durante el envío puede dejar la reserva bloqueada por seguridad.
+- Estados accesibles con `aria-live` y textos en español e inglés; se conservan los temas de la aplicación.
+
+## Verificación
+
+- Chrome headless, con datos y llamadas simulados: tarjeta en claro y oscuro, copiar mientras el correo está pendiente y estado de correo enviado; también estado de WhatsApp en inglés y enlace `wa.me`.
+- El acceso público de DEV abrió la pantalla de login tras desplegar. No se canceló ninguna sesión real ni se enviaron correos reales.
+- El despliegue no pudo abrir automáticamente una ventana privada; la URL DEV se comprobó en un navegador headless aislado.
+
+---
+
 # Resultado: Cancelar entrenamiento (iteración 3)
 
 Commit: `5b7e439` en `develop` (`feat(ui): cancelar primero y avisar después, WhatsApp solo con wa.me`).
