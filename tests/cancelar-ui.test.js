@@ -129,8 +129,11 @@ test('cerrar tras cancelar deja la sesión cancelada, sin registrar canal', asyn
   assert.equal(calls.length, 1);
 });
 
-test('el correo muestra recuento y no se envía dos veces', async () => {
-  const { wizard, calls, els } = client({ canal: 'correo', correosEnviados: 1, avisados: 1, omitidos: 2, fallidos: 0 });
+const jugadoresCorreo = (...estados) => estados.map(([nombre, estado]) => ({ nombre, estado }));
+
+test('el correo muestra el informe por jugador y no se envía dos veces', async () => {
+  const { wizard, calls, els } = client({ canal: 'correo', correosEnviados: 1,
+    jugadores: jugadoresCorreo(['Gil, Luis', 'sin_correo'], ['Ruiz, Ana', 'enviado'], ['Sanz, Eva', 'error']) });
   wizard.abrir('s1');
   wizard.elegirMotivo('Climatología');
   assert.equal(await wizard.elegirCanal('correo'), false);
@@ -139,9 +142,29 @@ test('el correo muestra recuento y no se envía dos veces', async () => {
   assert.equal(els['cancelar-resultado'].textContent, 'Enviando…');
   assert.equal(await envio, true);
   assert.equal(els['cancelar-canal-correo'].disabled, true);
-  assert.match(els['cancelar-resultado'].innerHTML, /Se ha enviado 1 correo\./);
+  assert.match(els['cancelar-resultado'].innerHTML, /is-aviso.*Correo enviado a 1 de 3 jugadores\./);
+  const informe = els['cancelar-informe'].innerHTML;
+  const [pendientes, recibidos] = informe.split('</details>');
+  assert.match(pendientes, /is-pendiente" open>.*No lo han recibido.*cancelar-grupo-n">2</);
+  assert.match(pendientes, /Gil, Luis<\/span><span class="cancelar-motivo is-sin-correo">Sin correo registrado/);
+  assert.match(pendientes, /Sanz, Eva<\/span><span class="cancelar-motivo is-error">Error de envío/);
+  assert.match(recibidos, /is-ok" open>.*Lo han recibido.*cancelar-grupo-n">1<.*Ruiz, Ana/);
   assert.equal(await wizard.elegirCanal('correo'), false);
   assert.equal(calls.length, 2);
+});
+
+test('si todos lo reciben solo se ve el estado positivo; las listas largas empiezan plegadas', async () => {
+  const { app, wizard, els, setResponder } = client();
+  wizard.abrir('s1');
+  wizard.elegirMotivo('Otro');
+  await wizard.confirmar();
+  const nombres = Array.from({ length: 7 }, (_, i) => ['Apellido, Jugador ' + i, 'enviado']);
+  setResponder(() => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: 'correo' },
+    notificacion: { canal: 'correo', correosEnviados: 7, jugadores: jugadoresCorreo(...nombres) } }));
+  assert.equal(await wizard.elegirCanal('correo'), true);
+  assert.match(els['cancelar-resultado'].innerHTML, /is-ok.*Correo enviado a los 7 jugadores\./);
+  assert.doesNotMatch(els['cancelar-informe'].innerHTML, /No lo han recibido/);
+  assert.match(els['cancelar-informe'].innerHTML, /is-ok"><summary>/, 'más de 6 recibidos: plegado');
 });
 
 test('copiar y WhatsApp se repiten mientras se envía correo, sin alterar su resultado', async () => {
@@ -166,9 +189,9 @@ test('copiar y WhatsApp se repiten mientras se envía correo, sin alterar su res
   assert.equal(await wizard.elegirCanal('whatsapp'), true);
   assert.deepEqual(portapapeles, [MENSAJE, MENSAJE, MENSAJE, MENSAJE]);
   assert.equal(els['cancelar-resultado'].textContent, 'Enviando…');
-  resolverCorreo({ success: true, sesion: { ...base, CanalAvisoCancelacion: 'correo' }, notificacion: { canal: 'correo', correosEnviados: 12 } });
+  resolverCorreo({ success: true, sesion: { ...base, CanalAvisoCancelacion: 'correo' }, notificacion: { canal: 'correo', correosEnviados: 1, jugadores: jugadoresCorreo(['Ruiz, Ana', 'enviado']) } });
   assert.equal(await pendiente, true);
-  assert.match(els['cancelar-resultado'].innerHTML, /Se han enviado 12 correos\./);
+  assert.match(els['cancelar-resultado'].innerHTML, /Correo enviado al jugador convocado\./);
   assert.deepEqual(new Set(app.cache.sesiones[0].CanalAvisoCancelacion.split(',')), new Set(['copiar', 'whatsapp', 'correo']));
 });
 
@@ -178,19 +201,21 @@ test('sin correos y envío parcial informan del resultado sin duplicar', async (
   wizard.elegirMotivo('Otro');
   await wizard.confirmar();
   setResponder(() => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: 'correo' },
-    notificacion: { canal: 'correo', correosEnviados: 0, convocados: 2, omitidos: 2, fallidos: 0 } }));
+    notificacion: { canal: 'correo', correosEnviados: 0, jugadores: jugadoresCorreo(['Gil, Luis', 'sin_correo'], ['Sanz, Eva', 'sin_correo']) } }));
   assert.equal(await wizard.elegirCanal('correo'), true);
   assert.match(els['cancelar-resultado'].innerHTML, /No hay familias con correo/);
+  assert.doesNotMatch(els['cancelar-informe'].innerHTML, /Lo han recibido/);
   assert.equal(await wizard.elegirCanal('correo'), false);
   wizard.abrir('s1');
   wizard.elegirMotivo('Otro');
   await wizard.confirmar();
   setResponder(() => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: 'correo' },
-    notificacion: { canal: 'correo', correosEnviados: 1, error: 'Error parcial', fallidos: 1, fallidas: [{ jugador: 'Ana <Ruiz>' }] } }));
+    notificacion: { canal: 'correo', correosEnviados: 1, error: 'Error parcial', fallidos: 1,
+      jugadores: jugadoresCorreo(['Ana <Ruiz>', 'error'], ['Gil, Luis', 'enviado']) } }));
   assert.equal(await wizard.elegirCanal('correo'), false);
-  assert.match(els['cancelar-resultado'].innerHTML, /Se ha enviado 1 correo/);
+  assert.match(els['cancelar-resultado'].innerHTML, /Correo enviado a 1 de 2 jugadores/);
   assert.match(els['cancelar-resultado'].innerHTML, /Error parcial/);
-  assert.match(els['cancelar-resultado'].innerHTML, /Ana &lt;Ruiz&gt;/);
+  assert.match(els['cancelar-informe'].innerHTML, /Ana &lt;Ruiz&gt;/);
   assert.equal(await wizard.elegirCanal('correo'), false);
 });
 
@@ -206,9 +231,12 @@ test('fallo total permite reintento y el resultado se traduce al inglés', async
   assert.equal(await pendiente, false);
   assert.equal(els['cancelar-canal-correo'].disabled, false);
   assert.match(els['cancelar-resultado'].innerHTML, /Offline/);
-  setResponder(canal => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: canal }, notificacion: { canal, correosEnviados: 2 } }));
+  assert.equal(els['cancelar-informe'].innerHTML, '');
+  setResponder(canal => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: canal },
+    notificacion: { canal, correosEnviados: 1, jugadores: jugadoresCorreo(['Gil, Luis', 'enviado'], ['Ruiz, Ana', 'sin_correo']) } }));
   assert.equal(await wizard.elegirCanal('correo'), true);
-  assert.match(els['cancelar-resultado'].innerHTML, /2 emails have been sent/);
+  assert.match(els['cancelar-resultado'].innerHTML, /Email sent to 1 of 2 players\./);
+  assert.match(els['cancelar-informe'].innerHTML, /Not received.*No email on file.*Received/);
 });
 
 test('fallo del portapapeles no registra copia ni muestra mensajes', async () => {

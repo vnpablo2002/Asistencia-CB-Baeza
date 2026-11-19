@@ -741,12 +741,13 @@
             </button>
             <div id="cancelar-mensaje" data-no-i18n></div>
           </div>
+          <div id="cancelar-resultado" class="cancelar-resultado" role="status" aria-live="polite"></div>
+          <div id="cancelar-informe" class="cancelar-informe"></div>
           <div class="justif-actions">
             <div class="cancelar-canales" role="group" aria-labelledby="cancelar-aviso-pregunta">
               <a class="btn btn-whatsapp" id="cancelar-canal-whatsapp" href="https://wa.me/" target="_blank" rel="noopener noreferrer" onclick="App.views.cancelarSesion.elegirCanal('whatsapp')">Copiar y abrir WhatsApp</a>
               <button type="button" class="btn btn-primary" id="cancelar-canal-correo" onclick="App.views.cancelarSesion.elegirCanal('correo')">Enviar correos</button>
             </div>
-            <div id="cancelar-resultado" class="cancelar-resultado" role="status" aria-live="polite"></div>
             <button type="button" id="cancelar-terminar" class="cancelar-cerrar" onclick="App.views.cancelarSesion.cerrar()">Cerrar</button>
           </div>
         </section>

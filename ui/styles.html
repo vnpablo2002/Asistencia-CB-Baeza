@@ -1922,8 +1922,40 @@ body:has(.operation-status.pending:not(.hidden)):has(#toast-container > .toast) 
 .cancelar-canales { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
 .cancelar-canales .btn { width: 100%; min-height: 44px; text-decoration: none; }
 .cancelar-cerrar { width: 100%; min-height: 44px; color: var(--texto-sec); font-weight: 600; }
-.cancelar-resultado { display: flex; flex-direction: column; gap: 12px; }
-.cancelar-resultado:not(:empty) { margin-top: 12px; }
+/* Resultado del correo, en el cuerpo bajo el mensaje: resumen (aria-live) y quién no lo ha recibido (ámbar) y quién sí (verde). */
+.cancelar-resultado { scroll-margin-top: 12px; color: var(--texto-sec); font-size: .84rem; }
+.cancelar-resultado:not(:empty) { margin-top: 14px; }
+.cancelar-resumen { display: flex; align-items: flex-start; gap: 10px; padding: 11px 12px; border-radius: var(--r); line-height: 1.35; }
+.cancelar-resumen strong { display: block; padding-top: 2px; font-size: .88rem; font-weight: 800; }
+.cancelar-resumen p { margin: 4px 0 0; color: var(--texto); font-size: .76rem; line-height: 1.45; }
+.cancelar-resumen.is-ok { background: var(--verde-s); color: var(--verde); }
+.cancelar-resumen.is-aviso { background: var(--ambar-s); color: var(--ambar); }
+.cancelar-resumen-icono { display: grid; place-items: center; flex: 0 0 24px; height: 24px; border-radius: 50%; font-size: .8rem; font-weight: 900; }
+.cancelar-resumen.is-ok .cancelar-resumen-icono { background: var(--verde); color: var(--verde-s); }
+.cancelar-resumen.is-aviso .cancelar-resumen-icono { background: var(--ambar); color: var(--ambar-s); }
+.cancelar-informe { display: grid; gap: 10px; }
+.cancelar-informe:not(:empty) { margin-top: 10px; }
+.cancelar-grupo { overflow: hidden; border: 1px solid var(--borde); border-radius: var(--r); background: var(--blanco); }
+.cancelar-grupo.is-pendiente { border-left: 4px solid var(--ambar); }
+.cancelar-grupo.is-ok { border-left: 4px solid var(--verde); }
+.cancelar-grupo summary { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 12px; color: var(--texto); font-size: .84rem; font-weight: 750; list-style: none; cursor: pointer; }
+.cancelar-grupo summary::-webkit-details-marker { display: none; }
+.cancelar-grupo summary:focus-visible { outline: 2px solid var(--morado); outline-offset: -2px; }
+.cancelar-grupo-icono { display: grid; place-items: center; flex: 0 0 22px; height: 22px; border-radius: 50%; font-size: .72rem; font-weight: 900; }
+.cancelar-grupo.is-ok .cancelar-grupo-icono { background: var(--verde-s); color: var(--verde); }
+.cancelar-grupo.is-pendiente .cancelar-grupo-icono { background: var(--ambar-s); color: var(--ambar); }
+.cancelar-grupo-titulo { flex: 1; min-width: 0; }
+.cancelar-grupo-n { min-width: 26px; padding: 2px 8px; border-radius: 999px; background: var(--fondo); color: var(--texto-sec); font-size: .72rem; font-variant-numeric: tabular-nums; text-align: center; }
+.cancelar-grupo-chevron { color: var(--texto-sec); font-size: 1.15rem; line-height: 1; transition: transform .15s; }
+.cancelar-grupo[open] .cancelar-grupo-chevron { transform: rotate(90deg); }
+.cancelar-lista { max-height: 232px; margin: 0; padding: 0 12px 4px; overflow-y: auto; overscroll-behavior: contain; list-style: none; }
+.cancelar-lista li { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; padding: 8px 0; border-top: 1px solid var(--borde); font-size: .82rem; }
+.cancelar-lista-nombre { min-width: 0; color: var(--texto); font-weight: 600; overflow-wrap: anywhere; }
+.cancelar-grupo.is-ok .cancelar-lista-nombre::before { content: '\2713'; margin-right: 8px; color: var(--verde); font-weight: 900; }
+.cancelar-motivo { padding: 2px 9px; border-radius: 999px; font-size: .68rem; font-weight: 750; white-space: nowrap; }
+.cancelar-motivo.is-sin-correo { background: var(--ambar-s); color: var(--ambar); }
+.cancelar-motivo.is-error { background: var(--rojo-s); color: var(--rojo); }
+@media (prefers-reduced-motion: reduce) { .cancelar-grupo-chevron { transition: none; } }
 .justif-detalle { margin: 12px 0 0; }
 .justif-detalle label { margin-bottom: 4px; }
 .justif-detalle textarea { min-height: 60px; font-size: .88rem; }

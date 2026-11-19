@@ -212,6 +212,15 @@ test('correo: uno por familia a sus tutores, omite sin correo o con avisos desac
   assert.equal(n.correosEnviados, 2, 'dos mensajes para tres familias y tres direcciones');
   assert.equal(n.omitidos, 3);
   assert.equal(n.fallidos, 0);
+  assert.deepEqual(n.jugadores.map(j => [j.nombre, j.estado]), [
+    ['Apellido, Nombre adulto', 'enviado'],
+    ['Apellido, Nombre ana', 'enviado'],
+    ['Apellido, Nombre desactivado', 'sin_correo'],
+    ['Apellido, Nombre hermano', 'enviado'],
+    ['Apellido, Nombre invalido', 'sin_correo'],
+    ['Apellido, Nombre sin-datos', 'sin_correo'],
+  ]);
+  assert.ok(!JSON.stringify(n.jugadores).includes('@'), 'el informe no expone direcciones');
 });
 
 test('correo HTML escapa equipo, detalle y firma, manteniendo los mismos datos en texto plano', () => {
@@ -244,7 +253,7 @@ test('correo: un envío fallido no impide el resto ni deja datos personales en e
   assert.equal(res.notificacion.avisados, 1);
   assert.equal(res.notificacion.fallidos, 1);
   assert.equal(res.notificacion.correosEnviados, 1);
-  assert.deepEqual(Array.from(res.notificacion.fallidas, f => f.jugador), ['Nombre j1 Apellido']);
+  assert.deepEqual(res.notificacion.jugadores.map(j => [j.nombre, j.estado]), [['Apellido, Nombre j1', 'error'], ['Apellido, Nombre j2', 'enviado']]);
   assert.match(res.notificacion.error, /Avísalas por otro medio/);
   assert.equal(res.sesion.CanalAvisoCancelacion, 'correo');
   assert.equal(s.avisar('correo').notificacion.yaRegistrado, true);
@@ -267,7 +276,9 @@ test('correo: hermanos comparten destinatarios y un fallo parcial solo cuenta lo
   assert.equal(res.notificacion.correosEnviados, 1);
   assert.equal(res.notificacion.avisados, 2);
   assert.equal(res.notificacion.fallidos, 1);
-  assert.deepEqual(Array.from(res.notificacion.fallidas, f => f.jugador), ['Nombre otro Apellido']);
+  assert.deepEqual(res.notificacion.jugadores.map(j => [j.nombre, j.estado]),
+    [['Apellido, Nombre ana', 'enviado'], ['Apellido, Nombre hermano', 'enviado'], ['Apellido, Nombre otro', 'error']],
+    'otro no queda cubierto aunque madre@ sí recibió el correo');
   assert.equal(res.sesion.CanalAvisoCancelacion, 'correo');
 });
 
@@ -300,7 +311,7 @@ test('si fallan todos los envíos se permite reintentar sin perder los demás ca
   assert.equal(res.notificacion.avisados, 0);
   assert.equal(res.notificacion.fallidos, 2);
   assert.equal(res.notificacion.correosEnviados, 0);
-  assert.deepEqual(Array.from(res.notificacion.fallidas, f => f.jugador), ['Nombre j1 Apellido', 'Nombre j2 Apellido']);
+  assert.deepEqual(res.notificacion.jugadores.map(j => j.estado), ['error', 'error']);
   assert.match(res.notificacion.error, /volver a intentarlo/);
   falla = false;
   const repetido = s.avisar('correo');

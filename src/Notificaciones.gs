@@ -206,7 +206,9 @@ CB Baeza — Gestión de Asistencia`;
    * @param {string} canal  - Uno de CONFIG.CANALES_AVISO_CANCELACION
    * @param {Function} [antesDeEnviar] - Señala que se va a intentar un envío.
    * @returns {{ canal: string, mensaje?: string, convocados?: number, avisados?: number, omitidos?: number,
-   *   omitidas?: Object[], fallidos?: number, fallidas?: Object[], correosEnviados?: number }}
+   *   fallidos?: number, correosEnviados?: number,
+   *   jugadores?: { nombre: string, estado: 'enviado'|'sin_correo'|'error' }[] }}
+   *   `jugadores`: un estado por convocado («Apellidos, Nombre», sin direcciones), ordenado por nombre.
    */
   avisarCancelacionAFamilias(sesion, canal, antesDeEnviar) {
     if (canal === 'ninguno') return { canal: canal };
@@ -217,16 +219,23 @@ CB Baeza — Gestión de Asistencia`;
 
     const jugadores = Sesiones.convocados(sesion);
     const familias = jugadores.map(j => ({
-      jugador: [j.Nombre, j.Apellidos].filter(Boolean).join(' '),
+      jugador: [j.Apellidos, j.Nombre].map(p => String(p || '').trim()).filter(Boolean).join(', '),
       contactos: Notificaciones.contactosFamilia(j),
     }));
-    resultado.convocados = jugadores.length;
-    resultado.omitidas = familias.filter(f => !f.contactos.length).map(f => ({ jugador: f.jugador }));
-    resultado.omitidos = resultado.omitidas.length;
-    return Object.assign(resultado, Notificaciones._avisarCancelacionPorCorreo_(familias.filter(f => f.contactos.length), sesion, equipo, mensaje, antesDeEnviar));
+    const envio = Notificaciones._avisarCancelacionPorCorreo_(familias.filter(f => f.contactos.length), sesion, equipo, mensaje, antesDeEnviar);
+    const estados = familias.map(f => ({
+      nombre: f.jugador,
+      estado: !f.contactos.length ? 'sin_correo' : f.contactos.every(c => envio.enviados.has(c.valor)) ? 'enviado' : 'error',
+    })).sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    const contar = estado => estados.filter(e => e.estado === estado).length;
+    return Object.assign(resultado, {
+      convocados: jugadores.length, avisados: contar('enviado'), omitidos: contar('sin_correo'), fallidos: contar('error'),
+      correosEnviados: envio.correosEnviados, jugadores: estados,
+    });
   },
 
   // Un correo por familia (sus direcciones en «Para»): ninguna familia ve las direcciones de las demás.
+  // Devuelve las direcciones que recibieron el correo (solo para el servidor) y los envíos completados.
   _avisarCancelacionPorCorreo_(familias, sesion, equipo, mensaje, antesDeEnviar) {
     const enviados = new Set();
     let correosEnviados = 0;
@@ -251,9 +260,7 @@ CB Baeza — Gestión de Asistencia`;
       }
       pendientes.forEach(email => enviados.add(email));
     });
-    const fallidas = familias.filter(f => f.contactos.some(c => !enviados.has(c.valor)))
-      .map(f => ({ jugador: f.jugador }));
-    return { avisados: familias.length - fallidas.length, fallidos: fallidas.length, fallidas: fallidas, correosEnviados: correosEnviados };
+    return { enviados: enviados, correosEnviados: correosEnviados };
   },
 
   // ══════════════════════════════════════════════════════════════════════════════
