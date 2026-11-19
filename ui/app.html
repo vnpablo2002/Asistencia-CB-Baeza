@@ -1277,6 +1277,8 @@ const App = {
       'politica-cookies':        'Política de cookies',
     };
     document.getElementById('header-title').textContent = titulos[view] || 'CB Baeza';
+    var appRoot = document.getElementById('app');
+    if (appRoot) appRoot.dataset.vista = view;  // el hub usa más ancho en escritorio
 
     var fabViews = {'equipos-admin':true,'jugadores-admin':true,'entrenadores-admin':true};
     var fab = document.getElementById('fab-btn');
@@ -8661,134 +8663,874 @@ Object.assign(App.i18n.diccionario, {
   'Canal de aviso':'Notification channel'
 });
 Object.assign(App.i18n.diccionario, {
-  'Ejercicios':'Exercises', 'Explorar ejercicios de entrenamiento':'Explore training exercises',
-  'Buscar ejercicios':'Search exercises', 'Buscar por nombre, fuente o contenido…':'Search by name, source or content…',
-  'Filtros':'Filters', 'Habilidad':'Skill', 'Formato':'Format', 'Oposición':'Opposition', 'Organización':'Organisation',
-  'Todos':'All', 'Limpiar filtros':'Clear filters', 'Cargando ejercicios…':'Loading exercises…',
-  'No se pudieron cargar los ejercicios.':'Could not load exercises.', 'Reintentar':'Retry',
-  'No hay ejercicios que coincidan.':'No exercises match.', 'ejercicio':'exercise', 'ejercicios':'exercises',
-  'Objetivo':'Goal', 'Cómo se hace':'How to do it', 'Claves':'Coaching points',
-  'Versión fácil':'Easier version', 'Versión difícil':'Harder version', 'Material':'Equipment',
-  'Enlaces':'Links', 'Nota':'Note', 'Detalle breve':'Brief details', 'Ver detalle':'View details',
-  'Vídeo':'Video', 'Diagrama':'Diagram', 'Fuente':'Source', 'Imagen':'Image',
-  'Bote':'Dribbling', 'Protección':'Protection', 'Salida':'First step', 'Finalización':'Finishing',
-  'Lectura':'Reading the game', 'Cambio de ritmo':'Change of pace', 'Desmarque':'Getting open',
-  'Defensa':'Defence', 'Transición':'Transition', 'Rebote':'Rebounding', 'Analítico':'Analytical',
-  'Juego':'Game', 'Sin oposición':'No opposition', 'Limitada':'Limited', 'Ventaja':'Advantage',
-  'Igualdad':'Equal numbers', 'Desventaja':'Disadvantage', 'Parejas':'Pairs', 'Filas':'Lines',
-  'Grupo':'Group', 'Conos':'Cones', 'Petos':'Bibs', 'Churro':'Foam noodle'
+  'Ejercicios':'Exercises', 'Explorar ejercicios de entrenamiento':'Explore training exercises', 'Aprender':'Learn', 'Revisión':'Review',
+  'Secciones del hub':'Hub sections', 'Buscar ejercicios':'Search exercises', 'Buscar en Aprender':'Search Learn',
+  'Busca: bote, 2c1, calentamiento, tiro…':'Search: dribbling, 2v1, warm-up, shooting…', 'Busca un tema: ataque, feedback, carga…':'Search a topic: offence, feedback, load…',
+  'Borrar búsqueda':'Clear search', 'Filtros':'Filters', 'Cerrar filtros':'Close filters', 'Ordenar por':'Sort by', 'Relevancia':'Relevance',
+  'Más recientes':'Newest', 'Dificultad':'Difficulty', 'Duración':'Duration', 'Todo':'All', 'Tipo':'Type', 'Tema':'Topic',
+  'Habilidad':'Skill', 'Fase del juego':'Game phase', 'Categoría':'Category', 'Nivel':'Level', 'Esfuerzo físico':'Physical load',
+  'Tiempo disponible':'Time available', 'Jugadores disponibles':'Players available', 'Material que tengo':'Equipment I have',
+  'Canastas disponibles':'Hoops available', 'Recursos':'Resources', 'Idioma del vídeo':'Video language', 'Competición':'Competition',
+  'Momento de la sesión':'Session part', 'Suave':'Light', 'Medio':'Moderate', 'Intenso':'Intense', 'Sin canasta':'No hoop', 'Hasta 1 canasta':'Up to 1 hoop',
+  'Con vídeo del ejercicio':'With video of the drill', 'Con pizarra':'With diagram', 'Competitivo':'Competitive', 'Sin competición':'Non-competitive',
+  'Menos jugadores':'Fewer players', 'Más jugadores':'More players', 'Cualquier número':'Any number', 'Cualquiera':'Any', 'jugadores':'players',
+  'Muestra lo que funciona con ese número en una canasta o espacio.':'Shows what works with that number at one hoop or space.',
+  'Marca lo que tienes: se ocultan las tareas que necesitan otra cosa.':'Tick what you have: drills that need anything else are hidden.',
+  'Solo balones':'Balls only', 'Limpiar':'Clear', 'Limpiar todo':'Clear all', 'Limpiar filtros':'Clear filters', 'Quitar filtro':'Remove filter',
+  'Ver 1 resultado':'Show 1 result', 'resultado':'result', 'resultados':'results', 'contenido':'item', 'contenidos':'items', 'pasos':'steps', 'bloques':'blocks',
+  'Cargando ejercicios…':'Loading exercises…', 'No se pudo cargar el hub':'The hub could not be loaded',
+  'Comprueba la conexión y vuelve a intentarlo.':'Check your connection and try again.', 'Reintentar':'Retry',
+  'Nada encaja con tu búsqueda':'Nothing matches your search', 'Prueba a quitar algún filtro o a buscar con otras palabras.':'Try removing a filter or searching with other words.',
+  'Prueba con otras palabras o con un sinónimo.':'Try other words or a synonym.', 'Todavía no hay ejercicios':'No exercises yet',
+  'Todavía no hay contenidos para aprender':'Nothing to learn yet', 'Trainer Bot irá proponiendo material nuevo; aparecerá aquí en cuanto llegue.':'Trainer Bot will keep proposing new material; it will show up here as soon as it arrives.',
+  'Físico':'Physical', 'Cognitiva':'Cognitive', 'Montaje':'Set-up', 'Carga cognitiva':'Cognitive load', 'Nivel del contenido':'Content level',
+  'Solo texto':'Text only', 'Pendiente de subir':'Upload pending', 'Por subir':'Pending upload', 'Jugadores':'Players', 'Situación':'Situation', 'Ventaja inicial':'Initial advantage',
+  'Organización':'Organisation', 'Espacio':'Space', 'Canastas':'Hoops', 'Balones':'Balls', 'Momento':'Session part', 'Valoración':'Rating',
+  'Para quién y qué fase':'Who it is for and game phase', 'Objetivo':'Goal', 'Cómo se hace':'How it works', 'Descripción':'Description', 'Reglas':'Rules', 'Puntos clave':'Coaching points',
+  'Errores comunes':'Common mistakes', 'Variantes':'Variations', 'Más fácil':'Easier', 'Más difícil':'Harder', 'Material':'Equipment',
+  'Ideas principales':'Key ideas', 'Capítulos del vídeo':'Video chapters', 'Ir al minuto':'Go to', 'Pasos de la progresión':'Progression steps',
+  'Pasa al siguiente cuando':'Move on when', 'Después':'Next', 'Estructura de la sesión':'Session structure', 'Minutos por área':'Minutes per area', 'Total':'Total',
+  'Ver también':'See also', 'Nota':'Note', 'Licencia':'Licence', 'Ficha no disponible':'Item not available', 'Volver':'Back', 'Cerrar':'Close', 'Cerrar ficha':'Close item',
+  'Vídeo':'Video', 'Reproducir vídeo':'Play video', 'Tramo':'Clip', 'Sin vídeo ni imagen: la ficha es el material.':'No video or image: the card itself is the material.',
+  'La pizarra está pendiente de subir al hub.':'The diagram has not been uploaded to the hub yet.', 'Abrir en':'Open in', 'Abrir':'Open', 'Ver aquí':'Show here', 'En pantalla':'Showing',
+  'Pendiente de revisión':'Pending review', 'Marcar revisada':'Mark as reviewed', 'Archivar':'Archive', 'Archivar ficha':'Archive item', 'Cancelar':'Cancel',
+  'La ficha dejará de verse en el hub. Podrás recuperarla desde la base de datos.':'The item will no longer appear in the hub. It can be restored from the database.',
+  'Ficha archivada':'Item archived', 'Ficha revisada':'Item reviewed', 'Confianza':'Confidence', 'Sin avisos de validación':'No validation warnings',
+  'Todo revisado':'All reviewed', 'No hay fichas propuestas pendientes.':'There are no proposed items pending.',
+  'Fichas propuestas pendientes de revisar. Las que tienen avisos aparecen primero.':'Proposed items awaiting review. Those with warnings come first.',
+  // Vocabulario del esquema v2 (HubEsquema.gs)
+  'Ejercicio':'Drill', 'Progresión':'Progression', 'Sesión modelo':'Model session', 'Teoría':'Theory', 'Analítico':'Analytical', 'Juego':'Game',
+  'Bote de control':'Ball-control dribble', 'Bote en velocidad':'Speed dribble', 'Bote de protección':'Protective dribble', 'Cambios de mano y dirección':'Crossovers and direction changes',
+  'Cambio de ritmo':'Change of pace', 'Mecánica de tiro':'Shooting mechanics', 'Tiro tras recepción':'Catch and shoot', 'Tiro tras bote':'Pull-up shot', 'Tiro libre':'Free throw',
+  'Entrada a canasta':'Layup', 'Finalizaciones variadas':'Finishing variety', 'Finalización con contacto':'Finishing through contact', 'Pase':'Passing', 'Recepción':'Receiving',
+  'Paradas y pivotes':'Stops and pivots', 'Triple amenaza':'Triple threat', 'Salida en 1c1':'1v1 first step', 'Lectura del defensor':'Reading the defender', 'Fintas':'Fakes',
+  'Desmarque':'Getting open', 'Juego de poste':'Post play', 'Lectura de juego':'Reading the game', 'Pasar y cortar':'Pass and cut', 'Espaciado':'Spacing',
+  'Bloqueo directo':'On-ball screen', 'Bloqueo indirecto':'Off-ball screen', 'Contraataque':'Fast break', 'Ataque a zona':'Zone offence', 'Sistemas de ataque':'Set plays',
+  'Saques':'Inbounds', 'Posición defensiva':'Defensive stance', 'Desplazamientos defensivos':'Defensive footwork', 'Defensa del jugador con balón':'On-ball defence',
+  'Defensa sin balón':'Off-ball defence', 'Ayudas y rotaciones':'Help and rotations', 'Defensa de bloqueos':'Screen defence', 'Defensa zonal':'Zone defence', 'Presión':'Pressure',
+  'Balance defensivo':'Transition defence', 'Rebote ofensivo':'Offensive rebounding', 'Rebote defensivo':'Defensive rebounding', 'Coordinación':'Coordination',
+  'Agilidad':'Agility', 'Velocidad de reacción':'Reaction speed', 'Aceleración':'Acceleration', 'Salto':'Jumping', 'Fuerza':'Strength', 'Resistencia':'Endurance',
+  'Comunicación':'Communication', 'Cooperación':'Cooperation', 'Competitividad':'Competitiveness', 'Concentración':'Focus', 'Gestión del error':'Handling mistakes',
+  'Ataque':'Offence', 'Defensa':'Defence', 'Transición ofensiva':'Offensive transition', 'Transición defensiva':'Defensive transition', 'Balón parado':'Dead-ball situations',
+  'Técnica y táctica':'Technique and tactics', 'Metodología':'Methodology', 'Planificación':'Planning', 'Preparación física':'Physical preparation',
+  'Psicología y grupo':'Psychology and group', 'Reglamento':'Rules of the game', 'Salud y prevención':'Health and prevention',
+  'Sin oposición':'No opposition', 'Oposición pasiva':'Passive opposition', 'Oposición condicionada':'Conditioned opposition', 'Oposición real':'Live opposition',
+  'Sin ventaja inicial':'No initial advantage', 'Ventaja del ataque':'Offence advantage', 'Ventaja de la defensa':'Defence advantage', 'Grupal':'Group',
+  'Individual':'Individual', 'Parejas':'Pairs', 'Tríos':'Threes', 'Filas':'Lines', 'Grupos reducidos':'Small groups', 'Grupo completo':'Whole group', 'Equipos':'Teams',
+  'Circuito o estaciones':'Circuit or stations', 'Zona de canasta':'Basket area', 'Cuarto de pista':'Quarter court', 'Media pista':'Half court', 'Pista completa':'Full court',
+  'Cualquier espacio':'Any space', 'Sin balón':'No ball', 'Un balón':'One ball', 'Un balón por grupo':'One ball per group', 'Un balón por pareja':'One ball per pair',
+  'Un balón por jugador':'One ball per player', 'Conos':'Cones', 'Chinos':'Flat markers', 'Petos':'Bibs', 'Picas':'Poles', 'Aros':'Hoops (rings)',
+  'Escalera de coordinación':'Agility ladder', 'Vallas':'Hurdles', 'Churros':'Foam noodles', 'Escudos de contacto':'Contact pads', 'Colchonetas':'Mats', 'Sillas':'Chairs',
+  'Balones medicinales':'Medicine balls', 'Pelotas de tenis':'Tennis balls', 'Gomas elásticas':'Resistance bands', 'Calentamiento':'Warm-up', 'Parte principal':'Main part',
+  'Vuelta a la calma':'Cool-down', 'Júnior':'Under-18', 'Sénior':'Senior', 'Externo':'External', 'Adaptado':'Adapted', 'Propio':'Own',
+  'Confianza alta':'High confidence', 'Confianza media':'Medium confidence', 'Confianza baja':'Low confidence',
+  'Vídeo de YouTube':'YouTube video', 'Vídeo de Instagram':'Instagram video', 'Vídeo de TikTok':'TikTok video',
+  'Pizarra':'Diagram', 'Imagen':'Image', 'PDF':'PDF', 'Artículo web':'Web article', 'Español':'Spanish', 'Inglés':'English', 'Otro idioma':'Other language',
+  'Sin voz':'No voice-over', 'Idioma desconocido':'Unknown language', 'Este ejercicio':'This drill', 'Variante':'Variation', 'Apoyo':'Support',
+  'Iniciación':'Beginner', 'Intermedio':'Intermediate', 'Avanzado':'Advanced', 'Técnica individual':'Individual technique', 'Táctica individual':'Individual tactics',
+  'Táctica colectiva':'Team tactics', 'Físico y coordinación':'Physical and coordination', 'Mental y valores':'Mental and values', 'Bote':'Dribbling',
+  'Tiro y finalización':'Shooting and finishing', 'Pase y recepción':'Passing and receiving', 'Fundamentos sin bote':'Footwork without the ball', 'Ataque individual':'Individual offence',
+  'Ataque colectivo':'Team offence', 'Defensa individual':'Individual defence', 'Defensa colectiva':'Team defence', 'Rebote':'Rebounding'
 });
+App.i18n.patrones.push(
+  [/^Ver (\d+) resultados$/, 'Show $1 results'],
+  [/^Hasta (\d+) min$/, 'Up to $1 min'],
+  [/^Hasta (\d+) canastas$/, 'Up to $1 hoops'],
+  [/^(\d+) jugadores$/, '$1 players'],
+  [/^Tengo: (.+)$/, function(todo, lista) { return 'I have: ' + lista.split(', ').map(function(m) { return App.i18n.texto(m); }).join(', '); }]
+);
 
 App.views['hub-ejercicios'] = {
-  ejercicios: [], filtros: {}, consulta: '', secuencia: 0,
-  etiquetas: {
-    bote:'Bote', proteccion:'Protección', salida:'Salida', finalizacion:'Finalización', lectura:'Lectura',
-    'cambio-ritmo':'Cambio de ritmo', desmarque:'Desmarque', defensa:'Defensa', transicion:'Transición', rebote:'Rebote',
-    analitico:'Analítico', juego:'Juego', 'sin-oposicion':'Sin oposición', limitada:'Limitada', ventaja:'Ventaja',
-    igualdad:'Igualdad', desventaja:'Desventaja', parejas:'Parejas', filas:'Filas', grupo:'Grupo',
-    conos:'Conos', petos:'Petos', churro:'Churro', video:'Vídeo', diagrama:'Diagrama', fuente:'Fuente', imagen:'Imagen'
+  fichas: [], vocab: null, porSlug: {}, estado: 'inicial', secuencia: 0,
+  tab: 'ejercicios', consulta: '', orden: 'relevancia', filtros: { ejercicios: {}, aprender: {} },
+  pila: [], medio: null, origenFoco: null, eventos: false,
+  REF: "App.views['hub-ejercicios']",
+  ICONOS: {
+    buscar: 'M11 4a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM20 20l-4.2-4.2', filtro: 'M4 6h16M7 12h10M10 18h4',
+    cerrar: 'M6 6l12 12M18 6L6 18', atras: 'M15 5l-7 7 7 7', play: 'M8 5.5v13l10.5-6.5z',
+    pizarra: 'M4 5h16v11H4zM8 20l4-4 4 4M8 9l3 3 5-4', texto: 'M6 3h9l3 3v15H6zM9 10h6M9 14h6M9 18h4',
+    enlace: 'M14 4h6v6M20 4l-9 9M18 14v6H4V6h6', jugadores: 'M9 11a3.2 3.2 0 1 0 0-6.4A3.2 3.2 0 0 0 9 11zM3 20a6 6 0 0 1 12 0M16.5 11a2.6 2.6 0 1 0 0-5.2M21 20a5 5 0 0 0-3.6-4.8',
+    reloj: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7.5V12l3 2', canasta: 'M4 7h16M6.5 7l2.2 11h6.6L17.5 7M8.2 12h7.6M12 7v11',
+    pista: 'M3 6h18v12H3zM12 6v12M12 9.6a2.4 2.4 0 1 0 0 4.8 2.4 2.4 0 0 0 0-4.8z', balon: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3v18M5.7 5.7a9 9 0 0 1 0 12.6M18.3 5.7a9 9 0 0 0 0 12.6',
+    trofeo: 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M9 20h6', pasos: 'M4 19h5v-5h5V9h6V5',
+    sesion: 'M9 3h6v3H9zM7 4.5H5V21h14V4.5h-2M9 11h6M9 15h6M9 19h3', libro: 'M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5zM5 19.5A1.5 1.5 0 0 0 6.5 21H19M9 7h6',
+    check: 'M5 12.5l4.5 4.5L19 7.5', aviso: 'M12 3.5l9.5 16.5h-19zM12 10v4.5M12 17.3v.2', ordenar: 'M7 4v16M4 7l3-3 3 3M17 20V4M14 17l3 3 3-3',
+    mas: 'M12 5v14M5 12h14', menos: 'M5 12h14', subir: 'M6 15l6-6 6 6', bajar: 'M6 9l6 6 6-6', archivar: 'M4 4h16v5H4zM6 9v11h12V9M10 13h4',
+    bandeja: 'M4 13.5L6 5h12l2 8.5V20H4zM4 13.5h5l1.2 2.5h3.6l1.2-2.5h5', diana: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zM12 11.2v1.6',
   },
-  texto: function(s) { return App.i18n.texto(s); },
-  etiqueta: function(s) { return this.texto(this.etiquetas[s] || s || ''); },
-  url: function(s) {
-    s = String(s || '').trim();
-    return /^(https:\/\/[^\s]+|\/(?!\/)[^\s]*|\.{1,2}\/[^\s]+|[a-zA-Z0-9_][a-zA-Z0-9_./%?&=#~-]*)$/.test(s) ? s : '';
+  NIVELES: { iniciacion: [1, 2], intermedio: [3, 3], avanzado: [4, 5] },
+  ESFUERZOS: { suave: ['Suave', 1, 2], medio: ['Medio', 3, 3], intenso: ['Intenso', 4, 5] },
+
+  t: function(s) { return App.i18n.texto(s); },
+  et: function(vocab, valor) {
+    var v = this.vocab && this.vocab.etiquetas && this.vocab.etiquetas[vocab];
+    return (v && v[valor]) || String(valor == null ? '' : valor);
   },
-  imagen: function(s) {
-    s = String(s || '').trim();
-    return /^data:image\/(?:png|jpeg|gif|webp|svg\+xml);base64,[a-zA-Z0-9+/=\r\n]+$/.test(s) ? s : this.url(s);
+  ico: function(nombre, clase) {
+    return '<svg class="hub-ico' + (clase ? ' ' + clase : '') + '" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="' + this.ICONOS[nombre] + '"/></svg>';
   },
+  mmss: function(s) {
+    s = Math.max(0, Math.round(s || 0));
+    var h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), seg = s % 60;
+    return (h ? h + ':' + (m < 10 ? '0' : '') : '') + m + ':' + (seg < 10 ? '0' : '') + seg;
+  },
+  rango: function(f, campo) {
+    if (typeof f[campo] === 'number') return [f[campo], f[campo]];
+    var a = f[campo + '_min'], b = f[campo + '_max'];
+    return typeof a === 'number' ? [a, typeof b === 'number' ? b : a] : null;
+  },
+  duracion: function(f) {
+    if (f.tipo_contenido === 'sesion_modelo') return typeof f.minutos_total === 'number' ? [f.minutos_total, f.minutos_total] : null;
+    if (f.tipo_contenido === 'teoria') {
+      var p = this.principal(f);
+      return p && p.duracion_seg ? [Math.ceil(p.duracion_seg / 60), Math.ceil(p.duracion_seg / 60)] : null;
+    }
+    return typeof f.minutos_min === 'number' ? [f.minutos_min, typeof f.minutos_max === 'number' ? f.minutos_max : f.minutos_min] : null;
+  },
+  principal: function(f) {
+    var r = f.recursos || [];
+    for (var i = 0; i < r.length; i++) if (r[i].principal) return r[i];
+    return r[0] || null;
+  },
+  esVideo: function(r) { return !!r && /^video_/.test(r.tipo_recurso || ''); },
+  urlSegura: function(u) { u = String(u || ''); return /^https:\/\/[^\s"'<>\\]+$/i.test(u) ? u : ''; },
+  esImagen: function(r) {
+    return !!r && (r.tipo_recurso === 'pizarra_diagrama' || r.tipo_recurso === 'imagen_foto') && /\.(png|jpe?g|gif|webp|svg)(\?[^#]*)?$/i.test(this.urlSegura(r.url));
+  },
+  miniatura: function(f) {
+    var p = this.principal(f);
+    if (p && p.youtube_id && /^[A-Za-z0-9_-]{11}$/.test(p.youtube_id)) return 'https://i.ytimg.com/vi/' + p.youtube_id + '/mqdefault.jpg';
+    return this.esImagen(p) ? this.urlSegura(p.url) : '';
+  },
+
+  // ── Búsqueda: texto_busqueda normalizado, raíz sencilla y prefijos; nombre y resumen pesan más ──
+  normalizar: function(s) {
+    return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
+  },
+  raiz: function(p) { return p.length > 4 && /es$/.test(p) ? p.slice(0, -2) : p.length > 3 && /s$/.test(p) ? p.slice(0, -1) : p; },
+  tokens: function(s) {
+    var self = this, vistos = {};
+    return this.normalizar(s).split(' ').filter(function(p) { return p && !vistos[p] && (vistos[p] = true); }).map(function(p) { return self.raiz(p); });
+  },
+  indexar: function(f) {
+    var etiquetas = [this.et('habilidad', f.habilidad_principal), this.et('tema_teoria', f.tema_teoria)].join(' ');
+    f._q = { nombre: this.tokens([f.nombre, f.nombre_original].join(' ')), resumen: this.tokens(f.resumen + ' ' + etiquetas), todo: this.tokens([f.texto_busqueda, f.fuente, f.slug].join(' ')) };
+  },
+  puntuar: function(f, consulta) {
+    var q = this.tokens(consulta), total = 0;
+    if (!q.length) return 1;
+    var idx = f._q || (this.indexar(f), f._q);
+    var en = function(lista, p) { for (var i = 0; i < lista.length; i++) if (lista[i].indexOf(p) === 0) return true; return false; };
+    for (var i = 0; i < q.length; i++) {
+      var p = q[i], s = (en(idx.nombre, p) ? 6 : 0) + (en(idx.resumen, p) ? 3 : 0) + (en(idx.todo, p) ? 1 : 0);
+      if (!s) return 0;
+      total += s;
+    }
+    return total;
+  },
+
+  // ── Filtros: cada faceta combina sus valores con O; las facetas entre sí, con Y ──
+  facetas: function() {
+    var self = this;
+    var intersecta = function(r, a, b) { return !!r && r[0] <= b && r[1] >= a; };
+    return [
+      { id: 'tipo', titulo: 'Tipo', tabs: 'ejercicios', valores: ['analitico', 'juego', 'progresion', 'sesion_modelo'],
+        etiqueta: function(v) { return v === 'analitico' || v === 'juego' ? self.et('naturaleza', v) : self.et('tipo_contenido', v); },
+        test: function(f, v) { return f.tipo_contenido === v || (f.tipo_contenido === 'ejercicio' && f.naturaleza === v); } },
+      { id: 'tema', titulo: 'Tema', tabs: 'aprender', vocab: 'tema_teoria', test: function(f, v) { return f.tema_teoria === v; } },
+      { id: 'habilidad', titulo: 'Habilidad', agrupada: true, vocab: 'habilidad',
+        test: function(f, v) { return f.habilidad_principal === v || (f.habilidades_secundarias || []).indexOf(v) >= 0; } },
+      { id: 'fase', titulo: 'Fase del juego', vocab: 'fase_juego', test: function(f, v) { return (f.fase_juego || []).indexOf(v) >= 0; } },
+      { id: 'categoria', titulo: 'Categoría', vocab: 'categorias',
+        test: function(f, v) { var c = f.categorias || f.categorias_comunes || []; return c.indexOf(v) >= 0 || (f.tipo_contenido === 'teoria' && !c.length); } },
+      { id: 'nivel', titulo: 'Nivel', vocab: 'nivel', test: function(f, v) { return intersecta(self.rango(f, 'dificultad'), self.NIVELES[v][0], self.NIVELES[v][1]); } },
+      { id: 'esfuerzo', titulo: 'Esfuerzo físico', tabs: 'ejercicios', valores: ['suave', 'medio', 'intenso'],
+        etiqueta: function(v) { return self.ESFUERZOS[v][0]; },
+        test: function(f, v) { return intersecta(self.rango(f, 'esfuerzo_fisico'), self.ESFUERZOS[v][1], self.ESFUERZOS[v][2]); } },
+      { id: 'minutos', titulo: 'Tiempo disponible', tabs: 'ejercicios', unico: true, valores: [5, 10, 15, 20, 30],
+        etiqueta: function(v) { return 'Hasta ' + v + ' min'; }, test: function(f, v) { var d = self.duracion(f); return !!d && d[0] <= v; } },
+      { id: 'jugadores', titulo: 'Jugadores disponibles', tabs: 'ejercicios', especial: 'jugadores' },
+      { id: 'material', titulo: 'Material que tengo', tabs: 'ejercicios', especial: 'material' },
+      { id: 'canastas', titulo: 'Canastas disponibles', tabs: 'ejercicios', unico: true, valores: [0, 1, 2, 4],
+        etiqueta: function(v) { return v === 0 ? 'Sin canasta' : v === 1 ? 'Hasta 1 canasta' : 'Hasta ' + v + ' canastas'; },
+        test: function(f, v) { return typeof f.canastas_necesarias === 'number' && f.canastas_necesarias <= v; } },
+      { id: 'recurso', titulo: 'Recursos', valores: ['video_exacto', 'pizarra'],
+        etiqueta: function(v) { return v === 'video_exacto' ? 'Con vídeo del ejercicio' : 'Con pizarra'; },
+        test: function(f, v) { return v === 'video_exacto' ? !!f.tiene_video_exacto : !!f.tiene_diagrama; } },
+      { id: 'idioma', titulo: 'Idioma del vídeo', valores: ['es', 'en', 'sin_voz', 'otro'], etiqueta: function(v) { return self.et('idioma', v); },
+        test: function(f, v) { return (f.recursos || []).some(function(r) { return self.esVideo(r) && r.idioma === v; }); } },
+      { id: 'competitivo', titulo: 'Competición', tabs: 'ejercicios', unico: true, valores: ['si', 'no'],
+        etiqueta: function(v) { return v === 'si' ? 'Competitivo' : 'Sin competición'; },
+        test: function(f, v) { return typeof f.competitivo === 'boolean' && f.competitivo === (v === 'si'); } },
+      { id: 'momento', titulo: 'Momento de la sesión', tabs: 'ejercicios', vocab: 'momento_sesion', test: function(f, v) { return (f.momento_sesion || []).indexOf(v) >= 0; } },
+    ].filter(function(fa) { return !fa.tabs || fa.tabs === self.tab; });
+  },
+  valoresFaceta: function(fa) {
+    if (fa.valores) return fa.valores;
+    var orden = Object.keys((this.vocab && this.vocab.etiquetas[fa.vocab]) || {});
+    if (fa.id === 'tema') {
+      var presentes = this.fichas.map(function(f) { return f.tema_teoria; });
+      return orden.filter(function(v) { return presentes.indexOf(v) >= 0; });
+    }
+    return orden;
+  },
+  etiquetaFaceta: function(fa, v) { return fa.etiqueta ? fa.etiqueta(v) : this.et(fa.vocab, v); },
+  delTab: function(f) {
+    if (this.tab === 'aprender') return f.tipo_contenido === 'teoria';
+    if (this.tab === 'revision') return f.estado === 'propuesto';
+    return f.tipo_contenido !== 'teoria';
+  },
+  cumple: function(f, filtros, excepto) {
+    var self = this;
+    return this.facetas().every(function(fa) {
+      if (fa.id === excepto) return true;
+      if (fa.especial === 'jugadores') {
+        var n = filtros.jugadores;
+        if (typeof n !== 'number') return true;
+        return typeof f.jugadores_min === 'number' && f.jugadores_min <= n && (f.jugadores_max == null || f.jugadores_max >= n);
+      }
+      if (fa.especial === 'material') {
+        var tengo = filtros.material;
+        if (!Array.isArray(tengo)) return true;
+        return Array.isArray(f.material) && f.material.every(function(m) { return tengo.indexOf(m) >= 0; });
+      }
+      var sel = filtros[fa.id];
+      return !sel || !sel.length || sel.some(function(v) { return fa.test.call(self, f, v); });
+    });
+  },
+  resultados: function() {
+    var self = this, filtros = this.filtros[this.tab] || {}, q = this.consulta.trim();
+    var lista = this.fichas.filter(function(f) { return self.delTab(f) && self.cumple(f, filtros); })
+      .map(function(f) { return { f: f, p: self.puntuar(f, q) }; }).filter(function(x) { return x.p > 0; });
+    var fecha = function(a, b) { return String(b.f.fecha_enviado || '').localeCompare(String(a.f.fecha_enviado || '')) || String(a.f.nombre).localeCompare(String(b.f.nombre), 'es'); };
+    var num = function(r) { return r ? r[0] * 100 + r[1] : 1e9; };
+    var criterios = {
+      relevancia: function(a, b) { return (b.p - a.p) || fecha(a, b); },
+      recientes: fecha,
+      dificultad: function(a, b) { return (num(self.rango(a.f, 'dificultad')) - num(self.rango(b.f, 'dificultad'))) || fecha(a, b); },
+      duracion: function(a, b) { return (num(self.duracion(a.f)) - num(self.duracion(b.f))) || fecha(a, b); },
+    };
+    return lista.sort(criterios[this.orden] || criterios.relevancia).map(function(x) { return x.f; });
+  },
+  numActivos: function(filtros) {
+    var n = 0;
+    Object.keys(filtros || {}).forEach(function(k) {
+      var v = filtros[k];
+      if (k === 'jugadores') n += typeof v === 'number' ? 1 : 0;
+      else if (k === 'material') n += Array.isArray(v) ? 1 : 0;
+      else n += (v || []).length;
+    });
+    return n;
+  },
+  alternar: function(faceta, valor) {
+    var filtros = this.filtros[this.tab], fa = this.facetas().filter(function(x) { return x.id === faceta; })[0];
+    if (!fa) return;
+    var sel = (filtros[faceta] || []).slice(), i = sel.indexOf(valor);
+    if (i >= 0) sel.splice(i, 1); else if (fa.unico) sel = [valor]; else sel.push(valor);
+    filtros[faceta] = sel;
+    this.actualizar();
+  },
+  rapido: function(valor) {
+    var faceta = this.tab === 'aprender' ? 'tema' : 'tipo';
+    var actual = this.filtros[this.tab][faceta] || [];
+    this.filtros[this.tab][faceta] = valor === null || (actual.length === 1 && actual[0] === valor) ? [] : [valor];
+    this.actualizar();
+  },
+  quitar: function(faceta, valor) {
+    var filtros = this.filtros[this.tab];
+    if (faceta === 'jugadores' || faceta === 'material') filtros[faceta] = null;
+    else filtros[faceta] = (filtros[faceta] || []).filter(function(v) { return v !== valor; });
+    this.actualizar();
+    var siguiente = document.querySelector('#hub-activos button') || document.getElementById('hub-q');
+    if (siguiente) siguiente.focus();
+  },
+  limpiar: function() {
+    this.filtros[this.tab] = {};
+    this.actualizar();
+  },
+  jugadores: function(delta) {
+    var filtros = this.filtros[this.tab], n = filtros.jugadores;
+    filtros.jugadores = delta === null ? null : typeof n === 'number' ? Math.min(30, Math.max(1, n + delta)) : 10;
+    this.actualizar();
+  },
+  material: function(valor) {
+    var filtros = this.filtros[this.tab], tengo = filtros.material;
+    if (valor === null) filtros.material = Array.isArray(tengo) && !tengo.length ? null : [];
+    else {
+      tengo = Array.isArray(tengo) ? tengo.slice() : [];
+      var i = tengo.indexOf(valor);
+      if (i >= 0) tengo.splice(i, 1); else tengo.push(valor);
+      filtros.material = tengo.length ? tengo : null;
+    }
+    this.actualizar();
+  },
+  buscar: function(valor) {
+    this.consulta = String(valor || '');
+    var borrar = document.getElementById('hub-q-borrar');
+    if (borrar) borrar.hidden = !this.consulta;
+    if (this.consulta.trim() && this.orden !== 'relevancia') { this.orden = 'relevancia'; var o = document.getElementById('hub-orden'); if (o) o.value = 'relevancia'; }
+    this.actualizar();
+  },
+  borrarBusqueda: function() {
+    var input = document.getElementById('hub-q');
+    if (input) { input.value = ''; input.focus(); }
+    this.buscar('');
+  },
+  ordenar: function(valor) { this.orden = valor; this.actualizar(); },
+  cambiarTab: function(tab) {
+    if (tab === this.tab) return;
+    this.tab = tab; this.orden = 'relevancia';
+    this.pintar();
+    var b = document.getElementById('hub-tab-' + tab);
+    if (b) b.focus();
+  },
+  teclaTabs: function(event) {
+    var tabs = Array.prototype.slice.call(document.querySelectorAll('.hub-tabs [role="tab"]'));
+    var i = tabs.indexOf(document.activeElement), d = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+    if (!d || i < 0) return;
+    event.preventDefault();
+    this.cambiarTab(tabs[(i + d + tabs.length) % tabs.length].dataset.tab);
+  },
+
+  // ── Carga ──
   render: function() {
     var host = document.getElementById('hub-ejercicios-contenido'), self = this;
     if (!host || (App.state.rol !== 'entrenador' && !App.state.esAdmin)) return;
+    this.iniciarEventos();
+    this.pila = []; this.medio = null; this.origenFoco = null;
+    if (this.tab === 'revision' && !App.state.esAdmin) this.tab = 'ejercicios';
     var seq = ++this.secuencia, authSeq = App.state._authReqSeq;
-    this.filtros = {}; this.consulta = ''; this.ejercicios = [];
-    host.innerHTML = '<div class="hub-page"><p role="status">' + _esc(this.texto('Cargando ejercicios…')) + '</p></div>';
-    server('listarEjercicios').then(function(res) {
+    var vigente = function() { return seq === self.secuencia && authSeq === App.state._authReqSeq && App.state.currentView === 'hub-ejercicios'; };
+    if (!this.fichas.length) this.estado = 'cargando';
+    this.pintar();
+    server('listarHub').then(function(res) {
       if (!res || !res.success) throw new Error(res && res.error || '');
-      if (seq !== self.secuencia || authSeq !== App.state._authReqSeq || App.state.currentView !== 'hub-ejercicios') return;
-      self.ejercicios = res.ejercicios || [];
-      var pintar = function() {
-        if (seq === self.secuencia && authSeq === App.state._authReqSeq && App.state.currentView === 'hub-ejercicios') self.pintar();
-      };
+      if (!vigente()) return;
+      self.cargar(res);
+      var pintar = function() { if (vigente() && !self.pila.length && !self.hojaAbierta()) self.pintar(); };
       if (App.escritura.activa()) App.escritura.alTerminar('hub-ejercicios', pintar); else pintar();
     }).catch(function() {
-      if (seq !== self.secuencia || authSeq !== App.state._authReqSeq || App.state.currentView !== 'hub-ejercicios') return;
-      host.innerHTML = '<div class="hub-page"><p role="alert">' + _esc(self.texto('No se pudieron cargar los ejercicios.')) + '</p><button class="btn btn-secondary" type="button" onclick="App.views[\'hub-ejercicios\'].render()">' + _esc(self.texto('Reintentar')) + '</button></div>';
+      if (!vigente() || self.fichas.length) return;
+      self.estado = 'error';
+      self.pintar();
     });
   },
+  cargar: function(res) {
+    var self = this;
+    this.vocab = res.vocabulario || this.vocab;
+    this.fichas = (res.fichas || []).slice();
+    this.porSlug = {};
+    this.fichas.forEach(function(f) { self.porSlug[f.slug] = f; self.indexar(f); });
+    this.estado = 'listo';
+  },
+  hojaAbierta: function() { var c = document.getElementById('hub-capa-filtros'); return !!c && !c.hidden; },
+
+  // ── Pantalla principal ──
   pintar: function() {
-    var host = document.getElementById('hub-ejercicios-contenido'), t = this.texto.bind(this);
-    host.innerHTML = '<div class="hub-page"><div class="hub-hero"><h2>' + _esc(t('Ejercicios')) + '</h2><label for="hub-buscar">' + _esc(t('Buscar ejercicios')) + '</label>' +
-      '<input id="hub-buscar" type="search" autocomplete="off" placeholder="' + _esc(t('Buscar por nombre, fuente o contenido…')) + '" oninput="App.views[\'hub-ejercicios\'].buscar(this.value)"></div>' +
-      '<section class="hub-filtros" aria-label="' + _esc(t('Filtros')) + '" id="hub-filtros"></section><div class="hub-resultados"><span id="hub-cuenta" role="status"></span>' +
-      '<button type="button" class="hub-limpiar" onclick="App.views[\'hub-ejercicios\'].limpiar()">' + _esc(t('Limpiar filtros')) + '</button></div><div class="hub-grid" id="hub-lista"></div></div>';
-    this.pintarFiltros(); this.pintarLista();
+    var host = document.getElementById('hub-ejercicios-contenido');
+    if (!host) return;
+    var R = this.REF, t = this.t.bind(this), self = this;
+    if (this.estado === 'error') {
+      host.innerHTML = '<div class="hub hub-estado-pantalla" role="alert">' + this.ico('aviso', 'hub-estado-ico') +
+        '<h2>' + _esc(t('No se pudo cargar el hub')) + '</h2><p>' + _esc(t('Comprueba la conexión y vuelve a intentarlo.')) + '</p>' +
+        '<button class="btn btn-primary" type="button" onclick="' + R + '.render()">' + _esc(t('Reintentar')) + '</button></div>';
+      return;
+    }
+    var cuenta = function(tab) { return self.fichas.filter(function(f) { return tab === 'aprender' ? f.tipo_contenido === 'teoria' : tab === 'revision' ? f.estado === 'propuesto' : f.tipo_contenido !== 'teoria'; }).length; };
+    var tabs = [['ejercicios', 'Ejercicios', 'balon'], ['aprender', 'Aprender', 'libro']];
+    if (App.state.esAdmin) tabs.push(['revision', 'Revisión', 'bandeja']);
+    var revision = this.tab === 'revision';
+    host.innerHTML = '<div class="hub">' +
+      '<div class="hub-cabecera">' +
+        '<div class="hub-tabs" role="tablist" aria-label="' + _esc(t('Secciones del hub')) + '" onkeydown="' + R + '.teclaTabs(event)">' +
+          tabs.map(function(tb) {
+            var activa = tb[0] === self.tab, n = self.estado === 'listo' ? cuenta(tb[0]) : '';
+            return '<button type="button" role="tab" id="hub-tab-' + tb[0] + '" data-tab="' + tb[0] + '" aria-selected="' + activa + '" aria-controls="hub-panel" tabindex="' + (activa ? 0 : -1) + '" onclick="' + R + '.cambiarTab(' + _statsArgumento(tb[0]) + ')">' +
+              self.ico(tb[2]) + '<span>' + _esc(t(tb[1])) + '</span>' + (n !== '' ? '<span class="hub-tab-n' + (tb[0] === 'revision' && n ? ' is-alerta' : '') + '">' + n + '</span>' : '') + '</button>';
+          }).join('') +
+        '</div>' +
+        (revision ? '' :
+        '<div class="hub-buscador">' + this.ico('buscar') +
+          '<input id="hub-q" type="search" enterkeyhint="search" autocomplete="off" spellcheck="false" aria-label="' + _esc(t(this.tab === 'aprender' ? 'Buscar en Aprender' : 'Buscar ejercicios')) + '" placeholder="' + _esc(t(this.tab === 'aprender' ? 'Busca un tema: ataque, feedback, carga…' : 'Busca: bote, 2c1, calentamiento, tiro…')) + '" value="' + _esc(this.consulta) + '" oninput="' + R + '.buscar(this.value)">' +
+          '<button type="button" id="hub-q-borrar" class="hub-q-borrar"' + (this.consulta ? '' : ' hidden') + ' aria-label="' + _esc(t('Borrar búsqueda')) + '" onclick="' + R + '.borrarBusqueda()">' + this.ico('cerrar') + '</button>' +
+        '</div>' +
+        '<div class="hub-barra">' +
+          '<button type="button" id="hub-btn-filtros" class="hub-btn-filtros" aria-haspopup="dialog" aria-expanded="false" onclick="' + R + '.abrirFiltros()">' + this.ico('filtro') + '<span>' + _esc(t('Filtros')) + '</span><span class="hub-badge" id="hub-badge" hidden></span></button>' +
+          '<label class="hub-orden">' + this.ico('ordenar') + '<span class="sr-only">' + _esc(t('Ordenar por')) + '</span><select id="hub-orden" onchange="' + R + '.ordenar(this.value)">' +
+            [['relevancia', 'Relevancia'], ['recientes', 'Más recientes'], ['dificultad', 'Dificultad'], ['duracion', 'Duración']].map(function(o) {
+              return '<option value="' + o[0] + '"' + (self.orden === o[0] ? ' selected' : '') + '>' + _esc(t(o[1])) + '</option>';
+            }).join('') + '</select></label>' +
+        '</div>' +
+        '<div class="hub-rapidos" id="hub-rapidos" role="group" aria-label="' + _esc(t(this.tab === 'aprender' ? 'Tema' : 'Tipo')) + '"></div>') +
+      '</div>' +
+      '<div id="hub-panel" role="tabpanel" aria-labelledby="hub-tab-' + this.tab + '">' +
+        (revision ? '<div id="hub-lista" class="hub-bandeja"></div>' :
+        '<div class="hub-activos" id="hub-activos"></div><p class="hub-cuenta" id="hub-cuenta" role="status" aria-live="polite"></p><div class="hub-lista" id="hub-lista" aria-busy="' + (this.estado === 'cargando') + '"></div>') +
+      '</div>' +
+    '</div>' +
+    '<div id="hub-capa-filtros" class="hub-capa hub-capa-filtros" hidden onclick="if(event.target===this)' + R + '.cerrarFiltros()"></div>' +
+    '<div id="hub-capa-detalle" class="hub-capa hub-capa-detalle" hidden></div>';
+    this.actualizar();
   },
-  pintarFiltros: function() {
-    var self = this, grupos = [['habilidades','Habilidad'],['formato','Formato'],['oposicion','Oposición'],['organizacion','Organización']];
-    document.getElementById('hub-filtros').innerHTML = grupos.map(function(grupo) {
-      var valores = [];
-      self.ejercicios.forEach(function(e) {
-        var lista = grupo[0] === 'habilidades' ? (e.habilidades || []) : [e[grupo[0]]];
-        lista.forEach(function(v) { if (v && valores.indexOf(v) < 0) valores.push(v); });
+  actualizar: function() {
+    var lista = document.getElementById('hub-lista');
+    if (!lista) return;
+    var self = this, t = this.t.bind(this), R = this.REF;
+    if (this.estado === 'cargando') {
+      lista.innerHTML = '<p class="sr-only" role="status">' + _esc(t('Cargando ejercicios…')) + '</p>' +
+        [0, 1, 2, 3].map(function() { return '<div class="hub-card hub-esqueleto" aria-hidden="true"><div class="hub-card-media"></div><div class="hub-card-cuerpo"><i></i><i></i><i></i></div></div>'; }).join('');
+      return;
+    }
+    if (this.tab === 'revision') { this.pintarBandeja(); return; }
+    var filtros = this.filtros[this.tab], resultados = this.resultados(), n = this.numActivos(filtros);
+    var badge = document.getElementById('hub-badge');
+    if (badge) { badge.hidden = !n; badge.textContent = n; }
+    var rapidos = document.getElementById('hub-rapidos');
+    if (rapidos) {
+      var faceta = this.facetas().filter(function(fa) { return fa.id === (self.tab === 'aprender' ? 'tema' : 'tipo'); })[0];
+      var sel = filtros[faceta.id] || [];
+      var chip = function(v, texto) {
+        var pulsado = v === null ? !sel.length : sel.length === 1 && sel[0] === v;
+        return '<button type="button" class="hub-chip hub-chip-rapido" aria-pressed="' + pulsado + '" data-foco="rapido-' + v + '" onclick="' + R + '.rapido(' + _statsArgumento(v) + ')">' + _esc(t(texto)) + '</button>';
+      };
+      rapidos.innerHTML = chip(null, 'Todo') + this.valoresFaceta(faceta).map(function(v) { return chip(v, self.etiquetaFaceta(faceta, v)); }).join('');
+    }
+    var activos = document.getElementById('hub-activos');
+    if (activos) {
+      var chips = [];
+      this.facetas().forEach(function(fa) {
+        if (fa.especial === 'jugadores' && typeof filtros.jugadores === 'number') chips.push(['jugadores', null, filtros.jugadores + ' jugadores']);
+        else if (fa.especial === 'material' && Array.isArray(filtros.material)) chips.push(['material', null, filtros.material.length ? 'Tengo: ' + filtros.material.map(function(m) { return self.et('material', m); }).join(', ') : 'Solo balones']);
+        else (filtros[fa.id] || []).forEach(function(v) { chips.push([fa.id, v, self.etiquetaFaceta(fa, v)]); });
       });
-      valores.sort();
-      return '<div class="hub-grupo"><h3>' + _esc(self.texto(grupo[1])) + '</h3><div class="hub-chips">' +
-        [''].concat(valores).map(function(v) {
-          return '<button type="button" class="hub-chip" aria-pressed="' + ((self.filtros[grupo[0]] || '') === v) + '" onclick="App.views[\'hub-ejercicios\'].filtrar(' + _statsArgumento(grupo[0]) + ',' + _statsArgumento(v) + ')">' + _esc(v ? self.etiqueta(v) : self.texto('Todos')) + '</button>';
-        }).join('') + '</div></div>';
-    }).join('');
+      activos.innerHTML = chips.length ? chips.map(function(c) {
+        return '<button type="button" class="hub-activo" aria-label="' + _esc(t('Quitar filtro') + ': ' + t(c[2])) + '" onclick="' + R + '.quitar(' + _statsArgumento(c[0]) + ',' + _statsArgumento(c[1]) + ')"><span>' + _esc(t(c[2])) + '</span>' + self.ico('cerrar') + '</button>';
+      }).join('') + '<button type="button" class="hub-limpiar" onclick="' + R + '.limpiar()">' + _esc(t('Limpiar todo')) + '</button>' : '';
+    }
+    var cuenta = document.getElementById('hub-cuenta');
+    if (cuenta) cuenta.textContent = resultados.length + ' ' + t(this.tab === 'aprender' ? (resultados.length === 1 ? 'contenido' : 'contenidos') : (resultados.length === 1 ? 'resultado' : 'resultados'));
+    lista.setAttribute('aria-busy', 'false');
+    lista.innerHTML = resultados.length ? resultados.map(function(f) { return self.tarjeta(f); }).join('') : this.vacio(n);
+    if (this.hojaAbierta()) this.pintarHoja();
   },
-  filtrar: function(grupo, valor) { this.filtros[grupo] = valor; this.pintarFiltros(); this.pintarLista(); },
-  buscar: function(valor) { this.consulta = valor; this.pintarLista(); },
-  limpiar: function() {
-    this.filtros = {}; this.consulta = '';
-    document.getElementById('hub-buscar').value = '';
-    this.pintarFiltros(); this.pintarLista();
+  vacio: function(numFiltros) {
+    var t = this.t.bind(this), R = this.REF, hayDatos = this.fichas.some(this.delTab.bind(this));
+    var titulo = !hayDatos ? (this.tab === 'aprender' ? 'Todavía no hay contenidos para aprender' : 'Todavía no hay ejercicios') : 'Nada encaja con tu búsqueda';
+    var texto = !hayDatos ? 'Trainer Bot irá proponiendo material nuevo; aparecerá aquí en cuanto llegue.' :
+      numFiltros ? 'Prueba a quitar algún filtro o a buscar con otras palabras.' : 'Prueba con otras palabras o con un sinónimo.';
+    return '<div class="hub-vacio">' + this.ico(hayDatos ? 'buscar' : 'libro', 'hub-estado-ico') + '<h3>' + _esc(t(titulo)) + '</h3><p>' + _esc(t(texto)) + '</p>' +
+      (hayDatos && (numFiltros || this.consulta) ? '<div class="hub-vacio-acciones">' +
+        (this.consulta ? '<button type="button" class="btn btn-secondary" onclick="' + R + '.borrarBusqueda()">' + _esc(t('Borrar búsqueda')) + '</button>' : '') +
+        (numFiltros ? '<button type="button" class="btn btn-primary" onclick="' + R + '.limpiar()">' + _esc(t('Limpiar filtros')) + '</button>' : '') + '</div>' : '') + '</div>';
   },
-  pintarLista: function() {
-    var self = this, q = this.consulta.trim().toLocaleLowerCase();
-    var lista = this.ejercicios.filter(function(e) {
-      return Object.keys(self.filtros).every(function(k) {
-        var v = self.filtros[k];
-        return !v || (k === 'habilidades' ? (e.habilidades || []).indexOf(v) >= 0 : e[k] === v);
-      }) && (!q || [e.nombre,e.nombre_en,e.fuente,e.objetivo,e.como_se_hace,(e.claves || []).join(' ')].join(' ').toLocaleLowerCase().indexOf(q) >= 0);
-    });
-    document.getElementById('hub-cuenta').textContent = lista.length + ' ' + this.texto(lista.length === 1 ? 'ejercicio' : 'ejercicios');
-    document.getElementById('hub-lista').innerHTML = lista.length ? lista.map(function(e) { return self.tarjeta(e); }).join('') : '<p class="hub-vacio">' + _esc(this.texto('No hay ejercicios que coincidan.')) + '</p>';
+
+  // ── Tarjeta ──
+  medidor: function(etiqueta, rango, completo) {
+    if (!rango) return '';
+    var t = this.t.bind(this), barras = '';
+    for (var i = 1; i <= 5; i++) barras += '<i class="' + (i <= rango[0] ? 'on' : i <= rango[1] ? 'rango' : '') + '"></i>';
+    var valor = rango[0] === rango[1] ? String(rango[0]) : rango[0] + '–' + rango[1];
+    return '<span class="hub-medidor" role="img" aria-label="' + _esc(t(etiqueta) + ': ' + valor + '/5') + '"><span class="hub-medidor-et" aria-hidden="true">' + _esc(t(etiqueta)) + '</span>' +
+      '<span class="hub-medidor-barras" aria-hidden="true">' + barras + '</span>' + (completo ? '<span class="hub-medidor-valor" aria-hidden="true">' + valor + '/5</span>' : '') + '</span>';
   },
-  tarjeta: function(e) {
-    var self = this, t = this.texto.bind(this), medios = (e.medios || []).slice().sort(function(a,b) { return a.orden - b.orden; });
-    function youtube(m) { return m.tipo === 'youtube' && /^[a-zA-Z0-9_-]{11}$/.test(m.youtube_id || '') ? m.youtube_id : ''; }
-    var mini = medios.find(function(m) { return m.es_miniatura && (youtube(m) || self.imagen(m.ruta_o_url)); });
-    var miniUrl = mini && (youtube(mini) ? 'https://i.ytimg.com/vi/' + youtube(mini) + '/hqdefault.jpg' : self.imagen(mini.ruta_o_url));
-    var tags = (e.habilidades || []).concat([e.formato,e.oposicion,e.organizacion]).filter(Boolean);
-    function bloque(titulo, contenido) { return contenido ? '<section><h3>' + _esc(t(titulo)) + '</h3>' + contenido + '</section>' : ''; }
-    function parrafo(s) { return s ? '<p>' + _esc(s) + '</p>' : ''; }
-    var enlaces = (e.enlaces || []).slice().sort(function(a,b) { return a.orden - b.orden; }).map(function(l) {
-      var url = self.url(l.url); return url ? '<a href="' + _esc(url) + '" target="_blank" rel="noopener noreferrer">' + _esc(l.etiqueta || self.etiqueta(l.tipo)) + '</a>' : '';
-    }).join('');
-    var galeria = medios.map(function(m) {
-      var id = youtube(m), url = self.url(m.ruta_o_url), imagen = self.imagen(m.ruta_o_url);
-      if (id) return '<div class="hub-video"><iframe src="https://www.youtube-nocookie.com/embed/' + _esc(id) + '" title="' + _esc(t('Vídeo') + ': ' + (e.nombre || '')) + '" loading="lazy" allowfullscreen></iframe></div>';
-      if (imagen && (m.tipo === 'imagen' || m.tipo === 'gif')) {
-        var img = '<img loading="lazy" src="' + _esc(imagen) + '" alt="' + _esc(t('Imagen') + ': ' + (e.nombre || '')) + '">';
-        return url ? '<a href="' + _esc(url) + '" target="_blank" rel="noopener noreferrer">' + img + '</a>' : img;
+  medidores: function(f, completo) {
+    var self = this, etiquetas = completo ? ['Dificultad', 'Esfuerzo físico', 'Carga cognitiva', 'Montaje'] : ['Dificultad', 'Físico', 'Cognitiva', 'Montaje'];
+    if (f.tipo_contenido === 'teoria') return this.medidor(completo ? 'Nivel del contenido' : 'Nivel', this.rango(f, 'dificultad'), completo);
+    return ['dificultad', 'esfuerzo_fisico', 'carga_cognitiva', 'complejidad_organizativa'].map(function(c, i) { return self.medidor(etiquetas[i], self.rango(f, c), completo); }).join('');
+  },
+  categorias: function(f) {
+    var orden = Object.keys((this.vocab && this.vocab.etiquetas.categorias) || {}), self = this;
+    var cats = (f.categorias || f.categorias_comunes || []).slice().sort(function(a, b) { return orden.indexOf(a) - orden.indexOf(b); });
+    if (!cats.length) return '';
+    var consecutivas = cats.every(function(c, i) { return !i || orden.indexOf(c) === orden.indexOf(cats[i - 1]) + 1; });
+    if (cats.length >= 3 && consecutivas) return '<span class="hub-meta-chip"><span>' + _esc(this.et('categorias', cats[0])) + '</span> – <span>' + _esc(this.et('categorias', cats[cats.length - 1])) + '</span></span>';
+    return cats.map(function(c) { return '<span class="hub-meta-chip">' + _esc(self.et('categorias', c)) + '</span>'; }).join('');
+  },
+  tramo: function(r) {
+    if (!r) return '';
+    if (r.inicio_seg != null && r.fin_seg != null) return this.mmss(r.inicio_seg) + '–' + this.mmss(r.fin_seg);
+    if (r.inicio_seg != null) return this.mmss(r.inicio_seg);
+    return r.duracion_seg ? this.mmss(r.duracion_seg) : '';
+  },
+  etiquetaTipo: function(f) {
+    if (f.tipo_contenido === 'ejercicio') return this.et('naturaleza', f.naturaleza);
+    return this.et('tipo_contenido', f.tipo_contenido);
+  },
+  iconoTipo: function(f) { return { ejercicio: 'balon', progresion: 'pasos', sesion_modelo: 'sesion', teoria: 'libro' }[f.tipo_contenido] || 'balon'; },
+  tarjeta: function(f) {
+    var self = this, t = this.t.bind(this), R = this.REF, p = this.principal(f), mini = this.miniatura(f);
+    var area = f.area || 'general';
+    var recursoTexto = !p ? 'Solo texto' : p.archivo_local ? 'Por subir' : this.esVideo(p) ? this.tramo(p) || this.et('tipo_recurso', p.tipo_recurso) : this.et('tipo_recurso', p.tipo_recurso);
+    var recursoIco = !p ? 'texto' : this.esVideo(p) ? 'play' : p.tipo_recurso === 'pizarra_diagrama' || p.tipo_recurso === 'imagen_foto' ? 'pizarra' : 'enlace';
+    var meta = [];
+    var d = this.duracion(f);
+    if (f.tipo_contenido === 'teoria') {
+      if (p && this.esVideo(p)) meta.push('<span class="hub-meta-chip">' + _esc(this.et('idioma', p.idioma)) + '</span>');
+      if (f.tema_teoria) meta.push('<span class="hub-meta-chip">' + _esc(this.et('tema_teoria', f.tema_teoria)) + '</span>');
+    } else {
+      if (f.situacion_numerica) meta.push('<span class="hub-meta-chip hub-meta-fuerte">' + _esc(this.et('situacion_numerica', f.situacion_numerica)) + '</span>');
+      if (f.oposicion) meta.push('<span class="hub-meta-chip">' + _esc(this.et('oposicion', f.oposicion)) + '</span>');
+      if (f.tipo_contenido === 'progresion') meta.push('<span class="hub-meta-chip">' + _esc((f.pasos || []).length + ' ' + t('pasos')) + '</span>');
+      if (f.tipo_contenido === 'sesion_modelo') meta.push('<span class="hub-meta-chip">' + _esc((f.bloques || []).length + ' ' + t('bloques')) + '</span>');
+      if (d) meta.push('<span class="hub-meta-chip" aria-label="' + _esc(t('Duración') + ': ' + (d[0] === d[1] ? d[0] : d[0] + '–' + d[1]) + ' min') + '">' + this.ico('reloj') + _esc((d[0] === d[1] ? d[0] : d[0] + '–' + d[1]) + '′') + '</span>');
+      if (typeof f.jugadores_min === 'number') meta.push('<span class="hub-meta-chip" aria-label="' + _esc(t('Jugadores') + ': ' + f.jugadores_min + (f.jugadores_max ? '–' + f.jugadores_max : '+')) + '">' + this.ico('jugadores') + _esc(f.jugadores_min + (f.jugadores_max ? (f.jugadores_max === f.jugadores_min ? '' : '–' + f.jugadores_max) : '+')) + '</span>');
+    }
+    var pill = f.habilidad_principal ? '<span class="hub-pill" data-area="' + _esc(area) + '">' + _esc(this.et('habilidad', f.habilidad_principal)) + '</span>' :
+      f.tema_teoria ? '<span class="hub-pill" data-area="general">' + _esc(this.et('tema_teoria', f.tema_teoria)) + '</span>' : '';
+    return '<article class="hub-card" data-area="' + _esc(area) + '">' +
+      '<div class="hub-card-media">' + (mini ? '<img src="' + _esc(mini) + '" alt="" loading="lazy" decoding="async">' : '<span class="hub-card-sin">' + this.ico(this.iconoTipo(f)) + '</span>') +
+        '<span class="hub-card-tipo">' + this.ico(this.iconoTipo(f)) + '<span>' + _esc(this.etiquetaTipo(f)) + '</span></span>' +
+        '<span class="hub-card-recurso">' + this.ico(recursoIco) + '<span>' + _esc(t(recursoTexto)) + '</span></span>' +
+      '</div>' +
+      '<div class="hub-card-cuerpo">' + pill +
+        '<h3 class="hub-card-titulo"><button type="button" class="hub-card-abrir" data-slug="' + _esc(f.slug) + '" data-no-i18n onclick="' + R + '.abrir(' + _statsArgumento(f.slug) + ')">' + _esc(f.nombre) + '</button></h3>' +
+        '<p class="hub-card-resumen" data-no-i18n>' + _esc(f.resumen) + '</p>' +
+        (meta.length || f.categorias || f.categorias_comunes ? '<div class="hub-card-meta">' + meta.join('') + this.categorias(f) + '</div>' : '') +
+        '<div class="hub-card-valores">' + this.medidores(f, false) + '</div>' +
+      '</div></article>';
+  },
+
+  // ── Hoja de filtros ──
+  abrirFiltros: function() {
+    var capa = document.getElementById('hub-capa-filtros');
+    if (!capa) return;
+    this.origenFoco = document.getElementById('hub-btn-filtros');
+    capa.hidden = false;
+    this.pintarHoja(true);
+    var btn = document.getElementById('hub-btn-filtros');
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    var hoja = capa.querySelector('.hub-hoja');
+    if (hoja) hoja.focus();
+  },
+  cerrarFiltros: function() {
+    var capa = document.getElementById('hub-capa-filtros');
+    if (!capa || capa.hidden) return;
+    capa.hidden = true; capa.innerHTML = '';
+    var btn = document.getElementById('hub-btn-filtros');
+    if (btn) { btn.setAttribute('aria-expanded', 'false'); btn.focus(); }
+  },
+  pintarHoja: function(nueva) {
+    var capa = document.getElementById('hub-capa-filtros');
+    if (!capa) return;
+    var self = this, t = this.t.bind(this), R = this.REF, filtros = this.filtros[this.tab];
+    var cuerpoPrevio = capa.querySelector('.hub-hoja-cuerpo'), scroll = cuerpoPrevio ? cuerpoPrevio.scrollTop : 0;
+    var foco = document.activeElement && capa.contains(document.activeElement) ? document.activeElement.getAttribute('data-foco') : null;
+    var abiertos = {};
+    capa.querySelectorAll('details[data-grupo]').forEach(function(d) { abiertos[d.getAttribute('data-grupo')] = d.open; });
+    var base = this.fichas.filter(this.delTab.bind(this));
+    var chip = function(faceta, v, texto, pulsado, accion, cuenta) {
+      return '<button type="button" class="hub-chip" aria-pressed="' + pulsado + '" data-foco="' + _esc(faceta + ':' + v) + '" onclick="' + accion + '">' + _esc(t(texto)) +
+        (cuenta !== undefined ? '<span class="hub-chip-n" aria-hidden="true">' + cuenta + '</span>' : '') + '</button>';
+    };
+    var secciones = this.facetas().map(function(fa) {
+      var cuerpo;
+      if (fa.especial === 'jugadores') {
+        var n = filtros.jugadores;
+        cuerpo = '<div class="hub-stepper"><button type="button" class="hub-icono-btn" data-foco="jug:-" aria-label="' + _esc(t('Menos jugadores')) + '" onclick="' + R + '.jugadores(-1)">' + self.ico('menos') + '</button>' +
+          '<output class="hub-stepper-valor" aria-live="polite">' + (typeof n === 'number' ? '<strong>' + n + '</strong> <span>' + _esc(t('jugadores')) + '</span>' : '<span>' + _esc(t('Cualquier número')) + '</span>') + '</output>' +
+          '<button type="button" class="hub-icono-btn" data-foco="jug:+" aria-label="' + _esc(t('Más jugadores')) + '" onclick="' + R + '.jugadores(1)">' + self.ico('mas') + '</button>' +
+          (typeof n === 'number' ? '<button type="button" class="hub-enlace-btn" data-foco="jug:x" onclick="' + R + '.jugadores(null)">' + _esc(t('Cualquiera')) + '</button>' : '') + '</div>' +
+          '<p class="hub-hoja-ayuda">' + _esc(t('Muestra lo que funciona con ese número en una canasta o espacio.')) + '</p>';
+      } else if (fa.especial === 'material') {
+        var tengo = filtros.material;
+        cuerpo = '<p class="hub-hoja-ayuda">' + _esc(t('Marca lo que tienes: se ocultan las tareas que necesitan otra cosa.')) + '</p><div class="hub-chips">' +
+          chip('material', '_', 'Solo balones', Array.isArray(tengo) && !tengo.length, R + '.material(null)') +
+          Object.keys(self.vocab.etiquetas.material).map(function(m) { return chip('material', m, self.et('material', m), Array.isArray(tengo) && tengo.indexOf(m) >= 0, R + '.material(' + _statsArgumento(m) + ')'); }).join('') + '</div>';
+      } else if (fa.agrupada) {
+        var sel = filtros.habilidad || [];
+        cuerpo = Object.keys(self.vocab.grupos).map(function(g) {
+          var grupo = self.vocab.grupos[g];
+          var valores = grupo.habilidades.map(function(h) { return [h, base.filter(function(f) { return fa.test(f, h); }).length]; }).filter(function(x) { return x[1] || sel.indexOf(x[0]) >= 0; });
+          if (!valores.length) return '';
+          var marcadas = valores.filter(function(x) { return sel.indexOf(x[0]) >= 0; }).length;
+          var abierto = abiertos[g] !== undefined ? abiertos[g] : marcadas > 0;
+          return '<details class="hub-grupo" data-grupo="' + _esc(g) + '"' + (abierto ? ' open' : '') + '><summary><span>' + _esc(t(grupo.etiqueta)) + '</span>' +
+            (marcadas ? '<span class="hub-badge">' + marcadas + '</span>' : '') + self.ico('bajar', 'hub-grupo-flecha') + '</summary><div class="hub-chips">' +
+            valores.map(function(x) { return chip('habilidad', x[0], self.et('habilidad', x[0]), sel.indexOf(x[0]) >= 0, R + '.alternar(\'habilidad\',' + _statsArgumento(x[0]) + ')', x[1]); }).join('') + '</div></details>';
+        }).join('');
+      } else {
+        var actuales = filtros[fa.id] || [];
+        cuerpo = '<div class="hub-chips">' + self.valoresFaceta(fa).map(function(v) {
+          return chip(fa.id, v, self.etiquetaFaceta(fa, v), actuales.indexOf(v) >= 0, R + '.alternar(' + _statsArgumento(fa.id) + ',' + _statsArgumento(v) + ')');
+        }).join('') + '</div>';
       }
-      return '';
+      return '<fieldset class="hub-seccion"><legend>' + _esc(t(fa.titulo)) + '</legend>' + cuerpo + '</fieldset>';
     }).join('');
-    return '<article class="hub-card"><details><summary>' + (miniUrl ? '<div class="hub-thumb"><img loading="lazy" src="' + _esc(miniUrl) + '" alt=""></div>' : '<div class="hub-thumb"></div>') +
-      '<div class="hub-resumen">' + (e.fecha_enviado ? '<small>' + _esc(e.fecha_enviado) + '</small>' : '') + '<h3>' + _esc(App.preferences.idioma === 'en' && e.nombre_en ? e.nombre_en : e.nombre) + '</h3>' +
-      (e.fuente ? '<p class="hub-fuente">' + _esc(e.fuente) + '</p>' : '') + parrafo(e.objetivo) +
-      '<div class="hub-tags">' + tags.map(function(v) { return '<span>' + _esc(self.etiqueta(v)) + '</span>'; }).join('') + '</div><span class="hub-mas">' + _esc(t('Ver detalle')) + ' →</span></div></summary>' +
-      '<div class="hub-detalle">' + bloque('Objetivo', parrafo(e.objetivo)) + bloque('Cómo se hace', parrafo(e.como_se_hace)) +
-      bloque('Claves', (e.claves || []).length ? '<ul>' + e.claves.map(function(c) { return '<li>' + _esc(c) + '</li>'; }).join('') + '</ul>' : '') +
-      bloque('Versión fácil', parrafo(e.version_facil)) + bloque('Versión difícil', parrafo(e.version_dificil)) +
-      bloque('Material', (e.material || []).length ? '<p>' + e.material.map(function(v) { return _esc(self.etiqueta(v)); }).join(', ') + '</p>' : '') +
-      bloque('Nota', parrafo(e.nota)) + (e.detalle_corto ? '<p class="hub-fuente">' + _esc(t('Detalle breve')) + '</p>' : '') +
-      bloque('Enlaces', enlaces ? '<div class="hub-enlaces">' + enlaces + '</div>' : '') + (galeria ? '<div class="hub-medios">' + galeria + '</div>' : '') + '</div></details></article>';
-  }
+    var n = this.resultados().length, activos = this.numActivos(filtros);
+    var html = '<section class="hub-hoja" role="dialog" aria-modal="true" aria-labelledby="hub-hoja-titulo" tabindex="-1">' +
+      '<header class="hub-hoja-cab"><span class="hub-hoja-asa" aria-hidden="true"></span><h2 id="hub-hoja-titulo">' + _esc(t('Filtros')) + '</h2>' +
+        '<button type="button" class="hub-icono-btn hub-hoja-cerrar" data-foco="cerrar" aria-label="' + _esc(t('Cerrar filtros')) + '" onclick="' + R + '.cerrarFiltros()">' + this.ico('cerrar') + '</button></header>' +
+      '<div class="hub-hoja-cuerpo">' + secciones + '</div>' +
+      '<footer class="hub-hoja-pie"><button type="button" class="btn btn-secondary" data-foco="limpiar"' + (activos ? '' : ' disabled') + ' onclick="' + R + '.limpiar()">' + _esc(t('Limpiar')) + '</button>' +
+        '<button type="button" class="btn btn-primary" data-foco="ver" onclick="' + R + '.cerrarFiltros()">' + _esc(t(n === 1 ? 'Ver 1 resultado' : 'Ver ' + n + ' resultados')) + '</button></footer>' +
+    '</section>';
+    capa.innerHTML = html;
+    var cuerpoNuevo = capa.querySelector('.hub-hoja-cuerpo');
+    if (cuerpoNuevo && !nueva) cuerpoNuevo.scrollTop = scroll;
+    if (foco) { var el = capa.querySelector('[data-foco="' + foco.replace(/"/g, '') + '"]'); if (el) el.focus(); }
+  },
+
+  // ── Detalle ──
+  abrir: function(slug, apilar) {
+    var f = this.porSlug[slug], capa = document.getElementById('hub-capa-detalle');
+    if (!f || !capa) return;
+    if (!apilar || !this.pila.length) { this.pila = []; if (capa.hidden) this.origenFoco = document.activeElement; }
+    this.pila.push(slug);
+    this.medio = null;
+    capa.hidden = false;
+    this.pintarDetalle();
+    var dialogo = capa.querySelector('.hub-detalle');
+    if (dialogo) dialogo.focus();
+  },
+  volver: function() {
+    this.pila.pop();
+    if (!this.pila.length) { this.cerrarDetalle(); return; }
+    this.medio = null;
+    this.pintarDetalle();
+    var b = document.querySelector('#hub-capa-detalle .hub-detalle-volver');
+    if (b) b.focus();
+  },
+  cerrarDetalle: function() {
+    var capa = document.getElementById('hub-capa-detalle');
+    if (!capa || capa.hidden) return;
+    capa.hidden = true; capa.innerHTML = '';
+    this.pila = []; this.medio = null;
+    var origen = this.origenFoco;
+    this.origenFoco = null;
+    if (origen && origen.isConnected) origen.focus();
+  },
+  iniciarEventos: function() {
+    if (this.eventos) return;
+    this.eventos = true;
+    var self = this;
+    document.addEventListener('keydown', function(event) {
+      if (App.state.currentView !== 'hub-ejercicios') return;
+      var detalle = document.getElementById('hub-capa-detalle'), hoja = document.getElementById('hub-capa-filtros');
+      var capa = detalle && !detalle.hidden ? detalle : hoja && !hoja.hidden ? hoja : null;
+      if (!capa) return;
+      if (event.key === 'Escape') { event.preventDefault(); if (capa === detalle) self.volver(); else self.cerrarFiltros(); return; }
+      if (event.key !== 'Tab') return;
+      var focos = Array.prototype.slice.call(capa.querySelectorAll('button:not([disabled]),a[href],iframe,summary,select,input')).filter(function(el) { return el.getClientRects().length; });
+      if (!focos.length) return;
+      var primero = focos[0], ultimo = focos[focos.length - 1];
+      if (event.shiftKey && (document.activeElement === primero || !capa.contains(document.activeElement))) { event.preventDefault(); ultimo.focus(); }
+      else if (!event.shiftKey && (document.activeElement === ultimo || !capa.contains(document.activeElement))) { event.preventDefault(); primero.focus(); }
+    });
+  },
+  reproducir: function(indice, inicio) {
+    var f = this.porSlug[this.pila[this.pila.length - 1]];
+    if (!f) return;
+    this.medio = { indice: indice, inicio: inicio, auto: true };
+    var escenario = document.getElementById('hub-escenario');
+    if (escenario) {
+      escenario.innerHTML = this.escenario(f);
+      if (escenario.scrollIntoView) escenario.scrollIntoView({ block: 'nearest' });
+      var foco = escenario.querySelector('iframe,img,a,button');
+      if (foco) foco.focus();
+    }
+    var galeria = document.getElementById('hub-galeria');
+    if (galeria) galeria.innerHTML = this.galeria(f);
+  },
+  saltar: function(segundo) {
+    var f = this.porSlug[this.pila[this.pila.length - 1]], p = f && this.principal(f);
+    if (p) this.reproducir(f.recursos.indexOf(p), segundo);
+  },
+  urlYoutube: function(r, inicio, auto) {
+    var q = ['rel=0', 'playsinline=1', 'modestbranding=1'];
+    var desde = typeof inicio === 'number' ? inicio : r.inicio_seg;
+    if (typeof desde === 'number' && desde > 0) q.push('start=' + desde);
+    if (typeof inicio !== 'number' && typeof r.fin_seg === 'number') q.push('end=' + r.fin_seg);
+    if (auto) q.push('autoplay=1');
+    return 'https://www.youtube-nocookie.com/embed/' + r.youtube_id + '?' + q.join('&');
+  },
+  escenario: function(f) {
+    var t = this.t.bind(this), R = this.REF, recursos = f.recursos || [];
+    var indice = this.medio ? this.medio.indice : recursos.indexOf(this.principal(f));
+    var r = recursos[indice];
+    if (!r) return '<div class="hub-escenario-vacio" data-area="' + _esc(f.area || 'general') + '">' + this.ico(this.iconoTipo(f), 'hub-escenario-ico') + '<p>' + _esc(t('Sin vídeo ni imagen: la ficha es el material.')) + '</p></div>';
+    if (r.youtube_id && /^[A-Za-z0-9_-]{11}$/.test(r.youtube_id)) {
+      if (this.medio && this.medio.auto) {
+        return '<iframe src="' + _esc(this.urlYoutube(r, this.medio.inicio, true)) + '" title="' + _esc(t('Vídeo') + ': ' + r.etiqueta) + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+      }
+      var tramo = this.tramo(r);
+      return '<button type="button" class="hub-poster" onclick="' + R + '.reproducir(' + indice + ')" aria-label="' + _esc(t('Reproducir vídeo') + ': ' + r.etiqueta) + '">' +
+        '<img src="https://i.ytimg.com/vi/' + _esc(r.youtube_id) + '/hqdefault.jpg" alt="" loading="lazy">' +
+        '<span class="hub-poster-play">' + this.ico('play', 'hub-ico-lleno') + '</span>' +
+        (r.inicio_seg != null ? '<span class="hub-poster-tramo">' + _esc(t('Tramo') + ' ' + tramo) + '</span>' : '') + '</button>';
+    }
+    if (this.esImagen(r)) return '<img class="hub-escenario-img" src="' + _esc(this.urlSegura(r.url)) + '" alt="' + _esc(r.etiqueta) + '" loading="lazy">';
+    if (r.archivo_local) return '<div class="hub-escenario-vacio" data-area="' + _esc(f.area || 'general') + '">' + this.ico('pizarra', 'hub-escenario-ico') + '<p>' + _esc(t('La pizarra está pendiente de subir al hub.')) + '</p></div>';
+    var url = this.urlSegura(r.url);
+    return '<div class="hub-escenario-vacio" data-area="' + _esc(f.area || 'general') + '">' + this.ico(this.esVideo(r) ? 'play' : 'enlace', 'hub-escenario-ico') +
+      '<p data-no-i18n>' + _esc(r.etiqueta) + '</p>' + (url ? '<a class="btn btn-primary" href="' + _esc(url) + '" target="_blank" rel="noopener noreferrer">' + this.ico('enlace') + _esc(t('Abrir en') + ' ' + this.et('tipo_recurso', r.tipo_recurso)) + '</a>' : '') + '</div>';
+  },
+  galeria: function(f) {
+    var self = this, t = this.t.bind(this), R = this.REF, recursos = f.recursos || [];
+    if (!recursos.length) return '';
+    var actual = this.medio ? this.medio.indice : recursos.indexOf(this.principal(f));
+    var orden = recursos.map(function(r, i) { return i; }).sort(function(a, b) { return (recursos[b].principal ? 1 : 0) - (recursos[a].principal ? 1 : 0) || a - b; });
+    return '<h3>' + _esc(t('Recursos')) + '</h3><ul class="hub-recursos">' + orden.map(function(i) {
+      var r = recursos[i], url = self.urlSegura(r.url), enEscenario = !!r.youtube_id || self.esImagen(r);
+      var meta = [self.et('relacion', r.relacion), self.esVideo(r) || r.idioma !== 'desconocido' ? self.et('idioma', r.idioma) : '', self.tramo(r), r.autor].filter(Boolean);
+      var ico = self.esVideo(r) ? 'play' : r.tipo_recurso === 'pizarra_diagrama' || r.tipo_recurso === 'imagen_foto' ? 'pizarra' : r.tipo_recurso === 'pdf_documento' ? 'texto' : 'enlace';
+      var accion = r.archivo_local ? '<span class="hub-recurso-pendiente">' + _esc(t('Pendiente de subir')) + '</span>' :
+        enEscenario ? '<button type="button" class="hub-recurso-accion" aria-pressed="' + (i === actual) + '" onclick="' + R + '.reproducir(' + i + ')">' + _esc(t(i === actual ? 'En pantalla' : 'Ver aquí')) + '</button>' :
+        url ? '<a class="hub-recurso-accion" href="' + _esc(url) + '" target="_blank" rel="noopener noreferrer">' + _esc(t('Abrir')) + self.ico('enlace') + '</a>' : '';
+      return '<li class="hub-recurso' + (r.principal ? ' es-principal' : '') + '"><span class="hub-recurso-ico">' + self.ico(ico) + '</span><span class="hub-recurso-texto"><strong data-no-i18n>' + _esc(r.etiqueta) + '</strong>' +
+        '<small>' + meta.map(function(m, j) { return '<span' + (j === meta.length - 1 && r.autor ? ' data-no-i18n' : '') + '>' + _esc(m) + '</span>'; }).join(' · ') + '</small></span>' + accion + '</li>';
+    }).join('') + '</ul>';
+  },
+  hecho: function(icono, etiqueta, valor, crudo) {
+    if (valor === null || valor === undefined || valor === '') return '';
+    return '<div class="hub-hecho">' + this.ico(icono) + '<span><small>' + _esc(this.t(etiqueta)) + '</small><strong' + (crudo ? ' data-no-i18n' : '') + '>' + _esc(crudo ? valor : this.t(valor)) + '</strong></span></div>';
+  },
+  lista: function(titulo, items, clase) {
+    if (!items || !items.length) return '';
+    return '<section class="hub-bloque"><h3>' + _esc(this.t(titulo)) + '</h3><ul class="hub-lista-texto ' + (clase || '') + '">' + items.map(function(s) { return '<li data-no-i18n>' + _esc(s) + '</li>'; }).join('') + '</ul></section>';
+  },
+  parrafo: function(titulo, texto) {
+    return texto ? '<section class="hub-bloque"><h3>' + _esc(this.t(titulo)) + '</h3><p data-no-i18n>' + _esc(texto) + '</p></section>' : '';
+  },
+  miniFila: function(slug, extra) {
+    var f = this.porSlug[slug], R = this.REF;
+    if (!f) return '<span class="hub-mini is-ausente">' + _esc(this.t('Ficha no disponible')) + '</span>';
+    return '<button type="button" class="hub-mini" onclick="' + R + '.abrir(' + _statsArgumento(slug) + ',true)"><span class="hub-mini-ico" data-area="' + _esc(f.area || 'general') + '">' + this.ico(this.iconoTipo(f)) + '</span>' +
+      '<span class="hub-mini-texto"><strong data-no-i18n>' + _esc(f.nombre) + '</strong><small data-no-i18n>' + _esc(f.resumen) + '</small></span>' + (extra || '') + this.ico('atras', 'hub-mini-flecha') + '</button>';
+  },
+  pintarDetalle: function() {
+    var capa = document.getElementById('hub-capa-detalle'), f = this.porSlug[this.pila[this.pila.length - 1]];
+    if (!capa || !f) return;
+    var self = this, t = this.t.bind(this), R = this.REF, area = f.area || 'general', ejercicio = f.tipo_contenido === 'ejercicio';
+    var d = this.duracion(f), nivelR = this.rango(f, 'dificultad');
+    var niveles = nivelR ? [this.nivelDe(nivelR[0]), this.nivelDe(nivelR[1])].filter(function(v, i, a) { return a.indexOf(v) === i; }) : [];
+    var pills = (f.habilidad_principal ? '<span class="hub-pill hub-pill-grande" data-area="' + _esc(area) + '">' + _esc(this.et('habilidad', f.habilidad_principal)) + '</span>' : '') +
+      (f.tema_teoria ? '<span class="hub-pill hub-pill-grande" data-area="general">' + _esc(this.et('tema_teoria', f.tema_teoria)) + '</span>' : '') +
+      (f.habilidades_secundarias || []).map(function(h) { return '<span class="hub-pill hub-pill-borde" data-area="' + _esc(self.vocab.area_habilidad[h] || 'general') + '">' + _esc(self.et('habilidad', h)) + '</span>'; }).join('');
+    var fases = (f.fase_juego || []).map(function(v) { return '<span class="hub-meta-chip">' + _esc(self.et('fase_juego', v)) + '</span>'; }).join('');
+    var jug = typeof f.jugadores_min === 'number' ? f.jugadores_min + (f.jugadores_max ? (f.jugadores_max === f.jugadores_min ? '' : '–' + f.jugadores_max) : '+') : null;
+    var hechos = [
+      this.hecho('jugadores', 'Jugadores', jug, true),
+      this.hecho('reloj', 'Duración', d ? (d[0] === d[1] ? d[0] : d[0] + '–' + d[1]) + ' min' : null, true),
+      ejercicio ? this.hecho('diana', 'Situación', [this.et('situacion_numerica', f.situacion_numerica), this.et('oposicion', f.oposicion)].join(' · ')) : '',
+      ejercicio && f.ventaja_inicial && f.ventaja_inicial !== 'ninguna' ? this.hecho('subir', 'Ventaja inicial', this.et('ventaja_inicial', f.ventaja_inicial)) : '',
+      ejercicio ? this.hecho('jugadores', 'Organización', this.et('organizacion', f.organizacion)) : '',
+      ejercicio ? this.hecho('pista', 'Espacio', this.et('espacio', f.espacio)) : '',
+      typeof f.canastas_necesarias === 'number' ? this.hecho('canasta', 'Canastas', String(f.canastas_necesarias), true) : '',
+      ejercicio ? this.hecho('balon', 'Balones', this.et('balones', f.balones)) : '',
+      ejercicio ? this.hecho('sesion', 'Momento', (f.momento_sesion || []).map(function(m) { return self.et('momento_sesion', m); }).join(' · ')) : '',
+      ejercicio ? this.hecho('trofeo', 'Competición', f.competitivo ? 'Competitivo' : 'Sin competición') : '',
+    ].join('');
+    var material = ejercicio || Array.isArray(f.material) ? '<section class="hub-bloque"><h3>' + _esc(t('Material')) + '</h3><div class="hub-chips-estaticos">' +
+      ((f.material || []).length ? f.material.map(function(m) { return '<span class="hub-meta-chip">' + _esc(self.et('material', m)) + '</span>'; }).join('') : '<span class="hub-meta-chip">' + _esc(t('Solo balones')) + '</span>') + '</div></section>' : '';
+    var variantes = f.variante_facil || f.variante_dificil ? '<section class="hub-bloque"><h3>' + _esc(t('Variantes')) + '</h3><div class="hub-variantes">' +
+      (f.variante_facil ? '<div class="hub-variante es-facil"><span>' + this.ico('bajar') + _esc(t('Más fácil')) + '</span><p data-no-i18n>' + _esc(f.variante_facil) + '</p></div>' : '') +
+      (f.variante_dificil ? '<div class="hub-variante es-dificil"><span>' + this.ico('subir') + _esc(t('Más difícil')) + '</span><p data-no-i18n>' + _esc(f.variante_dificil) + '</p></div>' : '') + '</div></section>' : '';
+    var capitulos = (f.minutos_clave || []).length ? '<section class="hub-bloque"><h3>' + _esc(t('Capítulos del vídeo')) + '</h3><ol class="hub-capitulos">' + f.minutos_clave.map(function(c) {
+      return '<li><button type="button" onclick="' + R + '.saltar(' + Number(c.seg) + ')" aria-label="' + _esc(t('Ir al minuto') + ' ' + self.mmss(c.seg) + ': ' + c.tema) + '"><span class="hub-tiempo">' + _esc(self.mmss(c.seg)) + '</span><span data-no-i18n>' + _esc(c.tema) + '</span>' + self.ico('play', 'hub-ico-lleno') + '</button></li>';
+    }).join('') + '</ol></section>' : '';
+    var ideas = (f.ideas_principales || []).length ? '<section class="hub-bloque"><h3>' + _esc(t('Ideas principales')) + '</h3><ol class="hub-ideas">' + f.ideas_principales.map(function(s) { return '<li data-no-i18n>' + _esc(s) + '</li>'; }).join('') + '</ol></section>' : '';
+    var pasos = (f.pasos || []).length ? '<section class="hub-bloque"><h3>' + _esc(t('Pasos de la progresión')) + '</h3><ol class="hub-pasos">' + f.pasos.map(function(p, i) {
+      return '<li><span class="hub-paso-n" aria-hidden="true">' + (i + 1) + '</span><div class="hub-paso-cuerpo">' + self.miniFila(p.slug) +
+        '<p class="hub-paso-criterio"><span>' + _esc(t(i === f.pasos.length - 1 ? 'Después' : 'Pasa al siguiente cuando')) + '</span> <span data-no-i18n>' + _esc(p.criterio_avance) + '</span></p></div></li>';
+    }).join('') + '</ol></section>' : '';
+    var bloques = '';
+    if ((f.bloques || []).length) {
+      var total = f.minutos_total || 1, dist = f.distribucion_areas || {};
+      bloques = '<section class="hub-bloque"><h3>' + _esc(t('Estructura de la sesión')) + '</h3>' +
+        (Object.keys(dist).length ? '<div class="hub-distribucion" role="img" aria-label="' + _esc(t('Minutos por área') + ': ' + Object.keys(dist).map(function(a) { return t(self.vocab.areas[a]) + ' ' + dist[a] + ' min'; }).join(', ')) + '">' +
+          Object.keys(dist).map(function(a) { return '<span data-area="' + _esc(a) + '" style="flex:' + dist[a] + '"></span>'; }).join('') + '</div><ul class="hub-leyenda">' +
+          Object.keys(dist).map(function(a) { return '<li><i data-area="' + _esc(a) + '"></i><span>' + _esc(t(self.vocab.areas[a])) + '</span> <strong>' + dist[a] + '′</strong></li>'; }).join('') + '</ul>' : '') +
+        '<ol class="hub-pasos es-sesion">' + f.bloques.map(function(b) {
+          return '<li><span class="hub-paso-n hub-paso-min" aria-label="' + _esc(b.minutos + ' min') + '">' + b.minutos + '′</span><div class="hub-paso-cuerpo">' + self.miniFila(b.slug) +
+            (b.nota ? '<p class="hub-paso-criterio" data-no-i18n>' + _esc(b.nota) + '</p>' : '') + '</div></li>';
+        }).join('') + '</ol><p class="hub-total">' + _esc(t('Total') + ': ' + total + ' min') + '</p></section>';
+    }
+    var relacionados = (f.relacionados || []).length ? '<section class="hub-bloque"><h3>' + _esc(t('Ver también')) + '</h3><div class="hub-relacionados">' + f.relacionados.map(function(s) { return self.miniFila(s); }).join('') + '</div></section>' : '';
+    var revision = App.state.esAdmin && f.estado === 'propuesto' ? '<div class="hub-aviso-revision">' + this.ico('bandeja') + '<div><strong>' + _esc(t('Pendiente de revisión')) + '</strong>' +
+      ((f.avisos || []).length ? '<ul data-no-i18n>' + f.avisos.map(function(a) { return '<li>' + _esc(a) + '</li>'; }).join('') + '</ul>' : '') +
+      '<div class="hub-revision-acciones">' + this.botonesRevision(f.slug) + '</div></div></div>' : '';
+    var pie = [this.et('origen', f.origen), f.fuente, f.fecha_enviado].filter(Boolean);
+    var html = '<div class="hub-detalle" role="dialog" aria-modal="true" aria-labelledby="hub-detalle-titulo" tabindex="-1">' +
+      '<header class="hub-detalle-barra">' +
+        '<button type="button" class="hub-icono-btn hub-detalle-volver" aria-label="' + _esc(t(this.pila.length > 1 ? 'Volver' : 'Cerrar')) + '" onclick="' + R + '.volver()">' + this.ico('atras') + '</button>' +
+        '<span class="hub-detalle-tipo">' + this.ico(this.iconoTipo(f)) + '<span>' + _esc(this.etiquetaTipo(f)) + '</span></span>' +
+        '<button type="button" class="hub-icono-btn hub-detalle-cerrar" aria-label="' + _esc(t('Cerrar ficha')) + '" onclick="' + R + '.cerrarDetalle()">' + this.ico('cerrar') + '</button>' +
+      '</header>' +
+      '<div class="hub-detalle-scroll">' +
+        '<div class="hub-escenario" id="hub-escenario">' + this.escenario(f) + '</div>' +
+        '<div class="hub-detalle-cuerpo">' +
+          (pills ? '<div class="hub-detalle-pills">' + pills + '</div>' : '') +
+          '<h2 id="hub-detalle-titulo" data-no-i18n>' + _esc(f.nombre) + '</h2>' +
+          (f.nombre_original ? '<p class="hub-detalle-original" data-no-i18n>' + _esc(f.nombre_original) + '</p>' : '') +
+          '<p class="hub-detalle-resumen" data-no-i18n>' + _esc(f.resumen) + '</p>' +
+          revision +
+          (hechos ? '<div class="hub-hechos">' + hechos + '</div>' : '') +
+          '<section class="hub-bloque hub-valoraciones"><div class="hub-valoraciones-cab"><h3>' + _esc(t('Valoración')) + '</h3>' +
+            niveles.map(function(n) { return '<span class="hub-nivel" data-nivel="' + n + '">' + _esc(self.et('nivel', n)) + '</span>'; }).join('<span aria-hidden="true">→</span>') + '</div>' +
+            '<div class="hub-medidores-grandes">' + this.medidores(f, true) + '</div></section>' +
+          (this.categorias(f) || fases ? '<section class="hub-bloque"><h3>' + _esc(t('Para quién y qué fase')) + '</h3><div class="hub-chips-estaticos">' + this.categorias(f) + fases + '</div></section>' : '') +
+          ideas + capitulos + this.parrafo('Objetivo', f.objetivo) + this.parrafo(ejercicio ? 'Cómo se hace' : 'Descripción', f.descripcion) + pasos + bloques +
+          this.lista('Reglas', f.reglas, 'es-reglas') + this.lista('Puntos clave', f.puntos_clave, 'es-claves') + this.lista('Errores comunes', f.errores_comunes, 'es-errores') +
+          variantes + material +
+          '<section class="hub-bloque" id="hub-galeria">' + this.galeria(f) + '</section>' +
+          relacionados + this.parrafo('Nota', f.nota) + this.parrafo('Licencia', f.licencia_nota) +
+          '<p class="hub-detalle-pie" data-no-i18n>' + _esc(pie.join(' · ')) + '</p>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+    capa.innerHTML = html;
+    var scroll = capa.querySelector('.hub-detalle-scroll');
+    if (scroll) scroll.scrollTop = 0;
+  },
+  nivelDe: function(n) { return n <= 2 ? 'iniciacion' : n === 3 ? 'intermedio' : 'avanzado'; },
+
+  // ── Bandeja de revisión (admin) ──
+  botonesRevision: function(slug) {
+    var R = this.REF, t = this.t.bind(this);
+    return '<button type="button" class="btn btn-primary btn-sm" onclick="' + R + '.revisar(' + _statsArgumento(slug) + ',\'revisado\')">' + this.ico('check') + _esc(t('Marcar revisada')) + '</button>' +
+      '<button type="button" class="btn btn-aviso btn-sm" onclick="' + R + '.confirmarArchivo(' + _statsArgumento(slug) + ')">' + this.ico('archivar') + _esc(t('Archivar')) + '</button>';
+  },
+  pintarBandeja: function() {
+    var lista = document.getElementById('hub-lista');
+    if (!lista) return;
+    var self = this, t = this.t.bind(this), R = this.REF;
+    var pendientes = this.fichas.filter(function(f) { return f.estado === 'propuesto'; })
+      .sort(function(a, b) { return ((b.avisos || []).length - (a.avisos || []).length) || String(b.fecha_enviado).localeCompare(String(a.fecha_enviado)); });
+    if (!pendientes.length) {
+      lista.innerHTML = '<div class="hub-vacio">' + this.ico('check', 'hub-estado-ico') + '<h3>' + _esc(t('Todo revisado')) + '</h3><p>' + _esc(t('No hay fichas propuestas pendientes.')) + '</p></div>';
+      return;
+    }
+    lista.innerHTML = '<p class="hub-bandeja-intro">' + _esc(t('Fichas propuestas pendientes de revisar. Las que tienen avisos aparecen primero.')) + '</p>' +
+      '<ul class="hub-revisiones">' + pendientes.map(function(f) {
+        var avisos = f.avisos || [], sugerencias = f.sugerencias_vocabulario || [];
+        return '<li class="hub-revision"><div class="hub-revision-cab"><span class="hub-pill" data-area="' + _esc(f.area || 'general') + '">' + _esc(self.et('tipo_contenido', f.tipo_contenido)) + '</span>' +
+          '<span>' + _esc(t('Confianza ' + self.et('confianza_clasificacion', f.confianza_clasificacion).toLowerCase())) + '</span><span data-no-i18n>' + _esc(f.fecha_enviado || '') + '</span></div>' +
+          '<h3><button type="button" class="hub-revision-titulo" data-slug="' + _esc(f.slug) + '" data-no-i18n onclick="' + R + '.abrir(' + _statsArgumento(f.slug) + ')">' + _esc(f.nombre) + '</button></h3>' +
+          (avisos.length ? '<ul class="hub-revision-avisos" data-no-i18n>' + avisos.map(function(a) { return '<li>' + self.ico('aviso') + '<span>' + _esc(a) + '</span></li>'; }).join('') + '</ul>' : '<p class="hub-revision-ok">' + self.ico('check') + _esc(t('Sin avisos de validación')) + '</p>') +
+          (sugerencias.length ? '<p class="hub-revision-sug" data-no-i18n>' + _esc('Sugerencias: ' + sugerencias.map(function(s) { return s.campo + ' = ' + s.valor + ' (' + s.motivo + ')'; }).join('; ')) + '</p>' : '') +
+          '<div class="hub-revision-acciones">' + self.botonesRevision(f.slug) + '</div></li>';
+      }).join('') + '</ul>';
+  },
+  confirmarArchivo: function(slug) {
+    var f = this.porSlug[slug], R = this.REF, t = this.t.bind(this);
+    if (!f) return;
+    App.openModal('Archivar ficha', '<div class="hub-confirmar"><p>' + _esc(t('La ficha dejará de verse en el hub. Podrás recuperarla desde la base de datos.')) + '</p><p data-no-i18n><strong>' + _esc(f.nombre) + '</strong></p>' +
+      '<div class="hub-confirmar-acciones"><button type="button" class="btn btn-secondary" onclick="App.closeModal()">' + _esc(t('Cancelar')) + '</button>' +
+      '<button type="button" class="btn btn-aviso-lleno" onclick="App.closeModal();' + R + '.revisar(' + _statsArgumento(slug) + ',\'archivado\')">' + _esc(t('Archivar')) + '</button></div></div>');
+  },
+  revisar: function(slug, estado) {
+    var self = this;
+    App.operation.run('hub-estado:' + slug, 'cambiarEstadoHub', [slug, estado], function(res) {
+      var f = self.porSlug[slug];
+      if (!f) return;
+      if (res.estado === 'archivado') {
+        self.fichas = self.fichas.filter(function(x) { return x.slug !== slug; });
+        delete self.porSlug[slug];
+      } else f.estado = res.estado;
+      if (self.pila.length) self.cerrarDetalle();
+      self.pintar();
+    }, null, { success: estado === 'archivado' ? 'Ficha archivada' : 'Ficha revisada' }).catch(function() {});
+  },
 };
 document.addEventListener('DOMContentLoaded',function() { App.i18n.iniciar(); });
 
