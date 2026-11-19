@@ -1,3 +1,30 @@
+# Resultado: Cancelar entrenamiento (iteración 6)
+
+- Commit de aplicación: `97823523275a4bf6b5588a581e99f2beef361617` en `develop` (`feat: detallar por jugador el resultado del aviso por correo`), subido a `origin/develop`.
+- DEV: **@70**, `CBBAEZA DEV 97823523275a4bf6b5588a581e99f2beef361617`. [Abrir DEV](https://script.google.com/macros/s/AKfycbyhHD-u1fzcUuGXVkC90Zdsnbv2Nj6D7XBFBGWGkgzRd88ubdihmABPvszHnmBj3sys/exec).
+- PRO no se ha desplegado (sigue en @64) ni se ha tocado su base de datos. No hay migración nueva.
+- `npm test`: **291 pruebas, 291 aprobadas**. `graphify update .` actualizado.
+
+## Cambios
+
+- **Servidor** (`Notificaciones.avisarCancelacionAFamilias`): además de los recuentos, devuelve `jugadores`, con un `{ nombre, estado }` por convocado. El nombre va como «Apellidos, Nombre», igual que en las demás listas del entrenador, y la lista sale ordenada. El estado es `enviado`, `sin_correo` o `error`. No incluye direcciones ni teléfonos. Desaparecen `omitidas` y `fallidas`. No cambian la reserva frente a doble envío ni el registro en `CanalAvisoCancelacion`.
+- **Tarjeta**: tras «Enviar correos», el cuerpo baja hasta el resultado:
+  - Resumen con `aria-live`: «Correo enviado a 12 de 15 jugadores.» (ámbar), «Correo enviado a los 15 jugadores.» (verde) o «No hay familias con correo.». Si el servidor da una indicación (envío parcial, reintento), aparece debajo en letra pequeña.
+  - Bloque «No lo han recibido» (borde ámbar, contador, abierto) con el motivo en un chip: «Sin correo registrado» (ámbar) o «Error de envío» (rojo).
+  - Bloque «Lo han recibido» (borde verde, contador, check por fila). Se pliega si hay más de 6 jugadores; las listas tienen el alto limitado y su propio scroll.
+  - Si todos lo recibieron no aparece el bloque de pendientes.
+  - Solo se usan los tokens `--verde`/`--ambar`/`--rojo` y sus variantes `-s`, en los tres temas. Textos en español e inglés.
+- `docs/modelo-datos.md` documenta el nuevo contrato.
+
+## Verificación
+
+- Pruebas: estado por jugador con hermanos, tutores desactivados y correos inválidos; que el informe no contenga `@`; fallos parciales y totales. En la interfaz: resumen, bloques, motivos, plegado de listas largas, estado sin pendientes, escape HTML e inglés.
+- Chromium headless con 15 jugadores ficticios (12 enviados, 2 sin correo, 1 error) y el servidor simulado. Capturas en `/tmp/cancelar6-claro.png`, `/tmp/cancelar6-oscuro.png`, `/tmp/cancelar6-patrimonio.png`, `/tmp/cancelar6-movil.png`, `/tmp/cancelar6-movil-todos-oscuro.png` y `/tmp/cancelar6-movil-en-patrimonio.png`. No se enviaron correos reales.
+- La URL pública de DEV abre la pantalla de login. El publicador no pudo abrir la ventana privada; la comprobación se hizo con Chromium headless.
+- Los `PROMPT-cancelar*.md` sin seguimiento impedían publicar (el árbol debe estar limpio). Se apartaron temporalmente durante el despliegue y se devolvieron intactos.
+
+---
+
 # Resultado: Cancelar entrenamiento (iteración 5)
 
 - Commit de aplicación: `f026c8f07d734c28e3bd772e9fbfabde7df35a2d` en `develop`.
