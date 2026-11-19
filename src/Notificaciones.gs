@@ -206,7 +206,7 @@ CB Baeza — Gestión de Asistencia`;
    * @param {string} canal  - Uno de CONFIG.CANALES_AVISO_CANCELACION
    * @param {Function} [antesDeEnviar] - Señala que se va a intentar un envío.
    * @returns {{ canal: string, mensaje?: string, convocados?: number, avisados?: number, omitidos?: number,
-   *   omitidas?: Object[], fallidos?: number, fallidas?: Object[] }}
+   *   omitidas?: Object[], fallidos?: number, fallidas?: Object[], correosEnviados?: number }}
    */
   avisarCancelacionAFamilias(sesion, canal, antesDeEnviar) {
     if (canal === 'ninguno') return { canal: canal };
@@ -229,6 +229,7 @@ CB Baeza — Gestión de Asistencia`;
   // Un correo por familia (sus direcciones en «Para»): ninguna familia ve las direcciones de las demás.
   _avisarCancelacionPorCorreo_(familias, sesion, equipo, mensaje, antesDeEnviar) {
     const enviados = new Set();
+    let correosEnviados = 0;
     const asunto = `CB Baeza — Entrenamiento cancelado: ${equipo ? equipo.Nombre : 'tu equipo'} (${Notificaciones._formatFecha(sesion.Fecha)})`;
     const cuerpo = mensaje;
     const textoHtml = cuerpo.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -243,6 +244,7 @@ CB Baeza — Gestión de Asistencia`;
       if (antesDeEnviar) antesDeEnviar();
       try {
         MailApp.sendEmail({ to: pendientes.join(','), subject: asunto, body: cuerpo, htmlBody: html });
+        correosEnviados++;
       } catch (e) {
         Logger.log('[Notificaciones] No se pudo enviar un aviso de cancelación por correo.');
         return;
@@ -251,7 +253,7 @@ CB Baeza — Gestión de Asistencia`;
     });
     const fallidas = familias.filter(f => f.contactos.some(c => !enviados.has(c.valor)))
       .map(f => ({ jugador: f.jugador }));
-    return { avisados: familias.length - fallidas.length, fallidos: fallidas.length, fallidas: fallidas };
+    return { avisados: familias.length - fallidas.length, fallidos: fallidas.length, fallidas: fallidas, correosEnviados: correosEnviados };
   },
 
   // ══════════════════════════════════════════════════════════════════════════════

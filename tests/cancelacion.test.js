@@ -209,6 +209,7 @@ test('correo: uno por familia a sus tutores, omite sin correo o con avisos desac
   assert.ok(s.correos.every(c => !c.body.includes('@') && !c.htmlBody.includes('@')));
   assert.equal(n.convocados, 6);
   assert.equal(n.avisados, 3, 'el hermano cuenta como avisado: su familia ya recibió el correo');
+  assert.equal(n.correosEnviados, 2, 'dos mensajes para tres familias y tres direcciones');
   assert.equal(n.omitidos, 3);
   assert.equal(n.fallidos, 0);
 });
@@ -242,12 +243,32 @@ test('correo: un envío fallido no impide el resto ni deja datos personales en e
   assert.deepEqual(s.correos.map(c => c.to), ['ok@example.test']);
   assert.equal(res.notificacion.avisados, 1);
   assert.equal(res.notificacion.fallidos, 1);
+  assert.equal(res.notificacion.correosEnviados, 1);
   assert.deepEqual(Array.from(res.notificacion.fallidas, f => f.jugador), ['Nombre j1 Apellido']);
   assert.match(res.notificacion.error, /Avísalas por otro medio/);
   assert.equal(res.sesion.CanalAvisoCancelacion, 'correo');
   assert.equal(s.avisar('correo').notificacion.yaRegistrado, true);
   assert.deepEqual(s.correos.map(c => c.to), ['ok@example.test']);
   assert.ok(s.logs.length && s.logs.every(l => !l.includes('@')));
+});
+
+test('correo: hermanos comparten destinatarios y un fallo parcial solo cuenta los envíos exitosos', () => {
+  const intentos = [];
+  const s = servidor({
+    enCorreo: ({ to }) => intentos.push(to),
+    correoFalla: ({ to }) => to === 'falla@example.test',
+  });
+  s.jugador('ana', { EmailPadre1: 'madre@example.test', EmailPadre2: 'padre@example.test' });
+  s.jugador('hermano', { EmailPadre1: 'madre@example.test' });
+  s.jugador('otro', { EmailPadre1: 'madre@example.test', EmailPadre2: 'falla@example.test' });
+  s.cancelar(MOTIVO);
+  const res = s.avisar('correo');
+  assert.deepEqual(intentos, ['madre@example.test,padre@example.test', 'falla@example.test']);
+  assert.equal(res.notificacion.correosEnviados, 1);
+  assert.equal(res.notificacion.avisados, 2);
+  assert.equal(res.notificacion.fallidos, 1);
+  assert.deepEqual(Array.from(res.notificacion.fallidas, f => f.jugador), ['Nombre otro Apellido']);
+  assert.equal(res.sesion.CanalAvisoCancelacion, 'correo');
 });
 
 test('si falla la preparación la sesión sigue cancelada y correo se puede volver a intentar', () => {
@@ -278,12 +299,14 @@ test('si fallan todos los envíos se permite reintentar sin perder los demás ca
   assert.equal(res.sesion.CanalAvisoCancelacion, 'copiar');
   assert.equal(res.notificacion.avisados, 0);
   assert.equal(res.notificacion.fallidos, 2);
+  assert.equal(res.notificacion.correosEnviados, 0);
   assert.deepEqual(Array.from(res.notificacion.fallidas, f => f.jugador), ['Nombre j1 Apellido', 'Nombre j2 Apellido']);
   assert.match(res.notificacion.error, /volver a intentarlo/);
   falla = false;
   const repetido = s.avisar('correo');
   assert.equal(repetido.success, true);
   assert.equal(repetido.sesion.CanalAvisoCancelacion, 'copiar,correo');
+  assert.equal(repetido.notificacion.correosEnviados, 2);
   assert.deepEqual(s.correos.map(c => c.to), ['uno@example.test', 'dos@example.test']);
 });
 

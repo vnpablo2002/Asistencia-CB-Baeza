@@ -827,7 +827,7 @@ function avisarCancelacion(auth, sesionId, canal) {
     try {
       notificacion = Notificaciones.avisarCancelacionAFamilias(sesion, canal, () => { correoIniciado = true; });
       if (canal === 'correo' && notificacion.fallidos) {
-        retirarReserva = !notificacion.avisados;
+        retirarReserva = !notificacion.correosEnviados;
         notificacion.error = retirarReserva
           ? 'No se ha enviado ningún correo. Puedes volver a intentarlo.'
           : 'Algunas familias no recibieron el correo. Avísalas por otro medio; no se reenviará para evitar duplicados.';

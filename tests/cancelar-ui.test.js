@@ -32,7 +32,7 @@ function client(notificacion) {
   const window = eventos();
   const context = vm.createContext({
     document, window,
-    localStorage: { getItem: () => null, setItem() {} },
+    localStorage: { getItem: () => null, setItem() {} }, setTimeout, clearTimeout,
     navigator: { userAgent: 'test', clipboard: { writeText: texto => { portapapeles.push(texto); return Promise.resolve(); } } },
   });
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../ui/app.html'), 'utf8').replace(/^<script[^>]*>|<\/script>\s*$/g, ''), context);
@@ -66,10 +66,11 @@ function client(notificacion) {
       const sesion = { ...app.cache.sesiones[0], Cancelada: true, MotivoCancelacion: args[1], DetalleCancelacion: (args[2] && args[2].detalle) || null, CanceladoPor: 'Marta López', CanalAvisoCancelacion: null };
       return Promise.resolve().then(() => onSuccess({ success: true, sesion }));
     }
-    return Promise.resolve().then(() => responder(args[1])).then(res => {
-      if (!res || res.success === false) throw new Error(res?.error || 'No confirmado');
-      return onSuccess(res);
-    });
+    throw new Error('Operación inesperada: ' + fn);
+  };
+  context.server = (fn, id, canal) => {
+    calls.push({ fn, args: [id, canal] });
+    return Promise.resolve().then(() => responder(canal));
   };
   const wizard = app.views.cancelarSesion;
   return { app, wizard, els, calls, navegacion, notices, portapapeles, document, window, navigator: context.navigator, setResponder(fn) { responder = fn; } };
@@ -110,7 +111,7 @@ test('al confirmar se cancela con el detalle (o vacío) y después aparece el av
   assert.equal(wizard._paso, 'aviso');
   assert.equal(wizard._cancelada, true);
   assert.equal(els['cancelar-titulo'].textContent, 'Avisar a las familias');
-  assert.equal(els['cancelar-canal-correo-info'].textContent, '1 de 3 con correo', 'avisos por correo desactivados no cuentan');
+  assert.equal(els['cancelar-mensaje'].textContent, MENSAJE);
   assert.equal(els['cancelar-canal-whatsapp'].href, 'https://wa.me/?text=' + encodeURIComponent(MENSAJE));
   assert.ok(!els['cancelar-canal-whatsapp'].href.includes('wa.me/34'), 'sin número: el entrenador elige el chat');
   wizard.atras();
@@ -128,26 +129,23 @@ test('cerrar tras cancelar deja la sesión cancelada, sin registrar canal', asyn
   assert.equal(calls.length, 1);
 });
 
-test('el correo se envía una sola vez y la tarjeta sigue abierta', async () => {
-  const { wizard, calls, els } = client({ canal: 'correo', avisados: 1, omitidos: 2, fallidos: 0 });
+test('el correo muestra recuento y no se envía dos veces', async () => {
+  const { wizard, calls, els } = client({ canal: 'correo', correosEnviados: 1, avisados: 1, omitidos: 2, fallidos: 0 });
   wizard.abrir('s1');
   wizard.elegirMotivo('Climatología');
   assert.equal(await wizard.elegirCanal('correo'), false);
-  assert.equal(await wizard.confirmar(), true);
-  assert.equal(await wizard.elegirCanal('correo'), true);
-  assert.deepEqual(calls[1].args, ['s1', 'correo']);
-  assert.equal(wizard._paso, 'aviso');
+  await wizard.confirmar();
+  const envio = wizard.elegirCanal('correo');
+  assert.equal(els['cancelar-resultado'].textContent, 'Enviando…');
+  assert.equal(await envio, true);
   assert.equal(els['cancelar-canal-correo'].disabled, true);
-  assert.equal(els['cancelar-canal-correo-info'].textContent, 'Enviado ✓');
-  assert.match(els['cancelar-resultado'].innerHTML, /Familias avisadas por correo<\/dt><dd>1/);
-  assert.match(els['cancelar-resultado'].innerHTML, /Omitidas por no tener correo<\/dt><dd>2/);
-  assert.equal(els['cancelar-terminar'].textContent, 'Listo');
+  assert.match(els['cancelar-resultado'].innerHTML, /Se ha enviado 1 correo\./);
   assert.equal(await wizard.elegirCanal('correo'), false);
   assert.equal(calls.length, 2);
 });
 
-test('copiar y WhatsApp funcionan y se repiten mientras el correo espera; respuestas desordenadas conservan canales', async () => {
-  const { app, wizard, calls, portapapeles, els, setResponder } = client();
+test('copiar y WhatsApp se repiten mientras se envía correo, sin alterar su resultado', async () => {
+  const { app, wizard, portapapeles, els, setResponder } = client();
   wizard.abrir('s1');
   wizard.elegirMotivo('Climatología');
   els['cancelar-detalle'].value = 'Pista mojada';
@@ -158,112 +156,71 @@ test('copiar y WhatsApp funcionan y se repiten mientras el correo espera; respue
     ? new Promise(resolve => { resolverCorreo = resolve; })
     : { success: true, sesion: { ...base, CanalAvisoCancelacion: canal }, notificacion: { canal } });
   const pendiente = wizard.elegirCanal('correo');
-  assert.equal(els['cancelar-canal-correo-info'].textContent, 'Enviando…');
+  await Promise.resolve();
   assert.equal(await wizard.elegirCanal('correo'), false);
-  const href = els['cancelar-canal-whatsapp'].href;
-  assert.equal(href, 'https://wa.me/?text=' + encodeURIComponent(MENSAJE));
-  const copiar = wizard.elegirCanal('copiar');
-  const whatsapp = wizard.elegirCanal('whatsapp');
-  assert.deepEqual(portapapeles, [MENSAJE, MENSAJE], 'se copia en el gesto sin esperar al servidor');
-  assert.equal(await copiar, true);
-  assert.equal(await whatsapp, true);
+  assert.equal(els['cancelar-canal-whatsapp'].href, 'https://wa.me/?text=' + encodeURIComponent(MENSAJE));
+  assert.equal(await wizard.elegirCanal('copiar'), true);
+  assert.equal(els['cancelar-copiar'].classList.contains('copiado'), true);
+  assert.equal(await wizard.elegirCanal('whatsapp'), true);
   assert.equal(await wizard.elegirCanal('copiar'), true);
   assert.equal(await wizard.elegirCanal('whatsapp'), true);
-  assert.equal(portapapeles.length, 4);
-  assert.equal(els['cancelar-estado-copiar'].textContent, 'Copiado ✓');
-  assert.equal(els['cancelar-estado-whatsapp'].textContent, 'Abierto ✓');
-  assert.equal(els['cancelar-canal-correo'].disabled, true);
-  resolverCorreo({ success: true, sesion: { ...base, CanalAvisoCancelacion: 'correo' }, notificacion: { canal: 'correo', avisados: 1 } });
+  assert.deepEqual(portapapeles, [MENSAJE, MENSAJE, MENSAJE, MENSAJE]);
+  assert.equal(els['cancelar-resultado'].textContent, 'Enviando…');
+  resolverCorreo({ success: true, sesion: { ...base, CanalAvisoCancelacion: 'correo' }, notificacion: { canal: 'correo', correosEnviados: 12 } });
   assert.equal(await pendiente, true);
+  assert.match(els['cancelar-resultado'].innerHTML, /Se han enviado 12 correos\./);
   assert.deepEqual(new Set(app.cache.sesiones[0].CanalAvisoCancelacion.split(',')), new Set(['copiar', 'whatsapp', 'correo']));
-  assert.equal(new Set(calls.slice(1).map(c => c.key)).size, 5);
-  assert.equal(wizard._paso, 'aviso');
 });
 
-test('fallo total permite reintentar; el parcial muestra fallidos y no permite reenviar', async () => {
-  const { app, wizard, els, setResponder, calls } = client();
-  wizard.abrir('s1');
-  wizard.elegirMotivo('Otro');
-  await wizard.confirmar();
-  let parcial = false;
-  setResponder(() => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: parcial ? 'correo' : null },
-    notificacion: { canal: 'correo', error: 'Error de correo', avisados: parcial ? 1 : 0, fallidos: 1, fallidas: [{ jugador: 'Ana <Ruiz>' }] } }));
-  assert.equal(await wizard.elegirCanal('correo'), false);
-  assert.equal(els['cancelar-canal-correo'].disabled, false);
-  assert.equal(els['cancelar-canal-correo-info'].textContent, 'Error. Puedes reintentar.');
-  assert.equal(els['cancelar-terminar'].textContent, 'No avisar');
-  assert.match(els['cancelar-resultado'].innerHTML, /Error de correo/);
-  assert.match(els['cancelar-resultado'].innerHTML, /No se pudo enviar<\/dt><dd>1/);
-  assert.match(els['cancelar-resultado'].innerHTML, /Ana &lt;Ruiz&gt;/);
-  parcial = true;
-  assert.equal(await wizard.elegirCanal('correo'), false);
-  assert.equal(els['cancelar-canal-correo'].disabled, true);
-  assert.equal(els['cancelar-canal-correo-info'].textContent, 'Enviado parcialmente');
-  assert.match(els['cancelar-resultado'].innerHTML, /Familias avisadas por correo<\/dt><dd>1/);
-  assert.match(els['cancelar-resultado'].innerHTML, /Ana &lt;Ruiz&gt;/);
-  assert.equal(await wizard.elegirCanal('correo'), false);
-  assert.equal(calls.length, 3);
-});
-
-test('correo ya registrado en otra petición no se reenvía ni se presenta como envío parcial', async () => {
-  const { app, wizard, els, calls, setResponder } = client();
-  app.preferences.idioma = 'en';
+test('sin correos y envío parcial informan del resultado sin duplicar', async () => {
+  const { app, wizard, els, setResponder } = client();
   wizard.abrir('s1');
   wizard.elegirMotivo('Otro');
   await wizard.confirmar();
   setResponder(() => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: 'correo' },
-    notificacion: { canal: 'correo', yaRegistrado: true, error: 'El aviso por correo ya está registrado; no se volverá a enviar.' } }));
+    notificacion: { canal: 'correo', correosEnviados: 0, convocados: 2, omitidos: 2, fallidos: 0 } }));
+  assert.equal(await wizard.elegirCanal('correo'), true);
+  assert.match(els['cancelar-resultado'].innerHTML, /No hay familias con correo/);
   assert.equal(await wizard.elegirCanal('correo'), false);
-  assert.equal(els['cancelar-canal-correo'].disabled, true);
-  assert.equal(els['cancelar-canal-correo-info'].textContent, 'Already recorded');
-  assert.match(els['cancelar-resultado'].innerHTML, /already recorded/);
+  wizard.abrir('s1');
+  wizard.elegirMotivo('Otro');
+  await wizard.confirmar();
+  setResponder(() => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: 'correo' },
+    notificacion: { canal: 'correo', correosEnviados: 1, error: 'Error parcial', fallidos: 1, fallidas: [{ jugador: 'Ana <Ruiz>' }] } }));
   assert.equal(await wizard.elegirCanal('correo'), false);
-  assert.equal(calls.length, 2);
+  assert.match(els['cancelar-resultado'].innerHTML, /Se ha enviado 1 correo/);
+  assert.match(els['cancelar-resultado'].innerHTML, /Error parcial/);
+  assert.match(els['cancelar-resultado'].innerHTML, /Ana &lt;Ruiz&gt;/);
+  assert.equal(await wizard.elegirCanal('correo'), false);
 });
 
-test('error de servidor permite reintentar correo y el idioma inglés traduce los estados', async () => {
+test('fallo total permite reintento y el resultado se traduce al inglés', async () => {
   const { app, wizard, els, setResponder } = client();
   app.preferences.idioma = 'en';
   wizard.abrir('s1');
   wizard.elegirMotivo('Otro');
   await wizard.confirmar();
-  assert.equal(els['cancelar-terminar'].textContent, 'Do not notify');
   setResponder(() => Promise.reject(new Error('Sin conexión')));
   const pendiente = wizard.elegirCanal('correo');
-  assert.equal(els['cancelar-canal-correo-info'].textContent, 'Sending…');
+  assert.equal(els['cancelar-resultado'].textContent, 'Sending…');
   assert.equal(await pendiente, false);
   assert.equal(els['cancelar-canal-correo'].disabled, false);
-  assert.equal(els['cancelar-canal-correo-info'].textContent, 'Error. You can retry.');
   assert.match(els['cancelar-resultado'].innerHTML, /Offline/);
-  setResponder(canal => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: canal }, notificacion: { canal, avisados: 1 } }));
+  setResponder(canal => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: canal }, notificacion: { canal, correosEnviados: 2 } }));
   assert.equal(await wizard.elegirCanal('correo'), true);
-  assert.equal(els['cancelar-canal-correo-info'].textContent, 'Sent ✓');
-  assert.equal(els['cancelar-terminar'].textContent, 'Done');
-  assert.match(els['cancelar-resultado'].innerHTML, /Families notified by email/);
+  assert.match(els['cancelar-resultado'].innerHTML, /2 emails have been sent/);
 });
 
-test('si falla el portapapeles se muestra el texto y si falla el registro se explica', async () => {
-  const { wizard, els, navigator, setResponder } = client();
+test('fallo del portapapeles no registra copia ni muestra mensajes', async () => {
+  const { wizard, els, navigator, calls } = client();
   wizard.abrir('s1');
   wizard.elegirMotivo('Otro');
   await wizard.confirmar();
   navigator.clipboard.writeText = () => Promise.reject(new Error('bloqueado'));
-  setResponder(() => Promise.reject(new Error('Sin conexión')));
   assert.equal(await wizard.elegirCanal('copiar'), false);
-  assert.match(els['cancelar-estado-copiar'].innerHTML, /Entrenamiento cancelado/);
-  assert.match(els['cancelar-error-copiar'].textContent, /No se pudo guardar el canal\. Sin conexión/);
-  assert.equal(els['cancelar-terminar'].textContent, 'Listo');
-});
-
-test('el error incluido en notificación de un canal también se muestra', async () => {
-  const { app, wizard, els, setResponder } = client();
-  wizard.abrir('s1');
-  wizard.elegirMotivo('Otro');
-  await wizard.confirmar();
-  setResponder(canal => ({ success: true, sesion: { ...app.cache.sesiones[0], CanalAvisoCancelacion: canal }, notificacion: { canal, error: 'Fallo al registrar' } }));
-  assert.equal(await wizard.elegirCanal('whatsapp'), false);
-  assert.equal(els['cancelar-error-whatsapp'].textContent, 'Fallo al registrar');
-  assert.equal(wizard._paso, 'aviso');
+  assert.equal(calls.length, 1);
+  assert.equal(els['cancelar-copiar'].classList.contains('copiado'), false);
+  assert.equal(els['cancelar-resultado'].innerHTML, '');
 });
 
 test('cerrar sin avisar no registra canal y conserva la firma del mensaje', async () => {
@@ -271,7 +228,6 @@ test('cerrar sin avisar no registra canal y conserva la firma del mensaje', asyn
   wizard.abrir('s1');
   wizard.elegirMotivo('Otro');
   await wizard.confirmar();
-  assert.equal(els['cancelar-terminar'].textContent, 'No avisar');
   wizard.cerrar();
   assert.equal(calls.length, 1);
   const sesion = { ID: 's1', ID_Equipo: 'e1', Fecha: '2026-11-16', HoraInicio: '19:00', HoraFin: '20:30' }, equipo = app.cache.equipos[0];
@@ -289,16 +245,15 @@ test('una respuesta tardía actualiza solo su sesión y no cambia otro asistente
   setResponder(() => new Promise(resolve => { resolver = resolve; }));
   const pendiente = wizard.elegirCanal('correo');
   await Promise.resolve();
+  await Promise.resolve();
   wizard.cerrar();
   app.cache.sesiones.push({ ID: 's2', ID_Equipo: 'e1', Fecha: '2026-11-17', HoraInicio: '19:00', HoraFin: '20:30' });
   wizard.abrir('s2');
-  assert.equal(els['cancelar-terminar'].textContent, 'No avisar');
   resolver({ success: true, sesion: { ...primera, CanalAvisoCancelacion: 'correo' }, notificacion: { canal: 'correo', avisados: 1 } });
   assert.equal(await pendiente, true);
   assert.equal(app.cache.sesiones.find(s => s.ID === 's1').CanalAvisoCancelacion, 'correo');
   assert.equal(app.cache.sesiones.find(s => s.ID === 's2').CanalAvisoCancelacion, undefined);
   assert.equal(wizard._sesionId, 's2');
   assert.equal(els['cancelar-canal-correo'].disabled, false);
-  assert.equal(els['cancelar-terminar'].textContent, 'No avisar');
   assert.equal(els['cancelar-resultado'].innerHTML, '');
 });

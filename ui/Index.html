@@ -733,35 +733,21 @@
         </section>
 
         <section class="justif-step" data-step="aviso" hidden>
-          <div class="aviso-club cancelar-hecho">
-            <span class="aviso-club-icono" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4m8-4v4M9.5 13.5l5 4m0-4-5 4"/></svg></span>
-            <h4 id="cancelar-aviso-pregunta" class="justif-question" tabindex="-1">Avisar a las familias</h4>
-          </div>
-          <p id="cancelar-aviso-hint" class="justif-hint">El entrenamiento ya está cancelado. Puedes usar varios canales.</p>
-          <div class="justif-choice-grid cancelar-canales" role="group" aria-labelledby="cancelar-aviso-pregunta">
-            <a class="justif-choice" id="cancelar-canal-whatsapp" data-canal="whatsapp" href="https://wa.me/" target="_blank" rel="noopener noreferrer" onclick="App.views.cancelarSesion.elegirCanal('whatsapp')">
-              <span class="justif-choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4.5 19.5l1.2-3.6A8 8 0 1 1 8.6 18.6z"/><path d="M9 9.5c.4 2.2 2.3 4.2 4.6 4.8l1.1-1.1 1.8.8"/></svg></span>
-              <strong>WhatsApp</strong>
-              <small>Copia el mensaje y abre WhatsApp</small>
-            </a>
-            <button type="button" class="justif-choice" id="cancelar-canal-correo" data-canal="correo" onclick="App.views.cancelarSesion.elegirCanal('correo')">
-              <span class="justif-choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="13" rx="2.5"/><path d="M4.5 7.5l7.5 6 7.5-6"/></svg></span>
-              <strong>Correo</strong>
-              <small id="cancelar-canal-correo-info" role="status" aria-live="polite">A las familias con correo</small>
+          <h4 id="cancelar-aviso-pregunta" class="justif-question" tabindex="-1">Mensaje para las familias</h4>
+          <div class="cancelar-preview">
+            <button type="button" id="cancelar-copiar" class="cancelar-copiar" aria-label="Copiar mensaje" title="Copiar mensaje" onclick="App.views.cancelarSesion.elegirCanal('copiar')">
+              <svg class="cancelar-icono-copiar" viewBox="0 0 24 24" aria-hidden="true"><rect x="8.5" y="8.5" width="11" height="12" rx="2"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/></svg>
+              <svg class="cancelar-icono-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>
             </button>
-            <button type="button" class="justif-choice" data-canal="copiar" onclick="App.views.cancelarSesion.elegirCanal('copiar')">
-              <span class="justif-choice-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="8.5" y="8.5" width="11" height="12" rx="2"/><path d="M15.5 8.5V6a2 2 0 0 0-2-2h-7a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h2"/></svg></span>
-              <strong>Copiar mensaje</strong>
-              <small>P&eacute;galo donde quieras</small>
-            </button>
+            <div id="cancelar-mensaje" data-no-i18n></div>
           </div>
-          <div id="cancelar-estado-whatsapp" class="cancelar-nota" role="status" aria-live="polite"></div>
-          <div id="cancelar-estado-copiar" class="cancelar-nota" role="status" aria-live="polite"></div>
-          <div id="cancelar-error-whatsapp" class="cancelar-nota" role="status" aria-live="polite"></div>
-          <div id="cancelar-error-copiar" class="cancelar-nota" role="status" aria-live="polite"></div>
-          <div id="cancelar-resultado" class="cancelar-resultado" role="status" aria-live="polite"></div>
           <div class="justif-actions">
-            <button type="button" id="cancelar-terminar" class="btn btn-primary btn-full" onclick="App.views.cancelarSesion.cerrar()">No avisar</button>
+            <div class="cancelar-canales" role="group" aria-labelledby="cancelar-aviso-pregunta">
+              <a class="btn btn-whatsapp" id="cancelar-canal-whatsapp" href="https://wa.me/" target="_blank" rel="noopener noreferrer" onclick="App.views.cancelarSesion.elegirCanal('whatsapp')">Copiar y abrir WhatsApp</a>
+              <button type="button" class="btn btn-primary" id="cancelar-canal-correo" onclick="App.views.cancelarSesion.elegirCanal('correo')">Enviar correos</button>
+            </div>
+            <div id="cancelar-resultado" class="cancelar-resultado" role="status" aria-live="polite"></div>
+            <button type="button" id="cancelar-terminar" class="cancelar-cerrar" onclick="App.views.cancelarSesion.cerrar()">Cerrar</button>
           </div>
         </section>
       </div>

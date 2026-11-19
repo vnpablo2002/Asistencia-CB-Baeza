@@ -3485,13 +3485,12 @@ const App = {
       _datos: null,      // { motivo, detalle }
       _mensaje: '',
       _aviso: null,
-      _secuenciaAviso: 0,
       _cancelada: false, // true cuando cancelarSesion ya ha respondido bien
 
       abrir: function(sesionId) {
         var sesion = this._sesion(sesionId);
         if (!sesion) return;
-        this._aviso = { correo: 'disponible', usados: {} };
+        this._aviso = { correo: 'disponible' };
         this._cancelada = false;
         this._sesionId = sesionId;
         this._datos = { motivo: '', detalle: '' };
@@ -3501,11 +3500,7 @@ const App = {
         }).join('');
         document.getElementById('cancelar-detalle').value = '';
         document.getElementById('cancelar-resultado').innerHTML = '';
-        document.getElementById('cancelar-estado-whatsapp').textContent = '';
-        document.getElementById('cancelar-estado-copiar').textContent = '';
-        document.getElementById('cancelar-error-whatsapp').textContent = '';
-        document.getElementById('cancelar-error-copiar').textContent = '';
-        document.getElementById('cancelar-terminar').textContent = App.i18n.texto('No avisar');
+        document.getElementById('cancelar-copiar').classList.remove('copiado');
         document.getElementById('cancelar-canal-correo').disabled = false;
         document.getElementById('cancelar-sesion-info').textContent = this._descripcion(sesion);
         this._irA('motivo', 0);
@@ -3530,23 +3525,6 @@ const App = {
         return (equipo ? equipo.Nombre + ' \u00b7 ' : '') + f.dn + ' ' + f.d + ' ' + f.ml + ' \u00b7 ' + sesion.HoraInicio + (sesion.HoraFin ? '\u2013' + sesion.HoraFin : '');
       },
 
-      // Réplica de Notificaciones.contactosFamilia (solo correo, para el recuento previo).
-      _contactosCorreo: function(j) {
-        var email = function(valor) { var v = String(valor || '').trim(); return /^[^\s@<>,;]+@[^\s@<>,;]+\.[^\s@<>,;]+$/.test(v) ? v : ''; };
-        var tutores = [1, 2].map(function(n) {
-          var aviso = j['NotificarAusenciasPadre' + n];
-          return { email: j['EmailPadre' + n], activo: aviso !== false && aviso !== 'FALSE' };
-        });
-        var conEmail = tutores.filter(function(c) { return email(c.email); });
-        var elegidos = conEmail.length ? conEmail.filter(function(c) { return c.activo; }) : [{ email: j.Email }].filter(function(c) { return email(c.email); });
-        return elegidos.map(function(c) { return email(c.email); }).filter(function(v, i, todos) { return todos.indexOf(v) === i; });
-      },
-
-      _familiasConCorreo: function() {
-        var sesion = this._sesion(this._sesionId), self = this;
-        var jugadores = sesion ? App.views.sesion._buildFromCache(sesion).jugadores.map(function(i) { return i.jugador; }) : [];
-        return { total: jugadores.length, correo: jugadores.filter(function(j) { return self._contactosCorreo(j).length > 0; }).length };
-      },
 
       // Réplica de Notificaciones.mensajeCancelacion.
       mensaje: function(sesion, equipo, motivo, detalle) {
@@ -3562,10 +3540,7 @@ const App = {
       },
 
       _mensajeActual: function(sesion, datos) {
-        var usuario = App.state.usuario || {};
-        var nombre = [usuario.Nombre, usuario.Apellidos].map(function(v) { return String(v || '').trim(); }).filter(Boolean).join(' ');
-        return this.mensaje(Object.assign({}, sesion, { CanceladoPor: nombre || 'CB Baeza' }),
-          App.cache.getEquipoById(sesion.ID_Equipo), datos.motivo, datos.detalle);
+        return this.mensaje(sesion, App.cache.getEquipoById(sesion.ID_Equipo), datos.motivo, datos.detalle);
       },
 
       _detalle: function() {
@@ -3619,11 +3594,10 @@ const App = {
       },
 
       _pintarCanales: function() {
-        var f = this._familiasConCorreo();
-        var info = document.getElementById('cancelar-canal-correo-info');
-        if (info) info.textContent = App.i18n.texto(f.correo + ' de ' + f.total + ' con correo');
-        var enlace = document.getElementById('cancelar-canal-whatsapp');
-        if (enlace) enlace.href = this._enlaceWhatsApp();
+        var sesion = this._sesion(this._sesionId);
+        this._mensaje = this._mensajeActual(sesion, this._datos);
+        document.getElementById('cancelar-mensaje').textContent = this._mensaje;
+        document.getElementById('cancelar-canal-whatsapp').href = this._enlaceWhatsApp();
       },
 
       // Cancela ya (detalle opcional, el texto actual o vacío). Después se elige el aviso.
@@ -3645,84 +3619,64 @@ const App = {
           .then(function(ok) { boton.disabled = false; return ok; });
       },
 
-      // Copia en el gesto del usuario; cada registro tiene su propia operación.
+      // WhatsApp abre su enlace en el gesto; copiar y registrar no muestran banners.
       elegirCanal: function(canal) {
         if (!this.CANALES[canal] || !this._cancelada) return Promise.resolve(false);
         var self = this, id = this._sesionId, sesion = this._sesion(id), estado = this._aviso;
         if (!sesion || (canal === 'correo' && estado.correo !== 'disponible')) return Promise.resolve(false);
-        this._mensaje = this._mensajeActual(sesion, this._datos);
+        var copia = canal === 'correo' ? Promise.resolve(true) : _copiarTexto(this._mensaje);
         if (canal === 'correo') {
           estado.correo = 'enviando';
           document.getElementById('cancelar-canal-correo').disabled = true;
-          document.getElementById('cancelar-canal-correo-info').textContent = App.i18n.texto('Enviando…');
-          document.getElementById('cancelar-resultado').innerHTML = '';
-        } else {
-          estado.usados[canal] = true;
-          document.getElementById('cancelar-error-' + canal).textContent = '';
-          _copiarTexto(this._mensaje).then(function(copiado) {
-            if (self._aviso !== estado) return;
-            var texto = canal === 'whatsapp' ? (copiado ? 'Abierto ✓' : 'Abierto ✓. No se pudo copiar el mensaje.') : (copiado ? 'Copiado ✓' : 'No se pudo copiar el mensaje.');
-            document.getElementById('cancelar-estado-' + canal).textContent = App.i18n.texto(texto);
-            if (!copiado) {
-              document.getElementById('cancelar-estado-' + canal).innerHTML +=
-                '<div class="justif-preview" data-no-i18n>' + _esc(self._mensaje) + '</div>';
-            }
-          });
+          document.getElementById('cancelar-resultado').textContent = App.i18n.texto('Enviando…');
         }
-        document.getElementById('cancelar-terminar').textContent = App.i18n.texto('Listo');
-        var procesado = false;
-        return App.operation.run('avisar-cancelacion:' + id + ':' + canal + ':' + (++this._secuenciaAviso), 'avisarCancelacion', [id, canal], function(res) {
-          procesado = true;
-          var n = res.notificacion || {}, canales = String(res.sesion && res.sesion.CanalAvisoCancelacion || '').split(',').map(function(c) { return c.trim(); });
-          if (res.sesion) {
-            var actual = self._sesion(id);
-            var guardados = String(actual && actual.CanalAvisoCancelacion || '').split(',').filter(function(c) { return c && c !== 'ninguno'; });
-            if (canal === 'correo') {
-              if (canales.indexOf('correo') >= 0 && guardados.indexOf('correo') < 0) guardados.push('correo');
-            } else if (guardados.indexOf(canal) < 0) guardados.push(canal);
-            App.cache.upsert('sesiones', Object.assign({}, res.sesion, { CanalAvisoCancelacion: guardados.join(',') || null }));
-          }
-          if (self._aviso === estado && canal === 'correo') {
-            var enviado = canales.indexOf('correo') >= 0;
-            estado.correo = enviado ? 'enviado' : 'disponible';
-            if (enviado) estado.usados.correo = true;
-            document.getElementById('cancelar-canal-correo').disabled = enviado;
-            var estadoCorreo = !enviado ? 'Error. Puedes reintentar.' : n.yaRegistrado ? 'Ya registrado' :
-              n.error ? (n.avisados > 0 ? 'Enviado parcialmente' : 'Resultado incierto') : 'Enviado ✓';
-            document.getElementById('cancelar-canal-correo-info').textContent = App.i18n.texto(estadoCorreo);
-            document.getElementById('cancelar-terminar').textContent = App.i18n.texto(Object.keys(estado.usados).length ? 'Listo' : 'No avisar');
-            self._pintarResultado(n);
-          }
-          if (self._aviso === estado && canal !== 'correo' && n.error) {
-            document.getElementById('cancelar-error-' + canal).textContent = App.i18n.texto(n.error);
-          }
-          if (n.error) throw new Error(n.error);
-          return true;
-        }, null, { pending: canal === 'correo' ? 'Enviando…' : 'Guardando aviso…', success: canal === 'correo' ? 'Aviso enviado' : 'Listo' })
-          .catch(function(error) {
-            if (self._aviso === estado && !procesado) {
-              if (canal === 'correo') {
-                estado.correo = 'disponible';
-                document.getElementById('cancelar-canal-correo').disabled = false;
-                document.getElementById('cancelar-canal-correo-info').textContent = App.i18n.texto('Error. Puedes reintentar.');
-                document.getElementById('cancelar-terminar').textContent = App.i18n.texto(Object.keys(estado.usados).length ? 'Listo' : 'No avisar');
-                self._pintarResultado({ error: error.message });
-              } else {
-                document.getElementById('cancelar-error-' + canal).textContent = App.i18n.texto('No se pudo guardar el canal.') + ' ' + (error.message || '');
-              }
+        return copia.then(function(copiado) {
+          if (canal === 'copiar') {
+            if (!copiado) return false;
+            if (self._aviso === estado) {
+              var boton = document.getElementById('cancelar-copiar');
+              boton.classList.add('copiado');
+              clearTimeout(self._temporizadorCopia);
+              self._temporizadorCopia = setTimeout(function() { boton.classList.remove('copiado'); }, 1500);
             }
-            return false;
+          }
+          return server('avisarCancelacion', id, canal).then(function(res) {
+            if (!res || !res.success) throw new Error(res && res.error || 'Error');
+            var n = res.notificacion || {}, canales = String(res.sesion && res.sesion.CanalAvisoCancelacion || '').split(',').map(function(c) { return c.trim(); });
+            if (res.sesion) {
+              var actual = self._sesion(id);
+              var guardados = String(actual && actual.CanalAvisoCancelacion || '').split(',').filter(function(c) { return c && c !== 'ninguno'; });
+              if (canales.indexOf(canal) >= 0 && guardados.indexOf(canal) < 0) guardados.push(canal);
+              App.cache.upsert('sesiones', Object.assign({}, res.sesion, { CanalAvisoCancelacion: guardados.join(',') || null }));
+            }
+            if (self._aviso === estado && canal === 'correo') {
+              var enviado = canales.indexOf('correo') >= 0;
+              estado.correo = enviado ? 'enviado' : 'disponible';
+              document.getElementById('cancelar-canal-correo').disabled = enviado;
+              self._pintarResultado(n);
+            }
+            return !n.error;
           });
+        }).catch(function(error) {
+          if (self._aviso === estado && canal === 'correo') {
+            estado.correo = 'disponible';
+            document.getElementById('cancelar-canal-correo').disabled = false;
+            self._pintarResultado({ error: error.message });
+          }
+          return false;
+        });
       },
 
       _pintarResultado: function(n) {
-        var filas = [], html = '';
-        if (n.avisados != null) filas.push(['Familias avisadas por correo', n.avisados]);
-        if (n.omitidos != null) filas.push(['Omitidas por no tener correo', n.omitidos]);
-        if (n.fallidos) filas.push(['No se pudo enviar', n.fallidos]);
-        if (filas.length) html += '<div class="alta-resumen"><dl>' + filas.map(function(f) { return '<dt>' + _esc(App.i18n.texto(f[0])) + '</dt><dd>' + _esc(String(f[1])) + '</dd>'; }).join('') + '</dl></div>';
-        if (n.error) html += '<p class="justif-hint cancelar-nota">' + _esc(App.i18n.texto(n.error)) + '</p>';
-        if (n.fallidas && n.fallidas.length) html += '<p class="justif-hint cancelar-nota">' + _esc(App.i18n.texto('No se pudo avisar a:')) + ' ' + n.fallidas.map(function(f) { return _esc(f.jugador); }).join(', ') + '</p>';
+        var html = '';
+        if (n.correosEnviados != null) {
+          var texto = n.correosEnviados === 0 && !n.fallidos && n.omitidos === n.convocados
+            ? 'No hay familias con correo.'
+            : n.correosEnviados === 1 ? 'Se ha enviado 1 correo.' : 'Se han enviado {n} correos.';
+          html += '<p>' + _esc(App.i18n.texto(texto).replace('{n}', n.correosEnviados)) + '</p>';
+        }
+        if (n.error) html += '<p>' + _esc(App.i18n.texto(n.error)) + '</p>';
+        if (n.fallidas && n.fallidas.length) html += '<p>' + _esc(App.i18n.texto('No se pudo avisar a:')) + ' ' + n.fallidas.map(function(f) { return _esc(f.jugador); }).join(', ') + '</p>';
         document.getElementById('cancelar-resultado').innerHTML = html;
       },
     },
@@ -8612,8 +8566,11 @@ Object.assign(App.i18n.diccionario, {
   'Por ejemplo: recuperamos el entrenamiento el jueves.':'For example: we will make up the session on Thursday.',
   'Avisar a las familias':'Notify families',
   'El entrenamiento ya está cancelado. Puedes usar varios canales.':'The session is already cancelled. You can use multiple channels.',
-  'Copia el mensaje y abre WhatsApp':'Copy the message and open WhatsApp',
-  'A las familias con correo':'To families with an email',
+  'Copiar y abrir WhatsApp':'Copy and open WhatsApp',
+  'Enviar correos':'Send emails',
+  'Se ha enviado 1 correo.':'1 email has been sent.',
+  'Se han enviado {n} correos.':'{n} emails have been sent.',
+  'No hay familias con correo.':'No families have an email address.',
   'Copiar mensaje':'Copy message',
   'Pégalo donde quieras':'Paste it wherever you like',
   'No avisar':'Do not notify',
@@ -8627,9 +8584,6 @@ Object.assign(App.i18n.diccionario, {
   'Ya registrado':'Already recorded',
   'Resultado incierto':'Result uncertain',
   'Error. Puedes reintentar.':'Error. You can retry.',
-  'Abierto ✓':'Opened ✓',
-  'Abierto ✓. No se pudo copiar el mensaje.':'Opened ✓. The message could not be copied.',
-  'Copiado ✓':'Copied ✓',
   'Mensaje copiado.':'Message copied.',
   'No se pudo copiar el mensaje.':'The message could not be copied.',
   'No se pudo guardar el canal.':'The channel could not be saved.',
