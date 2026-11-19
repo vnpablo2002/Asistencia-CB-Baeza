@@ -9254,6 +9254,12 @@ App.views['hub-ejercicios'] = {
           return chip(fa.id, v, self.etiquetaFaceta(fa, v), actuales.indexOf(v) >= 0, R + '.alternar(' + _statsArgumento(fa.id) + ',' + _statsArgumento(v) + ')');
         }).join('') + '</div>';
       }
+      if (['esfuerzo', 'jugadores', 'material', 'canastas', 'recurso', 'idioma', 'competitivo', 'momento'].indexOf(fa.id) >= 0) {
+        var valor = filtros[fa.id], cantidad = Array.isArray(valor) ? (fa.id === 'material' && !valor.length ? 1 : valor.length) : typeof valor === 'number' ? 1 : 0;
+        var clave = 'faceta:' + fa.id, expandida = abiertos[clave] !== undefined ? abiertos[clave] : cantidad > 0;
+        return '<details class="hub-grupo hub-faceta" data-grupo="' + _esc(clave) + '"' + (expandida ? ' open' : '') + '><summary data-foco="' + _esc(clave) + '"><span>' + _esc(t(fa.titulo)) + '</span>' +
+          (cantidad ? '<span class="hub-badge">' + cantidad + '</span>' : '') + self.ico('bajar', 'hub-grupo-flecha') + '</summary><div role="group" aria-label="' + _esc(t(fa.titulo)) + '">' + cuerpo + '</div></details>';
+      }
       return '<fieldset class="hub-seccion"><legend>' + _esc(t(fa.titulo)) + '</legend>' + cuerpo + '</fieldset>';
     }).join('');
     var n = this.resultados().length, activos = this.numActivos(filtros);

@@ -91,3 +91,11 @@ node scripts/seed-hub-v2.mjs            # o con rutas: node scripts/seed-hub-v2.
 Catálogo inicial de 43 ejercicios en `hub_ejercicios` y sus cuatro relaciones (migración `2026-11-19-hub-ejercicios.sql`, solo DEV), con búsqueda y filtros sencillos. Lo sustituye todo lo anterior: su código, su semilla y su endpoint se retiraron en v2.
 
 LISTO
+
+## Ajuste hoja de filtros
+
+- Móvil: hoja inferior de hasta el 65 % de la altura visible, con cabecera y acciones fijas y contenido desplazable. Escritorio: panel lateral de 400 px. Chips y espacios compactos; facetas secundarias plegables con indicador de selección.
+- Verificado en navegador a 390 y 1366 px, en los tres temas e inglés: selección, plegado, scroll, foco, Escape y navegación con teclado. Vista local con la SPA real y 43 fichas de muestra, sin conexión a DEV.
+- `npm test`: 326 pruebas superadas. Capturas antes/después: `/workspace/cbbaeza/capturas/hub-v2-filtros-compacto-*.png`.
+
+LISTO-FILTROS
