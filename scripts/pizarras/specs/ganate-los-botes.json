@@ -1,0 +1,32 @@
+{
+  "slug": "ganate-los-botes",
+  "titulo": "Gánate los botes",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Del fondo al tiro libre",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[45,20],[40,29],[51,37],[47,50]]},
+        {"tipo":"ataque","x":45,"y":20,"numero":"1"},
+        {"tipo":"balon","x":51,"y":20},
+        {"tipo":"defensa","x":48,"y":34},
+        {"tipo":"ataque","x":80,"y":77,"numero":"2"},
+        {"tipo":"defensa","x":90,"y":77},
+        {"tipo":"texto","x":5,"y":58,"texto":"Dentro de la zona · contar giros"},
+        {"tipo":"texto","x":8,"y":87,"texto":"Resto espera en fila"}
+      ]
+    },
+    {
+      "titulo": "2. Cambian papeles y atacan",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[45,52],[43,39],[47,27]]},
+        {"tipo":"linea","estilo":"tiro","puntos":[[47,27],[50,8]]},
+        {"tipo":"ataque","x":45,"y":52,"numero":"2"},
+        {"tipo":"balon","x":39,"y":52},
+        {"tipo":"defensa","x":53,"y":42},
+        {"tipo":"texto","x":7,"y":70,"texto":"Quien defendía ataca: un bote por giro"},
+        {"tipo":"texto","x":7,"y":79,"texto":"Cero giros: tirar sin botar"}
+      ]
+    }
+  ]
+}

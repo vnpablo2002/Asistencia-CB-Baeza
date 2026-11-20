@@ -1,0 +1,31 @@
+{
+  "slug": "lee-la-mano",
+  "titulo": "Lee la mano",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Mano baja: cambio alto",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[50,76],[50,61],[60,53],[63,39]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[63,39],[70,49],[68,70]]},
+        {"tipo":"ataque","x":50,"y":76,"numero":"1"},
+        {"tipo":"balon","x":56,"y":76},
+        {"tipo":"defensa","x":50,"y":45},
+        {"tipo":"texto","x":9,"y":31,"texto":"Mano baja → cambio alto"},
+        {"tipo":"texto","x":9,"y":91,"texto":"1–2 botes; pasar, girar y volver"}
+      ]
+    },
+    {
+      "titulo": "2. Mano alta: cambio bajo",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[50,76],[50,61],[40,53],[37,39]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[37,39],[30,49],[32,70]]},
+        {"tipo":"ataque","x":50,"y":76,"numero":"1"},
+        {"tipo":"balon","x":56,"y":76},
+        {"tipo":"defensa","x":50,"y":45},
+        {"tipo":"texto","x":9,"y":31,"texto":"Mano alta → cambio bajo"},
+        {"tipo":"texto","x":9,"y":91,"texto":"Cambiar roles cada 10 repeticiones"}
+      ]
+    }
+  ]
+}

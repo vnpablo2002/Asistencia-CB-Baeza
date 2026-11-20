@@ -1,0 +1,29 @@
+{
+  "slug": "muerde-a-la-tercera",
+  "titulo": "Muerde a la tercera",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Dos fintas con bote vivo",
+      "elementos": [
+        {"tipo":"ataque","x":50,"y":68,"numero":"1"},
+        {"tipo":"balon","x":56,"y":68},
+        {"tipo":"defensa","x":50,"y":43},
+        {"tipo":"texto","x":13,"y":79,"texto":"Fintas 1 y 2"},
+        {"tipo":"texto","x":14,"y":30,"texto":"Manos atrás"}
+      ]
+    },
+    {
+      "titulo": "2. Tercera finta y salida",
+      "elementos": [
+        {"tipo":"linea","estilo":"movimiento","puntos":[[50,43],[40,50]]},
+        {"tipo":"linea","estilo":"bote","puntos":[[50,68],[61,58],[67,40],[67,28]]},
+        {"tipo":"ataque","x":50,"y":68,"numero":"1"},
+        {"tipo":"balon","x":56,"y":68},
+        {"tipo":"defensa","x":50,"y":43},
+        {"tipo":"texto","x":12,"y":78,"texto":"A la tercera, el defensor pica"},
+        {"tipo":"texto","x":17,"y":87,"texto":"Salir por el lado libre: máximo 3 botes"}
+      ]
+    }
+  ]
+}

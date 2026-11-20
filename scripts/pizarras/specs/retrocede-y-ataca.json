@@ -1,0 +1,54 @@
+{
+  "slug": "retrocede-y-ataca",
+  "titulo": "Retrocede y ataca",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Avanzar y recibir presión",
+      "elementos": [
+        {"tipo":"linea","estilo":"limite","puntos":[[34,18],[34,89]]},
+        {"tipo":"linea","estilo":"limite","puntos":[[66,18],[66,89]]},
+        {"tipo":"linea","estilo":"limite","puntos":[[34,18],[66,18]]},
+        {"tipo":"cono","x":34,"y":18},{"tipo":"cono","x":66,"y":18},
+        {"tipo":"cono","x":34,"y":89},{"tipo":"cono","x":66,"y":89},
+        {"tipo":"linea","estilo":"bote","puntos":[[48,82],[48,65]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[50,43],[50,54]]},
+        {"tipo":"ataque","x":48,"y":82,"numero":"1"},
+        {"tipo":"balon","x":54,"y":82},
+        {"tipo":"defensa","x":50,"y":43},
+        {"tipo":"texto","x":70,"y":18,"texto":"Meta"},
+        {"tipo":"texto","x":5,"y":96,"texto":"Pasillo de unos 4 m"}
+      ]
+    },
+    {
+      "titulo": "2. Dos botes atrás y cambio",
+      "elementos": [
+        {"tipo":"linea","estilo":"limite","puntos":[[34,18],[34,89]]},
+        {"tipo":"linea","estilo":"limite","puntos":[[66,18],[66,89]]},
+        {"tipo":"linea","estilo":"limite","puntos":[[34,18],[66,18]]},
+        {"tipo":"cono","x":34,"y":18},{"tipo":"cono","x":66,"y":18},
+        {"tipo":"cono","x":34,"y":89},{"tipo":"cono","x":66,"y":89},
+        {"tipo":"linea","estilo":"bote","puntos":[[46,60],[45,69],[46,78],[57,76]]},
+        {"tipo":"ataque","x":46,"y":60,"numero":"1"},
+        {"tipo":"balon","x":40,"y":62},
+        {"tipo":"defensa","x":50,"y":47},
+        {"tipo":"texto","x":5,"y":96,"texto":"Proteger sin dar la espalda"}
+      ]
+    },
+    {
+      "titulo": "3. Atacar y cruzar botando",
+      "elementos": [
+        {"tipo":"linea","estilo":"limite","puntos":[[34,18],[34,89]]},
+        {"tipo":"linea","estilo":"limite","puntos":[[66,18],[66,89]]},
+        {"tipo":"linea","estilo":"limite","puntos":[[34,18],[66,18]]},
+        {"tipo":"cono","x":34,"y":18},{"tipo":"cono","x":66,"y":18},
+        {"tipo":"cono","x":34,"y":89},{"tipo":"cono","x":66,"y":89},
+        {"tipo":"linea","estilo":"bote","puntos":[[57,76],[60,55],[60,34],[58,14]]},
+        {"tipo":"ataque","x":57,"y":76,"numero":"1"},
+        {"tipo":"balon","x":63,"y":76},
+        {"tipo":"defensa","x":46,"y":47},
+        {"tipo":"texto","x":4,"y":96,"texto":"Fuera o balón tocado: punto defensa"}
+      ]
+    }
+  ]
+}

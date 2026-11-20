@@ -1,0 +1,32 @@
+{
+  "slug": "rebote-cara-a-cara",
+  "titulo": "Rebote cara a cara + 1c1",
+  "pista": "completa",
+  "paneles": [
+    {
+      "titulo": "1. Tiro y rebote cara a cara",
+      "elementos": [
+        {"tipo":"linea","estilo":"tiro","puntos":[[78,20],[50,5]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[42,16],[47,9]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[58,16],[53,9]]},
+        {"tipo":"entrenador","x":78,"y":20},
+        {"tipo":"balon","x":74,"y":18},
+        {"tipo":"ataque","x":42,"y":16,"numero":"1"},
+        {"tipo":"ataque","x":58,"y":16,"numero":"2"},
+        {"tipo":"texto","x":50,"y":30,"texto":"Poste bajo · luchar el rebote"}
+      ]
+    },
+    {
+      "titulo": "2. Quien rebotea ataca el otro aro",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[42,16],[35,35],[39,64],[48,88]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[58,16],[56,38],[54,65],[53,84]]},
+        {"tipo":"linea","estilo":"tiro","puntos":[[48,88],[50,95]]},
+        {"tipo":"ataque","x":42,"y":16,"numero":"1"},
+        {"tipo":"balon","x":38,"y":16},
+        {"tipo":"defensa","x":58,"y":16},
+        {"tipo":"texto","x":50,"y":51,"texto":"Ejemplo: 1 rebotea · 2 defiende"}
+      ]
+    }
+  ]
+}

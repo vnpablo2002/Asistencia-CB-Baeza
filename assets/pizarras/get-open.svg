@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1432" viewBox="0 0 1200 1432" role="img" aria-labelledby="titulo descripcion">
+  <title id="titulo">Get Open 1c1+1</title><desc id="descripcion">Pizarra de media pista. Coordenadas de 0 a 100 desde la esquina superior izquierda de cada pista. 1. Desmarque y lectura: Movimiento por 72, 56 a 77, 47 a 66, 40; Atacante 1 en 30, 65; Balón en 34, 63; Texto «Apoyo» en 30, 76; Atacante 2 en 72, 56; Defensor en 65, 50; Texto «Ganar la recepción» en 72, 69. 2. Si niega: puerta atrás: Movimiento por 72, 51 a 66, 38 a 53, 20; Pase por 32, 62 a 53, 20; Tiro por 53, 20 a 50, 8; Atacante 1 en 32, 62; Balón en 36, 60; Atacante 2 en 72, 51; Defensor en 64, 55; Texto «Defensor niega» en 70, 70. 3. Si recibe: 1c1: Pase por 32, 62 a 68, 47; Bote por 68, 47 a 58, 30 a 53, 20; Tiro por 53, 20 a 50, 8; Atacante 1 en 32, 62; Balón en 36, 60; Atacante 2 en 68, 47; Defensor en 61, 41; Texto «Recibe y juega 1c1» en 60, 75.</desc>
+  <defs>
+    <marker id="flecha-movimiento" viewBox="0 0 32 24" refX="29" refY="12" markerWidth="32" markerHeight="24" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2L29 12L2 22" fill="none" stroke="#1554a5" stroke-width="5" stroke-linejoin="round"/></marker><marker id="flecha-movimiento-leyenda" viewBox="0 0 32 24" refX="29" refY="12" markerWidth="11" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2L29 12L2 22" fill="none" stroke="#1554a5" stroke-width="5" stroke-linejoin="round"/></marker><marker id="flecha-bote" viewBox="0 0 32 24" refX="29" refY="12" markerWidth="32" markerHeight="24" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2L29 12L2 22" fill="none" stroke="#6b298c" stroke-width="5" stroke-linejoin="round"/></marker><marker id="flecha-bote-leyenda" viewBox="0 0 32 24" refX="29" refY="12" markerWidth="11" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2L29 12L2 22" fill="none" stroke="#6b298c" stroke-width="5" stroke-linejoin="round"/></marker><marker id="flecha-pase" viewBox="0 0 32 24" refX="29" refY="12" markerWidth="32" markerHeight="24" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2L29 12L2 22" fill="none" stroke="#a24a00" stroke-width="5" stroke-linejoin="round"/></marker><marker id="flecha-pase-leyenda" viewBox="0 0 32 24" refX="29" refY="12" markerWidth="11" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2L29 12L2 22" fill="none" stroke="#a24a00" stroke-width="5" stroke-linejoin="round"/></marker><marker id="flecha-tiro" viewBox="0 0 50 24" refX="47" refY="12" markerWidth="50" markerHeight="24" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2L21 12L2 22M23 2L47 12L23 22" fill="none" stroke="#aa2626" stroke-width="5" stroke-linejoin="round"/></marker><marker id="flecha-tiro-leyenda" viewBox="0 0 50 24" refX="47" refY="12" markerWidth="17" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M2 2L21 12L2 22M23 2L47 12L23 22" fill="none" stroke="#aa2626" stroke-width="5" stroke-linejoin="round"/></marker>
+  </defs>
+  <style>text { font-family: Arial, Helvetica, sans-serif; } .titulo { fill:#17232c; font-size:36px; font-weight:700; } .panel-titulo { fill:#17232c; font-size:25px; font-weight:700; } .anotacion { fill:#17232c; stroke:#fff; stroke-width:10px; stroke-linejoin:round; paint-order:stroke; font-size:42px; font-weight:700; } .leyenda { fill:#17232c; font-size:18px; } .leyenda-titulo { fill:#17232c; font-size:23px; font-weight:700; }</style>
+  <rect width="100%" height="100%" fill="#f5f2eb"/>
+  <text class="titulo" x="52" y="54" text-anchor="start"><tspan x="52" dy="0">Get Open 1c1+1</tspan></text>
+  <g>
+      <rect x="52" y="104" width="538" height="557.3333333333333" rx="12" fill="#fff" stroke="#d8d1c6" stroke-width="2"/>
+      <text class="panel-titulo" x="76" y="150" text-anchor="start"><tspan x="76" dy="0">1. Desmarque y lectura</tspan></text>
+      <svg x="76" y="176" width="490" height="457.3333333333333" viewBox="0 0 1500 1400" overflow="visible">
+        <svg x="0" y="0" width="1500" height="1400" viewBox="0 0 1500 1400" overflow="hidden">
+    <rect x="0" y="0" width="1500" height="1400" fill="#f4e3c9"/>
+    <g fill="none" stroke="#756b5e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="0" width="1500" height="1400"/>
+      <path d="M505 0V580H995V0 M505 580H995"/>
+    <path d="M570 580A180 180 0 0 0 930 580"/>
+    <path d="M570 580A180 180 0 0 1 930 580" stroke-dasharray="18 12"/>
+    <path d="M90 0V299.01A675 675 0 0 0 1410 299.01V0"/>
+    <path d="M625 157.5A125 125 0 0 0 875 157.5"/>
+    <path d="M660 120H840" stroke-width="9"/>
+    <circle cx="750" cy="157.5" r="22.5" stroke-width="7"/>
+      
+      <path d="M0 1400H1500"/>
+      <circle cx="750" cy="1400" r="180"/>
+    </g></svg>
+        <polyline points="1080,784 1155,658 990,560" fill="none" stroke="#1554a5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#flecha-movimiento)"/>
+<g transform="translate(450 910)"><circle r="37" fill="#174e8c" stroke="#fff" stroke-width="5"/><text text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="42" font-weight="700">1</text></g>
+<g transform="translate(510 882)"><circle r="27" fill="#ef9a3b" stroke="#64300d" stroke-width="5"/><path d="M-27 0H27M0 -27V27M-19 -19C3 -10 10 -3 19 19M19 -19C-3 -10 -10 -3 -19 19" fill="none" stroke="#64300d" stroke-width="3"/></g>
+<text class="anotacion" x="450" y="1064" text-anchor="middle"><tspan x="450" dy="0">Apoyo</tspan></text>
+<g transform="translate(1080 784)"><circle r="37" fill="#174e8c" stroke="#fff" stroke-width="5"/><text text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="42" font-weight="700">2</text></g>
+<g transform="translate(975 700)"><path d="M0 -43L43 0 0 43 -43 0Z" fill="#a52032" stroke="#fff" stroke-width="5"/><path d="M-16 -16L16 16M16 -16L-16 16" stroke="#fff" stroke-width="7" stroke-linecap="round"/></g>
+<text class="anotacion" x="1080" y="966" text-anchor="middle"><tspan x="1080" dy="0">Ganar la recepción</tspan></text>
+      </svg>
+    </g>
+<g>
+      <rect x="610" y="104" width="538" height="557.3333333333333" rx="12" fill="#fff" stroke="#d8d1c6" stroke-width="2"/>
+      <text class="panel-titulo" x="634" y="150" text-anchor="start"><tspan x="634" dy="0">2. Si niega: puerta atrás</tspan></text>
+      <svg x="634" y="176" width="490" height="457.3333333333333" viewBox="0 0 1500 1400" overflow="visible">
+        <svg x="0" y="0" width="1500" height="1400" viewBox="0 0 1500 1400" overflow="hidden">
+    <rect x="0" y="0" width="1500" height="1400" fill="#f4e3c9"/>
+    <g fill="none" stroke="#756b5e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="0" width="1500" height="1400"/>
+      <path d="M505 0V580H995V0 M505 580H995"/>
+    <path d="M570 580A180 180 0 0 0 930 580"/>
+    <path d="M570 580A180 180 0 0 1 930 580" stroke-dasharray="18 12"/>
+    <path d="M90 0V299.01A675 675 0 0 0 1410 299.01V0"/>
+    <path d="M625 157.5A125 125 0 0 0 875 157.5"/>
+    <path d="M660 120H840" stroke-width="9"/>
+    <circle cx="750" cy="157.5" r="22.5" stroke-width="7"/>
+      
+      <path d="M0 1400H1500"/>
+      <circle cx="750" cy="1400" r="180"/>
+    </g></svg>
+        <polyline points="1080,714 990,532 795,280" fill="none" stroke="#1554a5" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#flecha-movimiento)"/>
+<polyline points="480,868 795,280" fill="none" stroke="#a24a00" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 12" marker-end="url(#flecha-pase)"/>
+<polyline points="795,280 750,112" fill="none" stroke="#aa2626" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#flecha-tiro)"/>
+<g transform="translate(480 868)"><circle r="37" fill="#174e8c" stroke="#fff" stroke-width="5"/><text text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="42" font-weight="700">1</text></g>
+<g transform="translate(540 840)"><circle r="27" fill="#ef9a3b" stroke="#64300d" stroke-width="5"/><path d="M-27 0H27M0 -27V27M-19 -19C3 -10 10 -3 19 19M19 -19C-3 -10 -10 -3 -19 19" fill="none" stroke="#64300d" stroke-width="3"/></g>
+<g transform="translate(1080 714)"><circle r="37" fill="#174e8c" stroke="#fff" stroke-width="5"/><text text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="42" font-weight="700">2</text></g>
+<g transform="translate(960 770)"><path d="M0 -43L43 0 0 43 -43 0Z" fill="#a52032" stroke="#fff" stroke-width="5"/><path d="M-16 -16L16 16M16 -16L-16 16" stroke="#fff" stroke-width="7" stroke-linecap="round"/></g>
+<text class="anotacion" x="1050" y="980" text-anchor="middle"><tspan x="1050" dy="0">Defensor niega</tspan></text>
+      </svg>
+    </g>
+<g>
+      <rect x="331" y="681.3333333333333" width="538" height="557.3333333333333" rx="12" fill="#fff" stroke="#d8d1c6" stroke-width="2"/>
+      <text class="panel-titulo" x="355" y="727.3333333333333" text-anchor="start"><tspan x="355" dy="0">3. Si recibe: 1c1</tspan></text>
+      <svg x="355" y="753.3333333333333" width="490" height="457.3333333333333" viewBox="0 0 1500 1400" overflow="visible">
+        <svg x="0" y="0" width="1500" height="1400" viewBox="0 0 1500 1400" overflow="hidden">
+    <rect x="0" y="0" width="1500" height="1400" fill="#f4e3c9"/>
+    <g fill="none" stroke="#756b5e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="0" y="0" width="1500" height="1400"/>
+      <path d="M505 0V580H995V0 M505 580H995"/>
+    <path d="M570 580A180 180 0 0 0 930 580"/>
+    <path d="M570 580A180 180 0 0 1 930 580" stroke-dasharray="18 12"/>
+    <path d="M90 0V299.01A675 675 0 0 0 1410 299.01V0"/>
+    <path d="M625 157.5A125 125 0 0 0 875 157.5"/>
+    <path d="M660 120H840" stroke-width="9"/>
+    <circle cx="750" cy="157.5" r="22.5" stroke-width="7"/>
+      
+      <path d="M0 1400H1500"/>
+      <circle cx="750" cy="1400" r="180"/>
+    </g></svg>
+        <polyline points="480,868 1020,658" fill="none" stroke="#a24a00" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8 12" marker-end="url(#flecha-pase)"/>
+<path d="M1020,658 Q1030.4355972111832,627.670241853696 998.5714285714286,624 Q966.7072599316739,620.329758146304 977.1428571428571,590 Q987.5784543540404,559.670241853696 955.7142857142858,556 Q923.850117074531,552.329758146304 934.2857142857143,522 Q944.7213114968976,491.67024185369604 912.8571428571429,488 Q880.9929742173881,484.32975814630396 891.4285714285714,454 Q901.8641686397548,423.67024185369604 870,420 Q882.6619992507195,390.69446468711453 851.25,385 Q819.8380007492805,379.30553531288547 832.5,350 Q845.1619992507195,320.69446468711453 813.75,315 Q782.3380007492805,309.30553531288547 795,280" fill="none" stroke="#6b298c" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#flecha-bote)"/>
+<polyline points="795,280 750,112" fill="none" stroke="#aa2626" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#flecha-tiro)"/>
+<g transform="translate(480 868)"><circle r="37" fill="#174e8c" stroke="#fff" stroke-width="5"/><text text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="42" font-weight="700">1</text></g>
+<g transform="translate(540 840)"><circle r="27" fill="#ef9a3b" stroke="#64300d" stroke-width="5"/><path d="M-27 0H27M0 -27V27M-19 -19C3 -10 10 -3 19 19M19 -19C-3 -10 -10 -3 -19 19" fill="none" stroke="#64300d" stroke-width="3"/></g>
+<g transform="translate(1020 658)"><circle r="37" fill="#174e8c" stroke="#fff" stroke-width="5"/><text text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="42" font-weight="700">2</text></g>
+<g transform="translate(915 574)"><path d="M0 -43L43 0 0 43 -43 0Z" fill="#a52032" stroke="#fff" stroke-width="5"/><path d="M-16 -16L16 16M16 -16L-16 16" stroke="#fff" stroke-width="7" stroke-linecap="round"/></g>
+<text class="anotacion" x="900" y="1050" text-anchor="middle"><tspan x="900" dy="0">Recibe y juega 1c1</tspan></text>
+      </svg>
+    </g>
+  <text x="52" y="1298.6666666666665" class="leyenda-titulo">Leyenda</text>
+  <g transform="translate(52 1332.6666666666665)"><g transform="translate(19 0) scale(.31)"><g transform="translate(0 0)"><circle r="37" fill="#174e8c" stroke="#fff" stroke-width="5"/><text text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="42" font-weight="700">1</text></g></g><text x="52" y="6" class="leyenda">Atacante</text></g><g transform="translate(267 1332.6666666666665)"><g transform="translate(19 0) scale(.31)"><g transform="translate(0 0)"><path d="M0 -43L43 0 0 43 -43 0Z" fill="#a52032" stroke="#fff" stroke-width="5"/><path d="M-16 -16L16 16M16 -16L-16 16" stroke="#fff" stroke-width="7" stroke-linecap="round"/></g></g><text x="52" y="6" class="leyenda">Defensor</text></g><g transform="translate(482 1332.6666666666665)"><g transform="translate(19 0) scale(.31)"><g transform="translate(0 0)"><rect x="-38" y="-38" width="76" height="76" rx="13" fill="#176553" stroke="#fff" stroke-width="5"/><text text-anchor="middle" dominant-baseline="central" fill="#fff" font-size="44" font-weight="700">E</text></g></g><text x="52" y="6" class="leyenda">Entrenador</text></g><g transform="translate(697 1332.6666666666665)"><g transform="translate(19 0) scale(.31)"><g transform="translate(0 0)"><path d="M0 -42L36 31H-36Z" fill="#dc6916" stroke="#fff" stroke-width="5" stroke-linejoin="round"/><path d="M-25 34H25" stroke="#8c3d06" stroke-width="7" stroke-linecap="round"/></g></g><text x="52" y="6" class="leyenda">Cono</text></g><g transform="translate(912 1332.6666666666665)"><g transform="translate(19 0) scale(.31)"><g transform="translate(0 0)"><circle r="27" fill="#ef9a3b" stroke="#64300d" stroke-width="5"/><path d="M-27 0H27M0 -27V27M-19 -19C3 -10 10 -3 19 19M19 -19C-3 -10 -10 -3 -19 19" fill="none" stroke="#64300d" stroke-width="3"/></g></g><text x="52" y="6" class="leyenda">Balón</text></g><g transform="translate(52 1377.6666666666665)"><line x1="0" y1="0" x2="42" y2="0" stroke="#1554a5" stroke-width="3" marker-end="url(#flecha-movimiento-leyenda)"/><text x="52" y="6" class="leyenda">Movimiento</text></g><g transform="translate(267 1377.6666666666665)"><path d="M0,0 Q3.5,4 7,0 Q10.5,-4 14,0 Q17.5,4 21,0 Q24.5,-4 28,0 Q31.5,4 35,0 Q38.5,-4 42,0" fill="none" stroke="#6b298c" stroke-width="3" marker-end="url(#flecha-bote-leyenda)"/><text x="52" y="6" class="leyenda">Bote</text></g><g transform="translate(482 1377.6666666666665)"><line x1="0" y1="0" x2="42" y2="0" stroke="#a24a00" stroke-width="3" stroke-dasharray="2.6666666666666665 4" marker-end="url(#flecha-pase-leyenda)"/><text x="52" y="6" class="leyenda">Pase</text></g><g transform="translate(697 1377.6666666666665)"><line x1="0" y1="0" x2="42" y2="0" stroke="#aa2626" stroke-width="3" marker-end="url(#flecha-tiro-leyenda)"/><text x="52" y="6" class="leyenda">Tiro</text></g><g transform="translate(912 1377.6666666666665)"><line x1="0" y1="0" x2="42" y2="0" stroke="#303c42" stroke-width="3" stroke-dasharray="1.3333333333333333 4"/><text x="52" y="6" class="leyenda">Límite</text></g>
+</svg>

@@ -1,0 +1,34 @@
+{
+  "slug": "el-espejo",
+  "titulo": "El espejo, de 1x0 a 1x1",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Botar e imitar",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[42,70],[54,70]]},
+        {"tipo":"linea","estilo":"bote","puntos":[[42,48],[54,48]]},
+        {"tipo":"ataque","x":42,"y":70,"numero":"1"},
+        {"tipo":"balon","x":38,"y":68},
+        {"tipo":"ataque","x":42,"y":48,"numero":"2"},
+        {"tipo":"balon","x":38,"y":46},
+        {"tipo":"entrenador","x":84,"y":58},
+        {"tipo":"texto","x":22,"y":70,"texto":"Guía"},
+        {"tipo":"texto","x":22,"y":48,"texto":"Espejo"}
+      ]
+    },
+    {
+      "titulo": "2. ¡Juego! · 1c1 vivo",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[54,70],[68,55],[64,33],[52,19]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[54,48],[62,39],[55,25]]},
+        {"tipo":"linea","estilo":"tiro","puntos":[[52,19],[50,8]]},
+        {"tipo":"ataque","x":54,"y":70,"numero":"1"},
+        {"tipo":"balon","x":58,"y":68},
+        {"tipo":"defensa","x":54,"y":48},
+        {"tipo":"entrenador","x":84,"y":58},
+        {"tipo":"texto","x":83,"y":47,"texto":"¡Juego!"}
+      ]
+    }
+  ]
+}

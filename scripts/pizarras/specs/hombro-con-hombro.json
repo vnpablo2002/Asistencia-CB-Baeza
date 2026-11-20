@@ -1,0 +1,32 @@
+{
+  "slug": "hombro-con-hombro",
+  "titulo": "1c1 hombro con hombro",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Filas juntas en medio campo",
+      "elementos": [
+        {"tipo":"ataque","x":68,"y":79,"numero":"1"},
+        {"tipo":"balon","x":73,"y":79},
+        {"tipo":"defensa","x":56,"y":79},
+        {"tipo":"ataque","x":68,"y":90,"numero":"2"},
+        {"tipo":"defensa","x":56,"y":90},
+        {"tipo":"texto","x":11,"y":56,"texto":"Fuera: ataque · dentro: defensa"},
+        {"tipo":"texto","x":11,"y":65,"texto":"Salen juntos hacia el aro"}
+      ]
+    },
+    {
+      "titulo": "2. Carrera y 1c1",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[68,79],[63,53],[56,25]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[56,79],[54,59],[59,42]]},
+        {"tipo":"linea","estilo":"tiro","puntos":[[56,25],[50,8]]},
+        {"tipo":"ataque","x":68,"y":79,"numero":"1"},
+        {"tipo":"balon","x":73,"y":79},
+        {"tipo":"defensa","x":56,"y":79},
+        {"tipo":"texto","x":7,"y":45,"texto":"Defensa: correr para ponerse delante"},
+        {"tipo":"texto","x":8,"y":93,"texto":"Sin choques; cambiar de fila al terminar"}
+      ]
+    }
+  ]
+}

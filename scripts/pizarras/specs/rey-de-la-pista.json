@@ -1,0 +1,35 @@
+{
+  "slug": "rey-de-la-pista",
+  "titulo": "Rey de la pista",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. 1c1 · máximo 3 botes",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[50,66],[39,52],[43,28]]},
+        {"tipo":"linea","estilo":"tiro","puntos":[[43,28],[50,8]]},
+        {"tipo":"ataque","x":50,"y":66,"numero":"1"},
+        {"tipo":"balon","x":54,"y":65},
+        {"tipo":"defensa","x":50,"y":50},
+        {"tipo":"ataque","x":83,"y":72,"numero":"2"},
+        {"tipo":"ataque","x":83,"y":82,"numero":"3"},
+        {"tipo":"texto","x":83,"y":92,"texto":"Fila · 3–6"}
+      ]
+    },
+    {
+      "titulo": "2. Canasta o parada",
+      "elementos": [
+        {"tipo":"ataque","x":29,"y":51,"numero":"1"},
+        {"tipo":"balon","x":33,"y":50},
+        {"tipo":"defensa","x":29,"y":35},
+        {"tipo":"texto","x":29,"y":69,"texto":"Canasta: +1, sigue"},
+        {"tipo":"texto","x":29,"y":78,"texto":"Defensor a la fila"},
+        {"tipo":"ataque","x":73,"y":51,"numero":"2"},
+        {"tipo":"balon","x":77,"y":50},
+        {"tipo":"texto","x":73,"y":69,"texto":"Parada: defensor ataca"},
+        {"tipo":"texto","x":73,"y":78,"texto":"Atacante a la fila"},
+        {"tipo":"texto","x":50,"y":92,"texto":"Gana quien llega a la puntuación acordada"}
+      ]
+    }
+  ]
+}

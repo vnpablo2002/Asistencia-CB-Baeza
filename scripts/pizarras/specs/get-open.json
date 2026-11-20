@@ -1,0 +1,45 @@
+{
+  "slug": "get-open",
+  "titulo": "Get Open 1c1+1",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Desmarque y lectura",
+      "elementos": [
+        {"tipo":"linea","estilo":"movimiento","puntos":[[72,56],[77,47],[66,40]]},
+        {"tipo":"ataque","x":30,"y":65,"numero":"1"},
+        {"tipo":"balon","x":34,"y":63},
+        {"tipo":"texto","x":30,"y":76,"texto":"Apoyo"},
+        {"tipo":"ataque","x":72,"y":56,"numero":"2"},
+        {"tipo":"defensa","x":65,"y":50},
+        {"tipo":"texto","x":72,"y":69,"texto":"Ganar la recepción"}
+      ]
+    },
+    {
+      "titulo": "2. Si niega: puerta atrás",
+      "elementos": [
+        {"tipo":"linea","estilo":"movimiento","puntos":[[72,51],[66,38],[53,20]]},
+        {"tipo":"linea","estilo":"pase","puntos":[[32,62],[53,20]]},
+        {"tipo":"linea","estilo":"tiro","puntos":[[53,20],[50,8]]},
+        {"tipo":"ataque","x":32,"y":62,"numero":"1"},
+        {"tipo":"balon","x":36,"y":60},
+        {"tipo":"ataque","x":72,"y":51,"numero":"2"},
+        {"tipo":"defensa","x":64,"y":55},
+        {"tipo":"texto","x":70,"y":70,"texto":"Defensor niega"}
+      ]
+    },
+    {
+      "titulo": "3. Si recibe: 1c1",
+      "elementos": [
+        {"tipo":"linea","estilo":"pase","puntos":[[32,62],[68,47]]},
+        {"tipo":"linea","estilo":"bote","puntos":[[68,47],[58,30],[53,20]]},
+        {"tipo":"linea","estilo":"tiro","puntos":[[53,20],[50,8]]},
+        {"tipo":"ataque","x":32,"y":62,"numero":"1"},
+        {"tipo":"balon","x":36,"y":60},
+        {"tipo":"ataque","x":68,"y":47,"numero":"2"},
+        {"tipo":"defensa","x":61,"y":41},
+        {"tipo":"texto","x":60,"y":75,"texto":"Recibe y juega 1c1"}
+      ]
+    }
+  ]
+}

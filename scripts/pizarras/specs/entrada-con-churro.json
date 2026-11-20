@@ -1,0 +1,31 @@
+{
+  "slug": "entrada-con-churro",
+  "titulo": "Entrada con churro",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Salida de la fila",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[75,76],[70,57],[61,40]]},
+        {"tipo":"ataque","x":75,"y":76,"numero":"1"},
+        {"tipo":"balon","x":80,"y":76},
+        {"tipo":"ataque","x":82,"y":87,"numero":"2"},
+        {"tipo":"ataque","x":88,"y":95,"numero":"3"},
+        {"tipo":"defensa","x":42,"y":31},
+        {"tipo":"texto","x":17,"y":41,"texto":"Churro"}
+      ]
+    },
+    {
+      "titulo": "2. Contacto y entrada",
+      "elementos": [
+        {"tipo":"linea","estilo":"movimiento","puntos":[[42,33],[50,29]]},
+        {"tipo":"linea","estilo":"tiro","puntos":[[60,31],[50,8]]},
+        {"tipo":"ataque","x":60,"y":31,"numero":"1"},
+        {"tipo":"balon","x":65,"y":30},
+        {"tipo":"defensa","x":42,"y":33},
+        {"tipo":"texto","x":12,"y":53,"texto":"Churro suave: hombro o brazo"},
+        {"tipo":"texto","x":15,"y":62,"texto":"Sin piernas ni contacto por detrás"}
+      ]
+    }
+  ]
+}

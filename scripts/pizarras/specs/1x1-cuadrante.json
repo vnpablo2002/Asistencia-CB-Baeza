@@ -1,0 +1,41 @@
+{
+  "slug": "1x1-cuadrante",
+  "titulo": "1x1 en cuadrante",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Parejas: pase del defensor",
+      "elementos": [
+        {"tipo":"linea","estilo":"limite","puntos":[[50,15],[50,96]]},
+        {"tipo":"linea","estilo":"pase","puntos":[[27,39],[27,67]]},
+        {"tipo":"linea","estilo":"pase","puntos":[[73,39],[73,67]]},
+        {"tipo":"cono","x":50,"y":15},
+        {"tipo":"cono","x":50,"y":96},
+        {"tipo":"defensa","x":27,"y":39},
+        {"tipo":"balon","x":31,"y":39},
+        {"tipo":"ataque","x":27,"y":67,"numero":"1"},
+        {"tipo":"defensa","x":73,"y":39},
+        {"tipo":"balon","x":77,"y":39},
+        {"tipo":"ataque","x":73,"y":67,"numero":"2"},
+        {"tipo":"texto","x":50,"y":86,"texto":"Una pareja y un balón por cuadrante"}
+      ]
+    },
+    {
+      "titulo": "2. Salir en menos de 3 segundos",
+      "elementos": [
+        {"tipo":"linea","estilo":"limite","puntos":[[50,15],[50,96]]},
+        {"tipo":"linea","estilo":"bote","puntos":[[27,67],[18,55],[20,35],[39,17]]},
+        {"tipo":"linea","estilo":"bote","puntos":[[73,67],[82,55],[80,35],[61,17]]},
+        {"tipo":"cono","x":50,"y":15},
+        {"tipo":"cono","x":50,"y":96},
+        {"tipo":"ataque","x":27,"y":67,"numero":"1"},
+        {"tipo":"balon","x":23,"y":66},
+        {"tipo":"defensa","x":27,"y":45},
+        {"tipo":"ataque","x":73,"y":67,"numero":"2"},
+        {"tipo":"balon","x":77,"y":66},
+        {"tipo":"defensa","x":73,"y":45},
+        {"tipo":"texto","x":50,"y":86,"texto":"Sin salir del cuadrante · llevar marcador"}
+      ]
+    }
+  ]
+}
