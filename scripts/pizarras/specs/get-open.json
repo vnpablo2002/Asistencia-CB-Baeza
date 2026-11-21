@@ -29,16 +29,17 @@
       ]
     },
     {
-      "titulo": "3. Si recibe: 1c1",
+      "titulo": "3. Si no niega: entrega en mano",
       "elementos": [
-        {"tipo":"linea","estilo":"pase","puntos":[[32,62],[68,47]]},
-        {"tipo":"linea","estilo":"bote","puntos":[[68,47],[58,30],[53,20]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[74,62],[54,62],[42,62]]},
+        {"tipo":"linea","estilo":"bote","puntos":[[42,62],[53,48],[58,30],[53,20]]},
         {"tipo":"linea","estilo":"tiro","puntos":[[53,20],[50,8]]},
-        {"tipo":"ataque","x":32,"y":62,"numero":"1"},
-        {"tipo":"balon","x":36,"y":60},
-        {"tipo":"ataque","x":68,"y":47,"numero":"2"},
-        {"tipo":"defensa","x":61,"y":41},
-        {"tipo":"texto","x":60,"y":75,"texto":"Recibe y juega 1c1"}
+        {"tipo":"ataque","x":30,"y":62,"numero":"1"},
+        {"tipo":"balon","x":35,"y":62},
+        {"tipo":"ataque","x":74,"y":62,"numero":"2"},
+        {"tipo":"defensa","x":70,"y":48},
+        {"tipo":"texto","x":30,"y":73,"texto":"Apoyo: entrega en mano"},
+        {"tipo":"texto","x":70,"y":80,"texto":"2 va al balón y juega 1c1"}
       ]
     }
   ]

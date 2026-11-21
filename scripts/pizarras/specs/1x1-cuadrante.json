@@ -17,7 +17,8 @@
         {"tipo":"defensa","x":73,"y":39},
         {"tipo":"balon","x":77,"y":39},
         {"tipo":"ataque","x":73,"y":67,"numero":"2"},
-        {"tipo":"texto","x":50,"y":86,"texto":"Una pareja y un balón por cuadrante"}
+        {"tipo":"texto","x":4,"y":86,"texto":"Una pareja y un balón"},
+        {"tipo":"texto","x":4,"y":90,"texto":"por cuadrante"}
       ]
     },
     {

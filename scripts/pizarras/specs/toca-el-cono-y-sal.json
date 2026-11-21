@@ -1,0 +1,76 @@
+{
+  "slug": "toca-el-cono-y-sal",
+  "titulo": "Toca el cono y sal (1c1)",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Posición inicial",
+      "elementos": [
+        {"tipo":"cono","x":33.67,"y":41.43},
+        {"tipo":"cono","x":66.33,"y":41.43},
+        {"tipo":"defensa","x":50,"y":29},
+        {"tipo":"entrenador","x":82,"y":41.43},
+        {"tipo":"ataque","x":50,"y":41.43,"numero":"1"},
+        {"tipo":"balon","x":56,"y":41.43},
+        {"tipo":"ataque","x":50,"y":53,"numero":"2"},
+        {"tipo":"balon","x":56,"y":53},
+        {"tipo":"ataque","x":50,"y":65,"numero":"3"},
+        {"tipo":"balon","x":56,"y":65},
+        {"tipo":"ataque","x":50,"y":77,"numero":"4"},
+        {"tipo":"balon","x":56,"y":77},
+        {"tipo":"texto","x":4,"y":28,"texto":"D mira a 1"},
+        {"tipo":"texto","x":96,"y":28,"texto":"1: de cara al aro"},
+        {"tipo":"texto","x":96,"y":33,"texto":"Triple amenaza"},
+        {"tipo":"texto","x":4,"y":59,"texto":"Fila de ataque"},
+        {"tipo":"texto","x":4,"y":63,"texto":"Cada uno con balón"},
+        {"tipo":"texto","x":4,"y":90,"texto":"3–4 balones"}
+      ]
+    },
+    {
+      "titulo": "2. Tocar, salir y jugar 1c1",
+      "elementos": [
+        {"tipo":"linea","estilo":"movimiento","puntos":[[50,29],[33.67,41.43]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[33.67,41.43],[45,18]]},
+        {"tipo":"linea","estilo":"bote","puntos":[[50,41.43],[57,17.5]]},
+        {"tipo":"linea","estilo":"tiro","puntos":[[57,17.5],[50,11.25]]},
+        {"tipo":"cono","x":33.67,"y":41.43},
+        {"tipo":"cono","x":66.33,"y":41.43},
+        {"tipo":"defensa","x":50,"y":29},
+        {"tipo":"ataque","x":50,"y":41.43,"numero":"1"},
+        {"tipo":"balon","x":56,"y":41.43},
+        {"tipo":"entrenador","x":82,"y":41.43},
+        {"tipo":"texto","x":4,"y":58,"texto":"1. D elige y toca un cono"},
+        {"tipo":"texto","x":4,"y":65,"texto":"2. Al moverse D, 1 sale al lado opuesto"},
+        {"tipo":"texto","x":4,"y":75,"texto":"3. D recupera hacia el aro"},
+        {"tipo":"texto","x":4,"y":82,"texto":"4. 1c1: bandeja o parada"},
+        {"tipo":"texto","x":4,"y":91,"texto":"Salida directa o cruzada"}
+      ]
+    },
+    {
+      "titulo": "3. Rotación (líneas discontinuas)",
+      "elementos": [
+        {"tipo":"linea","estilo":"pase","puntos":[[58,24],[50,34]]},
+        {"tipo":"linea","estilo":"pase","puntos":[[42,24],[20,30],[20,65],[48,65]]},
+        {"tipo":"ataque","x":58,"y":24,"numero":"1"},
+        {"tipo":"defensa","x":42,"y":24},
+        {"tipo":"ataque","x":50,"y":42,"numero":"2"},
+        {"tipo":"balon","x":56,"y":42},
+        {"tipo":"ataque","x":50,"y":50,"numero":"3"},
+        {"tipo":"balon","x":56,"y":50},
+        {"tipo":"ataque","x":50,"y":58,"numero":"4"},
+        {"tipo":"balon","x":56,"y":58},
+        {"tipo":"texto","x":4,"y":24,"texto":"D al final de la fila"},
+        {"tipo":"texto","x":96,"y":24,"texto":"1 pasa a defensa"},
+        {"tipo":"texto","x":4,"y":77,"texto":"D toca el cono con la mano"},
+        {"tipo":"texto","x":4,"y":81,"texto":"antes de defender."},
+        {"tipo":"texto","x":96,"y":77,"texto":"Canasta: 1 punto ataque"},
+        {"tipo":"texto","x":96,"y":81,"texto":"Parada o pérdida: 1 punto D"},
+        {"tipo":"texto","x":4,"y":88,"texto":"Primer bote antes de"},
+        {"tipo":"texto","x":4,"y":92,"texto":"levantar el pie de pivote"},
+        {"tipo":"texto","x":4,"y":96,"texto":"o son pasos."},
+        {"tipo":"texto","x":96,"y":88,"texto":"La siguiente pareja sale"},
+        {"tipo":"texto","x":96,"y":92,"texto":"solo con balón muerto."}
+      ]
+    }
+  ]
+}

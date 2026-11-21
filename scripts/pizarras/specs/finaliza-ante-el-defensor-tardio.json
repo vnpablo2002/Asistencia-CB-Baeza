@@ -1,0 +1,77 @@
+{
+  "slug": "finaliza-ante-el-defensor-tardio",
+  "titulo": "Finaliza ante el defensor que llega tarde",
+  "pista": "media",
+  "paneles": [
+    {
+      "titulo": "1. Señal, rodear el cono y atacar",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[50,87],[45,84],[43,78],[45,72],[50,72]]},
+        {"tipo":"linea","estilo":"bote","puntos":[[50,72],[50,45]]},
+        {"tipo":"cono","x":50,"y":78},
+        {"tipo":"defensa","x":66,"y":5},
+        {"tipo":"defensa","x":78,"y":5},
+        {"tipo":"texto","x":66,"y":13,"texto":"D1"},
+        {"tipo":"texto","x":78,"y":13,"texto":"D2"},
+        {"tipo":"ataque","x":50,"y":87,"numero":"A1"},
+        {"tipo":"balon","x":55,"y":87},
+        {"tipo":"ataque","x":50,"y":93,"numero":"A2"},
+        {"tipo":"balon","x":55,"y":93},
+        {"tipo":"ataque","x":50,"y":99,"numero":"A3"},
+        {"tipo":"balon","x":55,"y":99},
+        {"tipo":"entrenador","x":86,"y":94},
+        {"tipo":"texto","x":20,"y":60,"texto":"Rodear el cono"},
+        {"tipo":"texto","x":83,"y":83,"texto":"Señal de E"}
+      ]
+    },
+    {
+      "titulo": "2. Ayuda tardía y finalización",
+      "elementos": [
+        {"tipo":"linea","estilo":"bote","puntos":[[50,33],[50,26]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[50,26],[42,22],[42,16]]},
+        {"tipo":"linea","estilo":"tiro","puntos":[[42,16],[50,11]]},
+        {"tipo":"linea","estilo":"movimiento","puntos":[[70,5],[61,17],[58,22]]},
+        {"tipo":"ataque","x":50,"y":33,"numero":"A1"},
+        {"tipo":"balon","x":55,"y":33},
+        {"tipo":"defensa","x":70,"y":5},
+        {"tipo":"defensa","x":82,"y":5},
+        {"tipo":"texto","x":73,"y":30,"texto":"D1 sale tarde"},
+        {"tipo":"texto","x":18,"y":27,"texto":"Pasos por el lado contrario"},
+        {"tipo":"texto","x":50,"y":43,"texto":"se hace a la vez en las dos canastas"},
+        {"tipo":"texto","x":50,"y":50,"texto":"D sale cuando llega A1;"},
+        {"tipo":"texto","x":50,"y":53.5,"texto":"brazos rectos arriba, sin"},
+        {"tipo":"texto","x":50,"y":57,"texto":"contacto; no tocar jamás a"},
+        {"tipo":"texto","x":50,"y":60.5,"texto":"quien esté en el aire."},
+        {"tipo":"texto","x":50,"y":64,"texto":"Máximo 2 apoyos tras coger"},
+        {"tipo":"texto","x":50,"y":67.5,"texto":"el balón."},
+        {"tipo":"texto","x":50,"y":71,"texto":"Nivel bajo: bandeja por lado"},
+        {"tipo":"texto","x":50,"y":74.5,"texto":"contrario; parada en dos"},
+        {"tipo":"texto","x":50,"y":78,"texto":"tiempos + finta + tiro;"},
+        {"tipo":"texto","x":50,"y":81.5,"texto":"bandeja de aro pasado."},
+        {"tipo":"texto","x":50,"y":85,"texto":"Después: euro step, reverso"},
+        {"tipo":"texto","x":50,"y":88.5,"texto":"o gancho."},
+        {"tipo":"texto","x":50,"y":92,"texto":"4–6 ataques por jugador;"},
+        {"tipo":"texto","x":50,"y":95.5,"texto":"una distinta cada vez."}
+      ]
+    },
+    {
+      "titulo": "3. Rotación: flechas discontinuas",
+      "elementos": [
+        {"tipo":"linea","estilo":"pase","puntos":[[40,19],[50,25],[62,9]]},
+        {"tipo":"linea","estilo":"pase","puntos":[[70,7],[86,21],[86,70],[68,94]]},
+        {"tipo":"ataque","x":40,"y":19,"numero":"A1"},
+        {"tipo":"defensa","x":70,"y":7},
+        {"tipo":"defensa","x":82,"y":7},
+        {"tipo":"balon","x":75,"y":13},
+        {"tipo":"texto","x":65,"y":16,"texto":"D1"},
+        {"tipo":"texto","x":85,"y":16,"texto":"D2"},
+        {"tipo":"ataque","x":40,"y":94,"numero":"A2"},
+        {"tipo":"balon","x":45,"y":94},
+        {"tipo":"ataque","x":54,"y":94,"numero":"A3"},
+        {"tipo":"balon","x":59,"y":94},
+        {"tipo":"texto","x":5,"y":36,"texto":"A1 a la fila de defensores"},
+        {"tipo":"texto","x":5,"y":61,"texto":"D1 recoge el balón y va a la fila de atacantes"}
+      ]
+    }
+  ]
+}

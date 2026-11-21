@@ -50,5 +50,6 @@ El SVG tiene fondo opaco, título y descripción accesible que enumera posicione
 - Las coordenadas `x`, `y` y los pares de `puntos` son números entre 0 y 100 relativos al rectángulo de la pista: `(0, 0)` es la esquina superior izquierda y `(100, 100)` la inferior derecha. En pista completa, el eje vertical abarca toda la pista.
 - Los tipos puntuales son `ataque` (requiere `numero` como texto), `defensa`, `entrenador`, `cono`, `balon` y `texto` (requiere `texto`). Cada uno requiere `x` e `y`.
 - Una `linea` requiere al menos dos puntos y un `estilo`: `movimiento` (continua), `bote` (ondulada), `pase` (discontinua), `tiro` o `limite`. Movimiento, bote y pase terminan en flecha; tiro lleva flecha doble; límite no lleva flecha. La leyenda se añade automáticamente.
+- En `toca-el-cono-y-sal` y `finaliza-ante-el-defensor-tardio`, las flechas discontinuas del panel de rotación indican el cambio de fila o papel, no un pase. En `get-open`, el tercer panel representa la entrega de balón en mano y el 1c1 posterior.
 
 El generador indica el archivo y la posición del campo si un JSON es inválido. Puede probarse con `node --test tests/pizarras.test.mjs`.
